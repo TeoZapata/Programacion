@@ -1,0 +1,26 @@
+/* src/assets/styles/stylePerfil.css */
+
+.App-container {
+  background-color: rgb(0, 0, 0);
+  background-image: url("https://images.pexels.com/photos/876453/pexels-photo-876453.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-direction: column;
+}
+
+.General-Container {
+  display: flex;
+  flex-direction: column;
+  background-color:rgb(212, 186, 210);
+  align-content: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px;
+  border-radius: 10px;
+  margin: 20px;
+}
