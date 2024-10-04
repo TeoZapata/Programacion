@@ -16,6 +16,8 @@ import {
   UserSearch,
   ContactRound,
 } from "lucide-react";
+import { Avatar, Image } from "@nextui-org/react";
+import fotoPerfil from "../images/Foto.jpeg";
 
 const NavbarComponente = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
@@ -43,7 +45,9 @@ const NavbarComponente = () => {
 
       <NavbarContent className="sm:hidden pr-3 w-46" justify="center">
         <NavbarBrand>
+          <Avatar size="xl" src={fotoPerfil} />
           <p className="font-bold text-inherit">
+            {" "}
             Ingeniero Electrico de Manizales
           </p>
         </NavbarBrand>
@@ -55,7 +59,7 @@ const NavbarComponente = () => {
             <HomeIcon />
             Inicio
           </Link>
-        </NavbarMenuItem >
+        </NavbarMenuItem>
         <NavbarMenuItem className="hover:text-pink-200">
           <Link to="/habilidades">
             <Award />

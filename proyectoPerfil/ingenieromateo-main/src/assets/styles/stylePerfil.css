@@ -14,9 +14,10 @@
 }
 
 .General-Container {
+  width: 100%;
   display: flex;
   flex-direction: column;
-  background-color:rgb(212, 186, 210);
+  background-color: rgb(212, 186, 210);
   align-content: center;
   justify-content: center;
   text-align: center;
