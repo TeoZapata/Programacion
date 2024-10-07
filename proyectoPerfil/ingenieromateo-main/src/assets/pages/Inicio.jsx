@@ -1,6 +1,3 @@
-import React from "react";
-import Proyecto from "./Proyectos";
-import { Wallpaper } from "lucide-react";
 import TrabajosCard from "../components/Card";
 
 export default function Inicio() {
@@ -26,7 +23,7 @@ export default function Inicio() {
         energéticos actuales.
       </p>
 
-      <div class="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-4">
         {TrabajosCard(
           "https://nextui.org/images/hero-card-complete.jpeg",
           "jaja"

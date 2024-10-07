@@ -1,4 +1,3 @@
-import React from "react";
 import "../styles/stylePerfil.css";
 const AcercaDeMi = () => {
   return (

@@ -7,7 +7,6 @@ import {
   Button,
   Card,
   CardBody,
-  CardHeader,
 } from "@nextui-org/react";
 
 const Contacto = () => {
@@ -89,6 +88,6 @@ const Contacto = () => {
       </Card>
     </div>
   );
-}
+};
 
-export default Contacto
+export default Contacto;
