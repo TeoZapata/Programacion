@@ -1,0 +1,67 @@
+,0
+0,Here
+1,'s a table summarizing the numerical data and their corresponding variables from the image:
+2,"
+
+| Variable                     | Value       | Unit     |
+|------------------------------|"
+3,"-------------|----------|
+| Número de Cuenta             | 448978708   |          |
+| Factura expedida el"
+4,"          | 29/OCT/2024 | Date     |
+| Fecha Máxima de Pago         | 29/NOV/2"
+5,"024 | Date     |
+| Estrato                       | 6           |          |
+| Consumo activa en kWh        | 268         | kWh      |
+| Lectura actual               | 58.0"
+6,"93      |          |
+| Lectura anterior             | 57.825      |          |
+| Factor multiplicación        | 1           |          |
+| Valor Total                  | 468."
+7,"874     | $        |
+| Valor Servicio de Energía    | 282.041     | $        |
+| Crédito PFS/Somos            | 0           | $        |
+| Otros Productos y/o Servicios | 0           | $        |
+| Impuesto"
+8," Alumbrado Público   | 48.448      | $        |
+| Aseo                         | 138.385     | $        |
+| Cod. Transformador           | C31386      |          |
+| Grupo Calidad                 | 3"
+9,"2          |          |
+| DIU                          | 69.435      |          |
+| PU                           | 38          |          |
+| DIUG                         | 105.5       |          |
+| RUG                          | 56.8        |          "
+10,"|
+| HC                           | 0           |          |
+| VC                           | 0           |          |
+| QC                           | 18          |          |
+| Consumo (Octubre)            | 262         |          |
+| Consumo (Diciembre)         | 23"
+11,"9         |          |
+| Consumo (Febrero)           | 281         |          |
+| Consumo (Abril)             | 251         |          |
+| Consumo (Junio)             | 201         |          |
+| Consumo (Agosto)            | "
+12,"279         |          |
+| Consumo (Octubre)            | 265         |          |
+| Kwh (Consumo activa)         | 268         | kWh      |
+| Valor (Consumo activa)       | 235.034     | $        "
+13,"|
+| Kwh (Contribucion activa)    | 268         | kWh      |
+| Valor (Contribucion activa)   | 47.007      | $        |
+| Generación                   | 360.2006    |          |
+|"
+14," Transmisión                  | 48.5517     |          |
+| Distribución                 | 207.3296    |          |
+| Tarifa Septiembre            | 876.9916    |          |
+| Comercialización             | 36"
+15,"3.3743    |          |
+| Pérdidas                     | 88.5114     |          |
+| Restricciones                | 11.0178     |          |
+| Documento equivalente        | 106526000"
+16,"   |          |
+
+
+This table only includes the clearly visible numerical values.  Some numbers are partially obscured or presented graphically making precise extraction difficult.
+"

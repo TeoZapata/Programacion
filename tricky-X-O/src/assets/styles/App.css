@@ -1,0 +1,22 @@
+.board {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  background-color: aquamarine;
+}
+.board-row {
+  display: flex;
+  margin: 2px;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+.Title-Board {
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+.square {
+  width: 50px;
+  height: 50px;
+}
