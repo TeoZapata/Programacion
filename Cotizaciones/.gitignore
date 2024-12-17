@@ -1,0 +1,41 @@
+# Directorios comunes para ignorar
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.vscode/
+.idea/
+build/
+dist/
+
+# Archivos específicos
+*.egg-info
+.eggs
+*.egg
+
+# Dependencias
+venv/
+.venv/
+env/
+.env/
+
+# Archivos de configuración (ajusta según sea necesario)
+local_settings.py
+db.sqlite3
+credentials.json
+
+# Archivos generados
+*.log
+*.pot
+*.mo
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+
+# Datos de prueba o archivos grandes
+data/*
+*.csv # O cualquier otro formato de datos que uses
+
+# Archivos temporales
+*.tmp
+*~
