@@ -1,76 +1,15 @@
 import sys
-import os
 import google.generativeai as genai
-from PyQt5.QtWidgets import (QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, 
-                             QLabel, QPushButton, QFileDialog, QTableWidget, 
-                             QTableWidgetItem, QMessageBox, QWidget, QDialog,
-                             QTabWidget, QMenuBar, QMenu, QAction, QStackedWidget)
-from PyQt5.QtGui import QPixmap, QFont, QIcon
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import (QApplication, QMainWindow, QVBoxLayout,QFileDialog,
+                             QWidget, QAction, QStackedWidget)
 from src.IniciarCotizaciones import IniciarCotizacionWindow
 from src.HistorialCotizaciones import HistorialCotizacionWindow
-
-
-
-
-
+from src.DBInversores import BDInversoresWindow
+from src.GenerarDocumentos import DocumentoGenerarWindow
 
 
 # Configura tu clave de API de Gemini
 GEMINI_API_KEY = 'AIzaSyCbjnUU79z4mnAo4VVa7QxLSLuOiYNNjlo'  # Reemplaza con tu clave real
-
-
-
-
-
-class BDInversoresWindow(QWidget):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        layout = QVBoxLayout()
-        
-        # Tabla de base de datos de inversores
-        self.table = QTableWidget()
-        self.table.setColumnCount(5)
-        self.table.setHorizontalHeaderLabels(['Nombre', 'Contacto', 'Inversión', 'Fecha', 'Estado'])
-        layout.addWidget(self.table)
-        
-        self.setLayout(layout)
-
-class DocumentoGenerarWindow(QWidget):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        layout = QVBoxLayout()
-        
-        # Componentes para generar documentos
-        titulo = QLabel("Generación de Documentos")
-        titulo.setStyleSheet("font-size: 18px; font-weight: bold;")
-        layout.addWidget(titulo)
-        
-        # Botones para diferentes tipos de documentos
-        doc_tipos = [
-            'Propuesta de Inversión',
-            'Contrato',
-            'Informe Financiero',
-            'Resumen Ejecutivo'
-        ]
-        
-        for doc in doc_tipos:
-            boton = QPushButton(doc)
-            boton.setStyleSheet("""
-                QPushButton {
-                    background-color: #2196F3;
-                    color: white;
-                    padding: 10px;
-                    margin: 5px;
-                    border-radius: 5px;
-                }
-                QPushButton:hover {
-                    background-color: #1976D2;
-                }
-            """)
-            layout.addWidget(boton)
-        
-        self.setLayout(layout)
 
 class ImageAnalysisApp(QMainWindow):
     def __init__(self):
