@@ -50,7 +50,7 @@ export const siteConfig = {
   links: {
     github: "https://github.com/TeoZapata",
     twitter: "https://twitter.com/getnextui",
-    docs: "https://nextui.org",
+    docs: "https://lucy.chec.com.co/lucy/chatWeb/",
     discord: "https://discord.gg/9b6yyZKmH4",
     sponsor: "https://patreon.com/jrgarciadev",
   },
