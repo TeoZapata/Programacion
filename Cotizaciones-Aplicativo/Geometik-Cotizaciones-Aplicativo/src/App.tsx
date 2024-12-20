@@ -16,7 +16,7 @@ function App() {
         path="/HistorialDeCotizaciones"
       />
       <Route element={<ListadoPreciosPage />} path="/ListadoDePrecios" />
-      <Route element={<AboutPage />} path="/AcercaDe" />
+      <Route element={<AboutPage />} path="/Aplicativos-Geometrik" />
     </Routes>
   );
 }

@@ -2,65 +2,53 @@ export type SiteConfig = typeof siteConfig;
 
 export const siteConfig = {
   name: "Vite + NextUI",
-  description: "Make beautiful websites regardless of your design experience.",
+  description: "Mejorando tiempos de trabajo con Geometrik.",
   navItems: [
     {
-      label: "Home",
+      label: "Inicio",
       href: "/",
     },
     {
-      label: "Docs",
-      href: "/docs",
+      label: "Crear Cotización",
+      href: "/IniciarCotizacion",
     },
     {
-      label: "Pricing",
-      href: "/pricing",
+      label: "Historial De Cotizaciones",
+      href: "/HistorialDeCotizaciones",
     },
     {
-      label: "Blog",
-      href: "/blog",
+      label: "Listado De Precios",
+      href: "/ListadoDePrecios",
     },
     {
-      label: "About",
-      href: "/about",
+      label: "Mas Aplicativos",
+      href: "/Aplicativos-Geometrik",
     },
   ],
   navMenuItems: [
     {
-      label: "Profile",
-      href: "/profile",
+      label: "Inicio",
+      href: "/",
     },
     {
-      label: "Dashboard",
-      href: "/dashboard",
+      label: "Crear Cotización",
+      href: "/IniciarCotizacion",
     },
     {
-      label: "Projects",
-      href: "/projects",
+      label: "Historial De Cotizaciones",
+      href: "/HistorialDeCotizaciones",
     },
     {
-      label: "Team",
-      href: "/team",
+      label: "Listado De Precios",
+      href: "/ListadoDePrecios",
     },
     {
-      label: "Calendar",
-      href: "/calendar",
-    },
-    {
-      label: "Settings",
-      href: "/settings",
-    },
-    {
-      label: "Help & Feedback",
-      href: "/help-feedback",
-    },
-    {
-      label: "Logout",
-      href: "/logout",
+      label: "Mas Aplicativos",
+      href: "/Aplicativos-Geometrik",
     },
   ],
   links: {
-    github: "https://github.com/nextui-org/nextui",
+    github: "https://github.com/TeoZapata",
     twitter: "https://twitter.com/getnextui",
     docs: "https://nextui.org",
     discord: "https://discord.gg/9b6yyZKmH4",
