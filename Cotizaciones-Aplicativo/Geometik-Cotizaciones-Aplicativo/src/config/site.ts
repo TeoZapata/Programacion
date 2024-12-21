@@ -1,7 +1,7 @@
 export type SiteConfig = typeof siteConfig;
 
 export const siteConfig = {
-  name: "Vite + NextUI",
+  name: "Geometrik-Aplicativos",
   description: "Mejorando tiempos de trabajo con Geometrik.",
   navItems: [
     {
