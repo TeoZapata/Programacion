@@ -52,12 +52,21 @@ class MainWindow(QMainWindow):
         # Añadir un espaciador al inicio para mejor distribución
         nav_layout.addStretch(1)
         
+        name = ['inventario', 'in-out', 'proyecto', 'clientes','graph']
+
         for i, section in enumerate(sections):
-            button = QPushButton(section)
+            button = QPushButton(f'{section}')
             button.setCheckable(True)
             button.setStyleSheet(BUTTON_TAB_MAIN)
             button.setFont(QFont("Fantasy", 15))  # Fuente más grande y legible
             #button.clicked.connect(lambda checked, idx=i: self.change_page(idx))
+
+            icon = QIcon(f'src/svg/{name[i]}.svg')
+            icon_label = QLabel()
+            icon_label.setPixmap(icon.pixmap(QSize(30, 30)))
+            icon_label.setAlignment(Qt.AlignVCenter)
+
+            nav_layout.addWidget(icon_label)
             nav_layout.addWidget(button)
             self.nav_buttons.append(button)
         

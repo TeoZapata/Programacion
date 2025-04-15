@@ -76,3 +76,30 @@ ENTRY_GENERAL_DESIGN= """
         background-color:#2c3e50; /* Slightly lighter background on focus */
     }
     """
+TAB_DESIGN_GENERAL= """
+            QTabBar::tab {
+            width: 160px;
+            background:#dcdcdc;
+            border: 1px solid #c0c0c0;
+            padding: 10px;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            color: #333;
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
+            }
+            QTabBar::tab:selected {
+            background: #99D6EA;
+            font-weight: bold;
+            color: #000;
+            }
+            QTabBar::tab:hover {
+            font-weight: bold;
+            background: #00BF6F;
+            color:#F1E6B2;
+            }
+            QTabWidget::pane {
+            border: 1px solid #c0c0c0;
+            border-radius: 5px;
+            }
+        """#5BC2E7

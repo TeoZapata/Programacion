@@ -87,12 +87,12 @@ class inventarioSection(QWidget):
         line_edit_section = QLineEdit()
         line_edit_section.setStyleSheet(ENTRY_GENERAL_DESIGN)
 
-        label_min_quantity = QLabel("Cantidad Minima")
+        label_min_quantity = QLabel("Cantidad Mínima")
         label_min_quantity.setStyleSheet(LABEL_GENERAL_DESIGN)
         line_edit_min_quantity = QLineEdit()
         line_edit_min_quantity.setStyleSheet(ENTRY_GENERAL_DESIGN)
 
-        label_max_quantity = QLabel("Cantidad Maxima")
+        label_max_quantity = QLabel("Cantidad Máxima")
         label_max_quantity.setStyleSheet(LABEL_GENERAL_DESIGN)
         line_edit_max_quantity = QLineEdit()
         line_edit_max_quantity.setStyleSheet(ENTRY_GENERAL_DESIGN)
@@ -117,7 +117,7 @@ class inventarioSection(QWidget):
         line_edit_total_price = QLineEdit()
         line_edit_total_price.setStyleSheet(ENTRY_GENERAL_DESIGN)
 
-        label_last_update = QLabel("Ultima Fecha de Actualizacion")
+        label_last_update = QLabel("Última Fecha de Actualización")
         label_last_update.setStyleSheet(LABEL_GENERAL_DESIGN)
         line_edit_last_update = QLineEdit()
         line_edit_last_update.setStyleSheet(ENTRY_GENERAL_DESIGN)

@@ -3,7 +3,8 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QFont, QIcon
 from PyQt5.QtWidgets import QTabWidget, QLabel
-from .TabsMateriales.salidaMaterial import salidaMaterial
+from .TabsMateriales import *
+from Style import *
 
 
 class materialesSection(QWidget):
@@ -14,21 +15,17 @@ class materialesSection(QWidget):
     def init_ui(self):
         # Layout principal
         self.layout = QVBoxLayout(self)
-        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.layout.setContentsMargins(10, 10, 10, 10)
         self.layout.setSpacing(0)
         # Contenedor de pestañas
         self.tab_widget = QTabWidget()
         self.layout.addWidget(self.tab_widget)
         # Agregar pestañas
-        self.tab_widget.addTab(salidaMaterial(), "Salida de Material")
-        self.add_tab("Entrada de Material")
-        self.add_tab("Devolución de Material")
-        self.add_tab("Historia")
-
-    def add_tab(self, tab_name):
-        tab = QWidget()
-        tab_layout = QVBoxLayout(tab)
-        tab_label = QLabel(tab_name)
-        tab_label.setAlignment(Qt.AlignCenter)
-        tab_layout.addWidget(tab_label)
-        self.tab_widget.addTab(tab, tab_name)
+        # Aplicar un estilo personalizado a las pestañas
+        self.tab_widget.setStyleSheet(TAB_DESIGN_GENERAL)
+        
+        self.tab_widget.addTab(SalidaMaterial(), "Salida de Material")
+        self.tab_widget.addTab(EntradaMaterial(), "Entrada de Material")
+        self.tab_widget.addTab(DevolucionMaterial(), "Devolución de Material")
+        self.tab_widget.addTab(HistorialMaterial(), "Historial de Material")
+        # Establecer el tamaño mínimo de la pestaña
