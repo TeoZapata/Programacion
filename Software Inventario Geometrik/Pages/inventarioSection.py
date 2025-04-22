@@ -63,77 +63,65 @@ class inventarioSection(QWidget):
         
         self.data_table.setColumnWidth(0, 20)  # Ancho de la columna ID
 
-        #agregar un Qfrom para la entrada de datos
+        # agregar un QForm para la entrada de datos
         entry_formulario = QFormLayout()
         entry_formulario.setSpacing(10)
 
-        label_name = QLabel("Nombre")
-        label_name.setStyleSheet(LABEL_GENERAL_DESIGN)
         line_edit_name = QLineEdit()
         line_edit_name.setStyleSheet(ENTRY_GENERAL_DESIGN)
+        line_edit_name.setPlaceholderText("Nombre")
 
-        label_barcode = QLabel("Codigo de Barras")
-        label_barcode.setStyleSheet(LABEL_GENERAL_DESIGN)
         line_edit_barcode = QLineEdit()
         line_edit_barcode.setStyleSheet(ENTRY_GENERAL_DESIGN)
+        line_edit_barcode.setPlaceholderText("Código de Barras")
 
-        label_supplier = QLabel("Proveedor")
-        label_supplier.setStyleSheet(LABEL_GENERAL_DESIGN)
         line_edit_supplier = QLineEdit()
         line_edit_supplier.setStyleSheet(ENTRY_GENERAL_DESIGN)
+        line_edit_supplier.setPlaceholderText("Proveedor")
 
-        label_section = QLabel("Sección")
-        label_section.setStyleSheet(LABEL_GENERAL_DESIGN)
         line_edit_section = QLineEdit()
         line_edit_section.setStyleSheet(ENTRY_GENERAL_DESIGN)
+        line_edit_section.setPlaceholderText("Sección")
 
-        label_min_quantity = QLabel("Cantidad Mínima")
-        label_min_quantity.setStyleSheet(LABEL_GENERAL_DESIGN)
         line_edit_min_quantity = QLineEdit()
         line_edit_min_quantity.setStyleSheet(ENTRY_GENERAL_DESIGN)
+        line_edit_min_quantity.setPlaceholderText("Cantidad Mínima")
 
-        label_max_quantity = QLabel("Cantidad Máxima")
-        label_max_quantity.setStyleSheet(LABEL_GENERAL_DESIGN)
         line_edit_max_quantity = QLineEdit()
         line_edit_max_quantity.setStyleSheet(ENTRY_GENERAL_DESIGN)
+        line_edit_max_quantity.setPlaceholderText("Cantidad Máxima")
 
-        label_available_quantity = QLabel("Cantidad Disponible")
-        label_available_quantity.setStyleSheet(LABEL_GENERAL_DESIGN)
         line_edit_available_quantity = QLineEdit()
         line_edit_available_quantity.setStyleSheet(ENTRY_GENERAL_DESIGN)
+        line_edit_available_quantity.setPlaceholderText("Cantidad Disponible")
 
-        label_unit = QLabel("Unidad de Medida")
-        label_unit.setStyleSheet(LABEL_GENERAL_DESIGN)
         line_edit_unit = QLineEdit()
         line_edit_unit.setStyleSheet(ENTRY_GENERAL_DESIGN)
+        line_edit_unit.setPlaceholderText("Unidad de Medida")
 
-        label_unit_price = QLabel("Precio Unitario")
-        label_unit_price.setStyleSheet(LABEL_GENERAL_DESIGN)
         line_edit_unit_price = QLineEdit()
         line_edit_unit_price.setStyleSheet(ENTRY_GENERAL_DESIGN)
+        line_edit_unit_price.setPlaceholderText("Precio Unitario")
 
-        label_total_price = QLabel("Precio Total")
-        label_total_price.setStyleSheet(LABEL_GENERAL_DESIGN)
         line_edit_total_price = QLineEdit()
         line_edit_total_price.setStyleSheet(ENTRY_GENERAL_DESIGN)
+        line_edit_total_price.setPlaceholderText("Precio Total")
 
-        label_last_update = QLabel("Última Fecha de Actualización")
-        label_last_update.setStyleSheet(LABEL_GENERAL_DESIGN)
         line_edit_last_update = QLineEdit()
         line_edit_last_update.setStyleSheet(ENTRY_GENERAL_DESIGN)
+        line_edit_last_update.setPlaceholderText("Última Fecha de Actualización")
 
-        entry_formulario.addRow(label_name, line_edit_name)
-        entry_formulario.addRow(label_barcode, line_edit_barcode)
-        entry_formulario.addRow(label_supplier, line_edit_supplier)
-        entry_formulario.addRow(label_section, line_edit_section)
-        entry_formulario.addRow(label_min_quantity, line_edit_min_quantity)
-        entry_formulario.addRow(label_max_quantity, line_edit_max_quantity)
-        entry_formulario.addRow(label_available_quantity, line_edit_available_quantity)
-        entry_formulario.addRow(label_unit, line_edit_unit)
-        entry_formulario.addRow(label_unit_price, line_edit_unit_price)
-        entry_formulario.addRow(label_total_price, line_edit_total_price)
-        entry_formulario.addRow(label_last_update, line_edit_last_update)
-        entry_formulario.setLabelAlignment(Qt.AlignLeft)  # Alinear etiquetas a la derecha
+        entry_formulario.addRow(line_edit_name)
+        entry_formulario.addRow(line_edit_barcode)
+        entry_formulario.addRow(line_edit_supplier)
+        entry_formulario.addRow(line_edit_section)
+        entry_formulario.addRow(line_edit_min_quantity)
+        entry_formulario.addRow(line_edit_max_quantity)
+        entry_formulario.addRow(line_edit_available_quantity)
+        entry_formulario.addRow(line_edit_unit)
+        entry_formulario.addRow(line_edit_unit_price)
+        entry_formulario.addRow(line_edit_total_price)
+        entry_formulario.addRow(line_edit_last_update)
         entry_formulario.setFormAlignment(Qt.AlignLeft)  # Alinear formulario a la izquierda
 
 

@@ -102,4 +102,28 @@ TAB_DESIGN_GENERAL= """
             border: 1px solid #c0c0c0;
             border-radius: 5px;
             }
-        """#5BC2E7
+        """
+
+COMBOBOX_GENERAL_DESIGN= """
+    QComboBox {
+        text-align: center;
+        font-size: 14px;
+        font-weight: 500;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: #ecf0f1; /* Light gray text for contrast */
+        background-color: #2c3e50; /* Dark blue-gray background */
+        border: 2px solid #34495e; /* Slightly lighter b#1E22AAorder for subtle contrast */
+        border-radius: 5px;} 
+    QComboBox:focus {
+        font-size: 16px; /* Slightly larger font size on focus */
+        color: #BBDDE6; /* Neon aquamarine text color */
+        border-radius: 8px;
+        border: 3px solid #BBDDE6; /* Neon aquamarine border */
+        background-color:#2c3e50; /* Slightly lighter background on focus */
+    }
+    QComboBox::drop-down {
+        color : #2c3e50;
+        border: none;
+    }
+    
+    """

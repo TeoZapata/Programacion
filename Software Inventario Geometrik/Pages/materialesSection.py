@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
-                             QHBoxLayout, QPushButton, QLabel, QStackedWidget)
+                             QHBoxLayout, QPushButton, QLabel, QStackedWidget,QSizePolicy)
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QFont, QIcon
 from PyQt5.QtWidgets import QTabWidget, QLabel
@@ -23,6 +23,8 @@ class materialesSection(QWidget):
         # Agregar pestañas
         # Aplicar un estilo personalizado a las pestañas
         self.tab_widget.setStyleSheet(TAB_DESIGN_GENERAL)
+        # hace que tab_widget ocupe todo el espacio disponible
+        self.tab_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         
         self.tab_widget.addTab(SalidaMaterial(), "Salida de Material")
         self.tab_widget.addTab(EntradaMaterial(), "Entrada de Material")
