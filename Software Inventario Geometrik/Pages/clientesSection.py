@@ -5,6 +5,7 @@ from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QFont, QIcon
 from Style import *
 from src.utils.getDate import *
+from src.utils.standarFunc import *
 
 
 class clientesSection(QWidget):
@@ -33,8 +34,14 @@ class clientesSection(QWidget):
         self.client_address_input.setPlaceholderText("Dirección del Cliente")
         self.client_address_input.setStyleSheet(ENTRY_GENERAL_DESIGN)
 
+
+        self.btn_clear = QPushButton("Limpiar")
+        self.btn_clear.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        self.btn_clear.clicked.connect(lambda: clear_entry([self.client_name_input, self.client_address_input, self.client_phone_input, self.client_email_input]))
+
         self.left_form_layout.addWidget(self.client_name_input)
         self.left_form_layout.addWidget(self.client_address_input)
+        self.left_form_layout.addWidget(self.btn_clear)
 
         # Columna derecha del formulario
         self.right_form_layout = QVBoxLayout()
@@ -96,11 +103,9 @@ class clientesSection(QWidget):
         self.edit_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
 
         self.delete_button = QPushButton("Eliminar")
-        self.delete_button.setIcon(QIcon("icons/delete.png"))
         self.delete_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
 
         self.save_button = QPushButton("Guardar")
-        self.save_button.setIcon(QIcon("icons/save.png"))
         self.save_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
 
         self.buttons_layout.addWidget(self.add_button)

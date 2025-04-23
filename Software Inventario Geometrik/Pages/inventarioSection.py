@@ -5,6 +5,8 @@ from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QFont, QIcon
 from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem
 from Style import *
+from src.utils.getDate import *
+from src.utils.standarFunc import *
 
 class inventarioSection(QWidget):
     def __init__(self, parent=None):
@@ -111,6 +113,14 @@ class inventarioSection(QWidget):
         line_edit_last_update.setStyleSheet(ENTRY_GENERAL_DESIGN)
         line_edit_last_update.setPlaceholderText("Última Fecha de Actualización")
 
+        bnt_clear = QPushButton("Limpiar")
+        bnt_clear.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        bnt_clear.setMinimumHeight(30)
+        bnt_clear.clicked.connect(lambda: clear_entry([line_edit_name, line_edit_barcode, line_edit_supplier, line_edit_section,    
+                                                      line_edit_min_quantity, line_edit_max_quantity, line_edit_available_quantity, 
+                                                      line_edit_unit, line_edit_unit_price, line_edit_total_price, line_edit_last_update]))
+         # Espacio a la izquierda
+
         entry_formulario.addRow(line_edit_name)
         entry_formulario.addRow(line_edit_barcode)
         entry_formulario.addRow(line_edit_supplier)
@@ -122,6 +132,7 @@ class inventarioSection(QWidget):
         entry_formulario.addRow(line_edit_unit_price)
         entry_formulario.addRow(line_edit_total_price)
         entry_formulario.addRow(line_edit_last_update)
+        entry_formulario.addRow(bnt_clear)
         entry_formulario.setFormAlignment(Qt.AlignLeft)  # Alinear formulario a la izquierda
 
 
