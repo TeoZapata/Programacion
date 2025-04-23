@@ -28,19 +28,19 @@ class proyectoSecion(QWidget):
         # Entrada para el nombre del proyecto
         self.project_name_input = QLineEdit()
         self.project_name_input.setPlaceholderText("Ingrese el nombre del proyecto")
-        self.project_name_input.setStyleSheet("border: 1px solid #ccc; border-radius: 5px;")
+        self.project_name_input.setStyleSheet(ENTRY_GENERAL_DESIGN)
         self.left_form_layout.addWidget(self.project_name_input)
 
         # Selección de cliente
         self.client_dropdown = QComboBox()
+        self.client_dropdown.setStyleSheet(COMBOBOX_GENERAL_DESIGN)
         self.client_dropdown.addItems(["Cliente 1", "Cliente 2", "Cliente 3", "Cliente 4"])
-        self.client_dropdown.setStyleSheet("border: 1px solid #ccc; border-radius: 5px;")
         self.left_form_layout.addWidget(self.client_dropdown)
 
         # Entrada para capacidad DC
         self.capacity_input = QLineEdit()
         self.capacity_input.setPlaceholderText("Ingrese la capacidad en kWp")
-        self.capacity_input.setStyleSheet("border: 1px solid #ccc; border-radius: 5px;")
+        self.capacity_input.setStyleSheet(ENTRY_GENERAL_DESIGN)
         self.left_form_layout.addWidget(self.capacity_input)
 
         # Columna derecha del formulario
@@ -49,20 +49,20 @@ class proyectoSecion(QWidget):
         # Entrada para ubicación del proyecto
         self.location_input = QLineEdit()
         self.location_input.setPlaceholderText("Ingrese la ubicación del proyecto")
-        self.location_input.setStyleSheet("border: 1px solid #ccc; border-radius: 5px;")
+        self.location_input.setStyleSheet(ENTRY_GENERAL_DESIGN)
         self.right_form_layout.addWidget(self.location_input)
 
         # Fecha de inicio del proyecto
         self.start_date_input = QLineEdit()
         self.start_date_input.setText(fecha_actual())
         self.start_date_input.setReadOnly(True)
-        self.start_date_input.setStyleSheet("padding:5px 10px ;border: 1px solid #ccc; border-radius: 5px;")
+        self.start_date_input.setStyleSheet(ENTRY_GENERAL_DESIGN)
         self.right_form_layout.addWidget(self.start_date_input)
 
         # Estado del proyecto
         self.status_dropdown = QComboBox()
         self.status_dropdown.addItems(["En Progreso", "Completado", "Pendiente"])
-        self.status_dropdown.setStyleSheet("border: 1px solid #ccc; border-radius: 5px;")
+        self.status_dropdown.setStyleSheet(COMBOBOX_GENERAL_DESIGN)
         self.right_form_layout.addWidget(self.status_dropdown)
 
         # Agregar columnas al formulario principal
@@ -100,21 +100,17 @@ class proyectoSecion(QWidget):
         self.buttons_layout = QHBoxLayout()
 
         self.add_button = QPushButton("Agregar")
-        self.add_button.setIcon(QIcon("icons/add.png"))
-        self.add_button.setStyleSheet(" background-color: #4CAF50; color: white; border-radius: 5px;")
-
+        self.add_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        
         self.edit_button = QPushButton("Editar")
-        self.edit_button.setIcon(QIcon("icons/edit.png"))
-        self.edit_button.setStyleSheet(" background-color: #FFC107; color: white; border-radius: 5px;")
-
+        self.edit_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        
         self.delete_button = QPushButton("Eliminar")
-        self.delete_button.setIcon(QIcon("icons/delete.png"))
-        self.delete_button.setStyleSheet(" background-color: #F44336; color: white; border-radius: 5px;")
-
+        self.delete_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        
         self.save_button = QPushButton("Guardar")
-        self.save_button.setIcon(QIcon("icons/save.png"))
-        self.save_button.setStyleSheet(" background-color: #2196F3; color: white; border-radius: 5px;")
-
+        self.save_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        
         self.buttons_layout.addWidget(self.add_button)
         self.buttons_layout.addWidget(self.edit_button)
         self.buttons_layout.addWidget(self.delete_button)

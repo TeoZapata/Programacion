@@ -61,6 +61,7 @@ ENTRY_GENERAL_DESIGN= """
     QLineEdit {
         text-align: center;
         font-size: 14px;
+        padding: 5px;
         font-weight: 500;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         color: #ecf0f1; /* Light gray text for contrast */
@@ -108,6 +109,7 @@ COMBOBOX_GENERAL_DESIGN= """
     QComboBox {
         text-align: center;
         font-size: 14px;
+        padding: 5px;
         font-weight: 500;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         color: #ecf0f1; /* Light gray text for contrast */
@@ -127,3 +129,14 @@ COMBOBOX_GENERAL_DESIGN= """
     }
     
     """
+QDATEEDIT_GENERAL_DESIGN= """
+    QDateEdit {
+        text-align: center;
+        font-size: 14px;
+        padding: 5px;
+        font-weight: 500;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: #ecf0f1; /* Light gray text for contrast */
+        background-color: #2c3e50; /* Dark blue-gray background */
+        border: 2px solid #34495e; /* Slightly lighter b#1E22AAorder for subtle contrast */
+        border-radius: 5px;} """

@@ -25,15 +25,14 @@ class clientesSection(QWidget):
         self.left_form_layout = QVBoxLayout()
 
         # Entrada para el nombre del cliente
-        # Entrada para el nombre del cliente y dirección (lado izquierdo)
         self.client_name_input = QLineEdit()
         self.client_name_input.setPlaceholderText("Nombre del Cliente")
-        self.client_name_input.setStyleSheet("border: 1px solid #ccc; border-radius: 5px;")
-        
+        self.client_name_input.setStyleSheet(ENTRY_GENERAL_DESIGN)
+
         self.client_address_input = QLineEdit()
         self.client_address_input.setPlaceholderText("Dirección del Cliente")
-        self.client_address_input.setStyleSheet("border: 1px solid #ccc; border-radius: 5px;")
-        
+        self.client_address_input.setStyleSheet(ENTRY_GENERAL_DESIGN)
+
         self.left_form_layout.addWidget(self.client_name_input)
         self.left_form_layout.addWidget(self.client_address_input)
 
@@ -43,12 +42,12 @@ class clientesSection(QWidget):
         # Entrada para el teléfono del cliente y correo electrónico (lado derecho)
         self.client_phone_input = QLineEdit()
         self.client_phone_input.setPlaceholderText("Teléfono del Cliente")
-        self.client_phone_input.setStyleSheet("border: 1px solid #ccc; border-radius: 5px;")
-        
+        self.client_phone_input.setStyleSheet(ENTRY_GENERAL_DESIGN)
+
         self.client_email_input = QLineEdit()
         self.client_email_input.setPlaceholderText("Correo Electrónico del Cliente")
-        self.client_email_input.setStyleSheet("border: 1px solid #ccc; border-radius: 5px;")
-        
+        self.client_email_input.setStyleSheet(ENTRY_GENERAL_DESIGN)
+
         self.right_form_layout.addWidget(self.client_phone_input)
         self.right_form_layout.addWidget(self.client_email_input)
 
@@ -56,8 +55,6 @@ class clientesSection(QWidget):
         self.form_layout.addLayout(self.left_form_layout)
         self.form_layout.addLayout(self.right_form_layout)
 
-        # Agregar columnas al formulario principal
-        self.form_layout.addLayout(self.left_form_layout)
         self.layout.addLayout(self.form_layout)
 
         # Tabla para mostrar proyectos registrados
@@ -68,7 +65,6 @@ class clientesSection(QWidget):
         self.projects_table = QTableWidget()
         self.projects_table.setColumnCount(6)
         self.projects_table.setHorizontalHeaderLabels(["Nombre", "Cliente", "Capacidad (kW)", "Ubicación", "Fecha Inicio", "Estado"])
-        self.projects_table.setStyleSheet("border: 1px solid #ccc; border-radius: 5px;")
         self.projects_table.setAlternatingRowColors(True)
         self.projects_table.setRowCount(4)
 
@@ -82,7 +78,9 @@ class clientesSection(QWidget):
 
         for row, data in enumerate(sample_data):
             for col, value in enumerate(data):
-                self.projects_table.setItem(row, col, QTableWidgetItem(value))
+                item = QTableWidgetItem(value)
+                item.setTextAlignment(Qt.AlignCenter)
+                self.projects_table.setItem(row, col, item)
 
         self.layout.addWidget(self.projects_table)
 
@@ -91,19 +89,19 @@ class clientesSection(QWidget):
 
         self.add_button = QPushButton("Agregar")
         self.add_button.setIcon(QIcon("icons/add.png"))
-        self.add_button.setStyleSheet(" background-color: #4CAF50; color: white; border-radius: 5px;")
+        self.add_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
 
         self.edit_button = QPushButton("Editar")
         self.edit_button.setIcon(QIcon("icons/edit.png"))
-        self.edit_button.setStyleSheet(" background-color: #FFC107; color: white; border-radius: 5px;")
+        self.edit_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
 
         self.delete_button = QPushButton("Eliminar")
         self.delete_button.setIcon(QIcon("icons/delete.png"))
-        self.delete_button.setStyleSheet(" background-color: #F44336; color: white; border-radius: 5px;")
+        self.delete_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
 
         self.save_button = QPushButton("Guardar")
         self.save_button.setIcon(QIcon("icons/save.png"))
-        self.save_button.setStyleSheet(" background-color: #2196F3; color: white; border-radius: 5px;")
+        self.save_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
 
         self.buttons_layout.addWidget(self.add_button)
         self.buttons_layout.addWidget(self.edit_button)
