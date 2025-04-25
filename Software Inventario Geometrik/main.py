@@ -5,11 +5,13 @@ from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QFont, QIcon
 from Pages import *
 from Style import *
+from DataBase import *
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        
+    
+
         # Configuración de la ventana principal
         self.setWindowTitle("Geometrik - Inventario Version 2.0")
         self.setWindowState(Qt.WindowMaximized)

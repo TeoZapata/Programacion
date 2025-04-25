@@ -1,18 +1,24 @@
 import sys
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
-                            QHBoxLayout, QPushButton, QLabel, QStackedWidget, QFormLayout, QLineEdit, QTextEdit)
+                            QHBoxLayout, QPushButton, QLabel, QStackedWidget, QFormLayout, QLineEdit, QFileDialog)
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QFont, QIcon
 from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem
 from Style import *
 from src.utils.getDate import *
 from src.utils.standarFunc import *
+from src.utils.importExcel import import_excel_and_store_inventory
+from DataBase.storeDB import *
 
 class inventarioSection(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.init_ui()
-        
+        self.db = storeBD()
+        self.db.iniciar_bd()
+        cargar_invenario(self)
+
+
     def init_ui(self):
         # Layout principal
         layout = QVBoxLayout(self)
@@ -33,6 +39,7 @@ class inventarioSection(QWidget):
         self.delete_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
         self.import_excel_button = QPushButton("Importar Excel")
         self.import_excel_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        self.import_excel_button.clicked.connect(self.get_import)  # Conectar el botón a la función de importación
         self.export_excel_button = QPushButton("Exportar Excel")
         self.export_excel_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
 
@@ -44,94 +51,68 @@ class inventarioSection(QWidget):
         # Crear la tabla para mostrar datos
 
         self.data_table = QTableWidget()
-        self.data_table.setColumnCount(8)  # Número de columnas
-        self.data_table.setHorizontalHeaderLabels(["ID",
-                                                    "Nombre",
-                                                    "Codigo\nde\nBarras",
-                                                    "Sección",
-                                                    "Cantidad\nDisponible",
-                                                    "Unidad\nde\nMedida",
-                                                    "Precio\nUnitario",
-                                                    "Precio\nTotal",
-                                                    "Fecha\nde\nActualizacion"])  # Encabezados de columna
-        self.data_table.setStyleSheet("background-color: #f9f9f9; border: 1px solid #ccc;")
+        self.data_table.setColumnCount(12)  # Número de columnas
+        self.data_table.setHorizontalHeaderLabels(["ID","Nombre",
+                                "Sección",
+                                "Código de Barras",
+                                "Cantidad",
+                                "Unidad",
+                                "Precio",
+                                "Precio Total",
+                                "Cantidad Mínima",
+                                "Cantidad Máxima",
+                                "Proveedor",
+                                "Fecha de Compra"])  # Encabezados de columna
         self.data_table.setEditTriggers(QTableWidget.NoEditTriggers)  # Hacer que la tabla sea de solo lectura
         self.data_table.setSelectionBehavior(QTableWidget.SelectRows)  # Seleccionar filas completas
+        #quita el borde de la tabla y la enumeracion de filas
+        self.data_table.setShowGrid(False)  # Quitar la cuadrícula
+        #no motrar la numeracion de filas8
+        self.data_table.verticalHeader().setVisible(False)
+        # Ocultar encabezado de filas
+        self.data_table.setRowCount(0)  # Inicialmente no hay filas
         # hacer que la tabla se organice dando click en el encabezado
         self.data_table.setSortingEnabled(True)
         #hacer que la tabla se ajuste al tamaño de la ventana y organice los encabezados que ocupen el mismo tamaño
         self.data_table.horizontalHeader().setStretchLastSection(True)  # Hacer que la última sección se estire
         #hacer que la tabla se ajuste al ancho
-        
         self.data_table.setColumnWidth(0, 20)  # Ancho de la columna ID
+
 
         # agregar un QForm para la entrada de datos
         entry_formulario = QFormLayout()
         entry_formulario.setSpacing(10)
+        # Crear un diccionario para los QLineEdit con sus respectivos placeholders
+        line_edits = {
+            "Nombre": None,
+            "Código de Barras": None,
+            "Proveedor": None,
+            "Sección": None,
+            "Cantidad Mínima": None,
+            "Cantidad Máxima": None,
+            "Cantidad Disponible": None,
+            "Unidad de Medida": None,
+            "Precio Unitario": None,
+            "Precio Total": None,
+            "Última Fecha de Actualización": None
+        }
 
-        line_edit_name = QLineEdit()
-        line_edit_name.setStyleSheet(ENTRY_GENERAL_DESIGN)
-        line_edit_name.setPlaceholderText("Nombre")
+        # Crear los QLineEdit dinámicamente
+        for placeholder, widget in line_edits.items():
+            line_edit = QLineEdit()
+            line_edit.setStyleSheet(ENTRY_GENERAL_DESIGN)
+            line_edit.setPlaceholderText(placeholder)
+            entry_formulario.addRow(line_edit)
+            line_edits[placeholder] = line_edit
 
-        line_edit_barcode = QLineEdit()
-        line_edit_barcode.setStyleSheet(ENTRY_GENERAL_DESIGN)
-        line_edit_barcode.setPlaceholderText("Código de Barras")
-
-        line_edit_supplier = QLineEdit()
-        line_edit_supplier.setStyleSheet(ENTRY_GENERAL_DESIGN)
-        line_edit_supplier.setPlaceholderText("Proveedor")
-
-        line_edit_section = QLineEdit()
-        line_edit_section.setStyleSheet(ENTRY_GENERAL_DESIGN)
-        line_edit_section.setPlaceholderText("Sección")
-
-        line_edit_min_quantity = QLineEdit()
-        line_edit_min_quantity.setStyleSheet(ENTRY_GENERAL_DESIGN)
-        line_edit_min_quantity.setPlaceholderText("Cantidad Mínima")
-
-        line_edit_max_quantity = QLineEdit()
-        line_edit_max_quantity.setStyleSheet(ENTRY_GENERAL_DESIGN)
-        line_edit_max_quantity.setPlaceholderText("Cantidad Máxima")
-
-        line_edit_available_quantity = QLineEdit()
-        line_edit_available_quantity.setStyleSheet(ENTRY_GENERAL_DESIGN)
-        line_edit_available_quantity.setPlaceholderText("Cantidad Disponible")
-
-        line_edit_unit = QLineEdit()
-        line_edit_unit.setStyleSheet(ENTRY_GENERAL_DESIGN)
-        line_edit_unit.setPlaceholderText("Unidad de Medida")
-
-        line_edit_unit_price = QLineEdit()
-        line_edit_unit_price.setStyleSheet(ENTRY_GENERAL_DESIGN)
-        line_edit_unit_price.setPlaceholderText("Precio Unitario")
-
-        line_edit_total_price = QLineEdit()
-        line_edit_total_price.setStyleSheet(ENTRY_GENERAL_DESIGN)
-        line_edit_total_price.setPlaceholderText("Precio Total")
-
-        line_edit_last_update = QLineEdit()
-        line_edit_last_update.setStyleSheet(ENTRY_GENERAL_DESIGN)
-        line_edit_last_update.setPlaceholderText("Última Fecha de Actualización")
-
+        # Botón para limpiar las entradas
         bnt_clear = QPushButton("Limpiar")
         bnt_clear.setStyleSheet(BUTTON_GENERAL_DESIGN)
         bnt_clear.setMinimumHeight(30)
-        bnt_clear.clicked.connect(lambda: clear_entry([line_edit_name, line_edit_barcode, line_edit_supplier, line_edit_section,    
-                                                      line_edit_min_quantity, line_edit_max_quantity, line_edit_available_quantity, 
-                                                      line_edit_unit, line_edit_unit_price, line_edit_total_price, line_edit_last_update]))
+        bnt_clear.clicked.connect(lambda: clear_entry(line_edits.values()))  # Conectar el botón a la función de limpieza
          # Espacio a la izquierda
 
-        entry_formulario.addRow(line_edit_name)
-        entry_formulario.addRow(line_edit_barcode)
-        entry_formulario.addRow(line_edit_supplier)
-        entry_formulario.addRow(line_edit_section)
-        entry_formulario.addRow(line_edit_min_quantity)
-        entry_formulario.addRow(line_edit_max_quantity)
-        entry_formulario.addRow(line_edit_available_quantity)
-        entry_formulario.addRow(line_edit_unit)
-        entry_formulario.addRow(line_edit_unit_price)
-        entry_formulario.addRow(line_edit_total_price)
-        entry_formulario.addRow(line_edit_last_update)
+  
         entry_formulario.addRow(bnt_clear)
         entry_formulario.setFormAlignment(Qt.AlignLeft)  # Alinear formulario a la izquierda
 
@@ -163,45 +144,32 @@ class inventarioSection(QWidget):
         informacion_almacen_layout = QHBoxLayout()
 
         # Información del inventario
-        label_precio_total = QLabel("Precio Total Almacén:")
-        label_precio_total.setStyleSheet(LABEL_GENERAL_DESIGN)
-        self.precio_total_edit = QLineEdit()
-        self.precio_total_edit.setReadOnly(True)
-        self.precio_total_edit.setStyleSheet(ENTRY_GENERAL_DESIGN)
+        labels_and_edits = [
+            ("Precio Total Almacén:", "precio_total_edit"),
+            ("Estado Rojo:", "estado_rojo_edit"),
+            ("Estado Naranja:", "estado_naranja_edit"),
+            ("Estado Verde:", "estado_verde_edit")
+        ]
 
-        label_estado_rojo = QLabel("Estado Rojo:")
-        label_estado_rojo.setStyleSheet(LABEL_GENERAL_DESIGN)
-        label_estado_rojo.setFont(QFont("Arial", 12))
-        self.estado_rojo_edit = QLineEdit()
-        self.estado_rojo_edit.setReadOnly(True)
-        self.estado_rojo_edit.setStyleSheet(ENTRY_GENERAL_DESIGN)
-
-        label_estado_naranja = QLabel("Estado Naranja:")
-        label_estado_naranja.setStyleSheet(LABEL_GENERAL_DESIGN)
-        self.estado_naranja_edit = QLineEdit()
-        self.estado_naranja_edit.setReadOnly(True)
-        self.estado_naranja_edit.setStyleSheet(ENTRY_GENERAL_DESIGN)
-
-        label_estado_verde = QLabel("Estado Verde:")
-        label_estado_verde.setStyleSheet(LABEL_GENERAL_DESIGN)
-        self.estado_verde_edit = QLineEdit()
-        self.estado_verde_edit.setReadOnly(True)
-        self.estado_verde_edit.setStyleSheet(ENTRY_GENERAL_DESIGN)
-
-        # Agregar widgets al layout
-        informacion_almacen_layout.addWidget(label_precio_total)
-        informacion_almacen_layout.addWidget(self.precio_total_edit)
-        informacion_almacen_layout.addWidget(label_estado_rojo)
-        informacion_almacen_layout.addWidget(self.estado_rojo_edit)
-        informacion_almacen_layout.addWidget(label_estado_naranja)
-        informacion_almacen_layout.addWidget(self.estado_naranja_edit)
-        informacion_almacen_layout.addWidget(label_estado_verde)
-        informacion_almacen_layout.addWidget(self.estado_verde_edit)
+        for label_text, edit_attr in labels_and_edits:
+            label = QLabel(label_text)
+            label.setStyleSheet(LABEL_GENERAL_DESIGN)
+            label.setFont(QFont("Arial", 12)) if "Estado" in label_text else None
+            edit = QLineEdit()
+            edit.setReadOnly(True)
+            edit.setStyleSheet(ENTRY_GENERAL_DESIGN)
+            setattr(self, edit_attr, edit)
+            informacion_almacen_layout.addWidget(label)
+            informacion_almacen_layout.addWidget(edit)
 
         layout.addLayout(search_and_crud_layout)
         layout.addLayout(layout_table)
         layout.addLayout(botton_box)
         layout.addLayout(informacion_almacen_layout)
-      
+
         pages_container = QStackedWidget()
         layout.addWidget(pages_container)
+
+
+    def get_import(self):
+        return import_excel_and_store_inventory(self.db)

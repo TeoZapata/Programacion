@@ -14,20 +14,36 @@ class storeBD:
             cur.execute('''CREATE TABLE IF NOT EXISTS inventario (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         nombre TEXT,
-                        barcode TEXT UNIQUE,
+                        seccion TEXT,
+                        barcode TEXT,
+                        cantidad INTEGER,
+                        unidad TEXT,
+                        precio INTEGER,
+                        precioTotal INTEGER,
+                        cantidad_minima INTEGER,
+                        cantidad_maxima INTEGER,
+                        proveedor TEXT,
+                        fecha_compra DATE
+                        )''')
+            cur.execute('''CREATE TABLE IF NOT EXISTS proyectos (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        nombre TEXT,
+                        cliente TEXT UNIQUE,
+                        ubicacion INTEGER,
+                        kwp INTEGER,
+                        fechaCreacion DATE
+                        )''')
+            cur.execute('''CREATE TABLE IF NOT EXISTS materialProyecto (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        proyecto TEXT,
+                        cliente TEXT,
+                        responsable TEXT,
+                        material TEXT,
                         cantidad INTEGER,
                         unidad TEXT,
                         precio INTEGER,
                         precioTotal INTEGER,
                         proveedor TEXT,
-                        fecha_compra DATE
-                        )''')
-            cur.execute('''CREATE TABLE IF NOT EXISTS materialProyecto (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        proyecto TEXT,
-                        responsable TEXT,
-                        material TEXT,
-                        cantidad INTEGER,
                         fecha DATE
                         )''')
             cur.execute(
@@ -41,7 +57,23 @@ class storeBD:
                     tipo TEXT
                 )'''
             )
+            cur.execute('''CREATE TABLE IF NOT EXISTS historial (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        proyecto TEXT,
+                        referencia TEXT,
+                        cliente TEXT,
+                        responsable TEXT,
+                        material TEXT,
+                        cantidad INTEGER,
+                        unidad TEXT,
+                        precio INTEGER,
+                        precioTotal INTEGER,
+                        proveedor TEXT,
+                        fecha DATE
+                        )''')            
+            
             conexion.commit()
+
         except sqlite3.Error as e:
             print(f"Error al iniciar la base de datos: {str(e)}")
         finally:
