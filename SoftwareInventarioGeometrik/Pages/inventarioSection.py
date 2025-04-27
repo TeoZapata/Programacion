@@ -1,14 +1,16 @@
 import sys
-from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
+from PyQt5.QtWidgets import (QWidget, QVBoxLayout, 
                             QHBoxLayout, QPushButton, QLabel, QStackedWidget, QFormLayout, QLineEdit, QFileDialog)
-from PyQt5.QtCore import Qt, QSize
-from PyQt5.QtGui import QFont, QIcon
-from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QFont
+from PyQt5.QtWidgets import QTableWidget
 from Style import *
 from src.utils.getDate import *
 from src.utils.standarFunc import *
 from src.utils.importExcel import import_excel_and_store_inventory
 from DataBase.storeDB import *
+
+
 
 class inventarioSection(QWidget):
     def __init__(self, parent=None):
@@ -28,26 +30,7 @@ class inventarioSection(QWidget):
         layout_table = QHBoxLayout()
         layout_table.setSpacing(10)
 
-        botton_box = QHBoxLayout()
-        botton_box.setSpacing(10)
-
-        self.add_button = QPushButton("Agregar")
-        self.add_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
-        self.edit_button = QPushButton("Editar")
-        self.edit_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
-        self.delete_button = QPushButton("Eliminar")
-        self.delete_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
-        self.import_excel_button = QPushButton("Importar Excel")
-        self.import_excel_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
-        self.import_excel_button.clicked.connect(self.get_import)  # Conectar el botón a la función de importación
-        self.export_excel_button = QPushButton("Exportar Excel")
-        self.export_excel_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
-
-        botton_box.addWidget(self.add_button)
-        botton_box.addWidget(self.edit_button)
-        botton_box.addWidget(self.delete_button)
-        botton_box.addWidget(self.import_excel_button)
-        botton_box.addWidget(self.export_excel_button)
+        
         # Crear la tabla para mostrar datos
 
         self.data_table = QTableWidget()
@@ -81,7 +64,7 @@ class inventarioSection(QWidget):
 
         # agregar un QForm para la entrada de datos
         entry_formulario = QFormLayout()
-        entry_formulario.setSpacing(10)
+        entry_formulario.setSpacing(9)
         # Crear un diccionario para los QLineEdit con sus respectivos placeholders
         line_edits = {
             "Nombre": None,
@@ -93,17 +76,16 @@ class inventarioSection(QWidget):
             "Cantidad Disponible": None,
             "Unidad de Medida": None,
             "Precio Unitario": None,
-            "Precio Total": None,
             "Última Fecha de Actualización": None
         }
 
         # Crear los QLineEdit dinámicamente
         for placeholder, widget in line_edits.items():
-            line_edit = QLineEdit()
-            line_edit.setStyleSheet(ENTRY_GENERAL_DESIGN)
-            line_edit.setPlaceholderText(placeholder)
-            entry_formulario.addRow(line_edit)
-            line_edits[placeholder] = line_edit
+            self.line_edit = QLineEdit()
+            self.line_edit.setStyleSheet(ENTRY_GENERAL_DESIGN)
+            self.line_edit.setPlaceholderText(placeholder)
+            entry_formulario.addRow(self.line_edit)
+            line_edits[placeholder] = self.line_edit
 
         # Botón para limpiar las entradas
         bnt_clear = QPushButton("Limpiar")
@@ -111,7 +93,31 @@ class inventarioSection(QWidget):
         bnt_clear.setMinimumHeight(30)
         bnt_clear.clicked.connect(lambda: clear_entry(line_edits.values()))  # Conectar el botón a la función de limpieza
          # Espacio a la izquierda
+        botton_box = QHBoxLayout()
+        botton_box.setSpacing(10)
 
+        self.add_button = QPushButton("Agregar")
+        self.add_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        self.add_button.clicked.connect(lambda: (agregar_producto(line_edits.values()), cargar_invenario(self)))  # Conectar el botón a la función de agregar producto y cargar inventario nuevamente
+        
+        self.edit_button = QPushButton("Editar")
+        self.edit_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        
+        self.delete_button = QPushButton("Eliminar")
+        self.delete_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        
+        self.import_excel_button = QPushButton("Importar Excel")
+        self.import_excel_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        self.import_excel_button.clicked.connect(self.get_import)  # Conectar el botón a la función de importación
+        
+        self.export_excel_button = QPushButton("Exportar Excel")
+        self.export_excel_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
+
+        botton_box.addWidget(self.add_button)
+        botton_box.addWidget(self.edit_button)
+        botton_box.addWidget(self.delete_button)
+        botton_box.addWidget(self.import_excel_button)
+        botton_box.addWidget(self.export_excel_button)
   
         entry_formulario.addRow(bnt_clear)
         entry_formulario.setFormAlignment(Qt.AlignLeft)  # Alinear formulario a la izquierda
@@ -172,4 +178,5 @@ class inventarioSection(QWidget):
 
 
     def get_import(self):
-        return import_excel_and_store_inventory(self.db)
+        import_excel_and_store_inventory(self.db)
+        cargar_invenario(self)
