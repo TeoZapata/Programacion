@@ -15,7 +15,7 @@ class storeBD:
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         nombre TEXT,
                         seccion TEXT,
-                        barcode TEXT,
+                        barcode VARCHAR(20) UNIQUE NOT NULL,
                         cantidad INTEGER,
                         unidad TEXT,
                         precio INTEGER,

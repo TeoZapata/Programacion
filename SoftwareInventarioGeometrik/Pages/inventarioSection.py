@@ -6,6 +6,7 @@ from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QTableWidget
 from Style import *
 from src.utils.getDate import *
+from src.utils.getCodeBar import *
 from src.utils.standarFunc import *
 from src.utils.importExcel import import_excel_and_store_inventory
 from DataBase.storeDB import *
@@ -60,51 +61,62 @@ class inventarioSection(QWidget):
         self.data_table.horizontalHeader().setStretchLastSection(True)  # Hacer que la última sección se estire
         #hacer que la tabla se ajuste al ancho
         self.data_table.setColumnWidth(0, 20)  # Ancho de la columna ID
-
+        self.data_table.doubleClicked.connect(lambda: doble_click(self))  # Desactivar la ordenación al hacer doble clic
 
         # agregar un QForm para la entrada de datos
         entry_formulario = QFormLayout()
         entry_formulario.setSpacing(9)
         # Crear un diccionario para los QLineEdit con sus respectivos placeholders
-        line_edits = {
+        self.line_edits = {
+            "ID": None,
             "Nombre": None,
-            "Código de Barras": None,
-            "Proveedor": None,
             "Sección": None,
-            "Cantidad Mínima": None,
-            "Cantidad Máxima": None,
+            "Código de Barras": None,
             "Cantidad Disponible": None,
             "Unidad de Medida": None,
             "Precio Unitario": None,
+            "Precio Total": None,
+            "Cantidad Mínima": None,
+            "Cantidad Máxima": None,
+            "Proveedor": None,
             "Última Fecha de Actualización": None
         }
-
+        
         # Crear los QLineEdit dinámicamente
-        for placeholder, widget in line_edits.items():
+        for placeholder, widget in self.line_edits.items():
             self.line_edit = QLineEdit()
             self.line_edit.setStyleSheet(ENTRY_GENERAL_DESIGN)
             self.line_edit.setPlaceholderText(placeholder)
             entry_formulario.addRow(self.line_edit)
-            line_edits[placeholder] = self.line_edit
-
+            self.line_edits[placeholder] = self.line_edit
+            # Configurar campos de solo lectura con estilos específicos
+            read_only_fields = ["Última Fecha de Actualización", "ID", "Precio Total", "Código de Barras"]
+            if placeholder in read_only_fields:
+                self.line_edit.setReadOnly(True)
+                self.line_edit.setStyleSheet(ENTRY_ONLY_READ_DESIGN)
+            if placeholder == "Código de Barras":
+                self.line_edit.setText(str(getCodeBar()))  # Generar código de barras automáticamente
+            
         # Botón para limpiar las entradas
         bnt_clear = QPushButton("Limpiar")
         bnt_clear.setStyleSheet(BUTTON_GENERAL_DESIGN)
         bnt_clear.setMinimumHeight(30)
-        bnt_clear.clicked.connect(lambda: clear_entry(line_edits.values()))  # Conectar el botón a la función de limpieza
+        bnt_clear.clicked.connect(lambda: clear_entry(self.line_edits.values()))  # Conectar el botón a la función de limpieza
          # Espacio a la izquierda
         botton_box = QHBoxLayout()
         botton_box.setSpacing(10)
 
         self.add_button = QPushButton("Agregar")
         self.add_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
-        self.add_button.clicked.connect(lambda: (agregar_producto(line_edits.values()), cargar_invenario(self)))  # Conectar el botón a la función de agregar producto y cargar inventario nuevamente
+        self.add_button.clicked.connect(lambda: (agregar_producto(self.line_edits.values()), cargar_invenario(self)))  # Conectar el botón a la función de agregar producto y cargar inventario nuevamente
         
         self.edit_button = QPushButton("Editar")
         self.edit_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        self.edit_button.clicked.connect(lambda: (editar_producto(self), cargar_invenario(self)))  # Conectar el botón a la función de editar producto y cargar inventario nuevamente
         
         self.delete_button = QPushButton("Eliminar")
         self.delete_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        self.delete_button.clicked.connect(lambda: (eliminar_producto(self), cargar_invenario(self)))  # Conectar el botón a la función de eliminar producto y cargar inventario nuevamente
         
         self.import_excel_button = QPushButton("Importar Excel")
         self.import_excel_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
