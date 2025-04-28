@@ -2,6 +2,7 @@ import pandas as pd
 from PyQt5.QtWidgets import QFileDialog, QProgressDialog, QMessageBox
 from PyQt5.QtCore import QThread, pyqtSignal, Qt
 from src.utils.getDate import fecha_actual
+from src.utils.getCodeBar import getCodeBar
 
 
 class ImportExcelThread(QThread):
@@ -28,7 +29,7 @@ class ImportExcelThread(QThread):
             for i, (_, row) in enumerate(df.iterrows()):
                 self.db.ejecutar_consulta(
                     "INSERT INTO inventario (nombre, seccion, barcode, cantidad, unidad, precio, precioTotal, cantidad_minima, cantidad_maxima, proveedor, fecha_compra) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                    (row['nombre'], row['seccion'], row['barcode'], row['cantidad'], row['unidad'], row['precio'], row['precioTotal'], row['cantidad_minima'], row['cantidad_maxima'], row['proveedor'], fecha_actual())
+                    (row['nombre'], row['seccion'], getCodeBar(), row['cantidad'], row['unidad'], row['precio'], row['precioTotal'], row['cantidad_minima'], row['cantidad_maxima'], row['proveedor'], fecha_actual())
                 )
                 # Emitir progreso
                 self.progress.emit(int((i + 1) / total_rows * 100))

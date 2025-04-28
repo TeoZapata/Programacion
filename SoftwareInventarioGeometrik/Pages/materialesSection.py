@@ -29,5 +29,7 @@ class materialesSection(QWidget):
         self.tab_widget.addTab(SalidaMaterial(), "Salida de Material")
         self.tab_widget.addTab(EntradaMaterial(), "Entrada de Material")
         self.tab_widget.addTab(DevolucionMaterial(), "Devolución de Material")
+        self.tab_widget.addTab(SubirListadoClickUp(), "Subir Listado de Material")
         self.tab_widget.addTab(HistorialMaterial(), "Historial de Material")
+
         # Establecer el tamaño mínimo de la pestaña

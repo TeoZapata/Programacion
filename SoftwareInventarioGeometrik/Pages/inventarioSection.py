@@ -9,6 +9,8 @@ from src.utils.getDate import *
 from src.utils.getCodeBar import *
 from src.utils.standarFunc import *
 from src.utils.importExcel import import_excel_and_store_inventory
+from src.utils.exportExcel import iniciar_exportacion
+from src.utils.calcularInventario import *
 from DataBase.storeDB import *
 
 
@@ -84,11 +86,19 @@ class inventarioSection(QWidget):
         
         # Crear los QLineEdit dinámicamente
         for placeholder, widget in self.line_edits.items():
+            # Crear QLabel con el nombre del placeholder
+            label = QLabel(placeholder)
+            label.setStyleSheet(LABEL_GENERAL_DESIGN)
+            
+            # Crear QLineEdit asociado
             self.line_edit = QLineEdit()
             self.line_edit.setStyleSheet(ENTRY_GENERAL_DESIGN)
             self.line_edit.setPlaceholderText(placeholder)
-            entry_formulario.addRow(self.line_edit)
+            
+            # Agregar QLabel y QLineEdit al formulario
+            entry_formulario.addRow(label, self.line_edit)
             self.line_edits[placeholder] = self.line_edit
+            
             # Configurar campos de solo lectura con estilos específicos
             read_only_fields = ["Última Fecha de Actualización", "ID", "Precio Total", "Código de Barras"]
             if placeholder in read_only_fields:
@@ -124,6 +134,7 @@ class inventarioSection(QWidget):
         
         self.export_excel_button = QPushButton("Exportar Excel")
         self.export_excel_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        self.export_excel_button.clicked.connect(self.get_export)  # Conectar el botón a la función de exportación
 
         botton_box.addWidget(self.add_button)
         botton_box.addWidget(self.edit_button)
@@ -161,6 +172,13 @@ class inventarioSection(QWidget):
         # Botones CRUD
         informacion_almacen_layout = QHBoxLayout()
 
+
+        btnActualizarEstado = QPushButton("Actualizar Estado")
+        btnActualizarEstado.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        btnActualizarEstado.setMinimumHeight(60)
+        btnActualizarEstado.clicked.connect(lambda: (iniciar_calculo_inventario(self), cargar_invenario(self)))  # Conectar el botón a la función de calcular inventario y cargar inventario nuevamente
+
+        
         # Información del inventario
         labels_and_edits = [
             ("Precio Total Almacén:", "precio_total_edit"),
@@ -180,6 +198,7 @@ class inventarioSection(QWidget):
             informacion_almacen_layout.addWidget(label)
             informacion_almacen_layout.addWidget(edit)
 
+        informacion_almacen_layout.addWidget(btnActualizarEstado)
         layout.addLayout(search_and_crud_layout)
         layout.addLayout(layout_table)
         layout.addLayout(botton_box)
@@ -192,3 +211,7 @@ class inventarioSection(QWidget):
     def get_import(self):
         import_excel_and_store_inventory(self.db)
         cargar_invenario(self)
+    def get_export(self):
+        iniciar_exportacion(self.db)
+        cargar_invenario(self)
+

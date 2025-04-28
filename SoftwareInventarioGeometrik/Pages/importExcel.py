@@ -3,6 +3,7 @@ import os
 import pandas as pd
 import sqlite3
 import threading
+from src.utils.getCodeBar import getCodeBar
 from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout, 
                              QPushButton, QFileDialog, QProgressBar, QLabel, 
                              QMessageBox, QSpinBox)
@@ -33,9 +34,9 @@ class ImportWorker(QThread):
                 return
                 
             # Verificar columnas necesarias
-            required_columns = ['nombre', 'seccion', 'barcode', 'cantidad', 'unidad', 
+            required_columns = ['nombre', 'seccion' ,'cantidad', 'unidad', 
                                'precio', 'precioTotal', 'cantidad_minima', 
-                               'cantidad_maxima', 'proveedor', 'fecha_compra']
+                               'cantidad_maxima', 'proveedor']
             
             # Renombrar columnas si es necesario (ajustar según formato de entrada)
             df.columns = df.columns.str.strip().str.lower()
@@ -78,21 +79,20 @@ class ImportWorker(QThread):
             for _, row in batch_df.iterrows():
                 record = (
                     row.get('nombre', ''),
-                    row.get('seccion', ''),
-                    row.get('barcode', ''),
+                    row.get('sección', ''),
                     float(row.get('cantidad', 0)),
                     row.get('unidad', ''),
                     float(row.get('precio', 0)),
-                    float(row.get('preciototal', 0)),
-                    float(row.get('cantidad_minima', 0)),
-                    float(row.get('cantidad_maxima', 0)),
-                    row.get('proveedor', ''),
-                    row.get('fecha_compra', '')
+                    float(row.get('precio total', 0)),
+                    float(row.get('cantidad mínima', 0)),
+                    float(row.get('cantidad máxima', 0)),
+                    row.get('proveedor', '')
                 )
                 records.append(record)
-                
+                print(f"Registro procesado: {record}")
             # Llamar a la función para insertar en la base de datos
             insert_db(records)
+        
             return True
         except Exception as e:
             print(f"Error en insert_batch_to_db: {e}")
@@ -290,8 +290,8 @@ def insert_db(records):
         INSERT INTO inventario (
             nombre, seccion, barcode, cantidad, unidad, 
             precio, precioTotal, cantidad_minima, cantidad_maxima, 
-            proveedor, fecha_compra
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            proveedor
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', records)
         
         conn.commit()

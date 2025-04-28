@@ -81,43 +81,43 @@ def get_available_lists(api_key):
         print(f"Error al obtener listas: {str(e)}")
         return None
 
-def print_available_lists(api_key):
+def print_available_lists(self, api_key):
     """
-    Imprime de manera formateada todas las listas disponibles
+    Muestra de manera formateada todas las listas disponibles utilizando componentes de la clase
     
     Args:
         api_key (str): La API key de ClickUp
     """
     data = get_available_lists(api_key)
-    
+    message = []
     if not data:
-        print("No se pudieron obtener las listas.")
+        message.append("No se pudieron obtener las listas.")
         return
     
-    print("\n=== LISTAS DISPONIBLES EN CLICKUP ===\n")
+    message.append("\n=== LISTAS DISPONIBLES EN CLICKUP ===\n")
     
     for team in data["teams"]:
-        print(f"📂 EQUIPO: {team['name']} (ID: {team['id']})")
+        message.append(f"📂 EQUIPO: {team['name']} (ID: {team['id']})")
         
         if not team["spaces"]:
-            print("  └─ No hay espacios en este equipo")
+            message.append("  └─ No hay espacios en este equipo")
             continue
             
         for space in team["spaces"]:
-            print(f"  ├─ 📁 ESPACIO: {space['name']} (ID: {space['id']})")
+            message.append(f"  ├─ 📁 ESPACIO: {space['name']} (ID: {space['id']})")
             
             if not space["lists"]:
-                print("  │  └─ No hay listas en este espacio")
+                message.append("  │  └─ No hay listas en este espacio")
                 continue
                 
             for i, list_item in enumerate(space["lists"]):
                 is_last = i == len(space["lists"]) - 1
                 prefix = "  │  └─" if is_last else "  │  ├─"
-                print(f"{prefix} 📋 LISTA: {list_item['name']} (ID: {list_item['id']})")
+                message.append(f"{prefix} 📋 LISTA: {list_item['name']} (ID: {list_item['id']})")
     
-    print("\n== EJEMPLO DE USO PARA CREAR TAREA ==")
-    print("Para crear una tarea, necesitas el ID de una lista. Por ejemplo:")
-    
+    message.append("\n== EJEMPLO DE USO PARA CREAR TAREA ==")
+    message.append("Para crear una tarea, necesitas el ID de una lista. Por ejemplo:")
+
     # Encontrar la primera lista disponible para el ejemplo
     example_list = None
     for team in data["teams"]:
@@ -127,32 +127,6 @@ def print_available_lists(api_key):
                 break
         if example_list:
             break
-    
-    if example_list:
-        print(f"""
-# Ejemplo para crear una tarea en la lista "{example_list['name']}"
-import requests
-
-API_KEY = "tu_api_key"  # Mejor usar variables de entorno
-headers = {{
-    "Authorization": API_KEY,
-    "Content-Type": "application/json"
-}}
-
-list_id = "{example_list['id']}"
-url = f"https://api.clickup.com/api/v2/list/{{list_id}}/task"
-
-payload = {{
-    "name": "Nueva tarea de prueba",
-    "description": "Esta es una tarea creada a través de la API"
-}}
-
-response = requests.post(url, headers=headers, json=payload)
-task = response.json()
-print(f"Tarea creada: {{task['name']}} (ID: {{task['id']}}")
-""")
-
-# Ejemplo de uso
-if __name__ == "__main__":
-    API_KEY = "pk_126014776_6XFCEVXQE0VRTDBMVKQBGJL1PA6YAI4M"  # En producción, usa variables de entorno
-    print_available_lists(API_KEY)
+    self.connection_status_label.setText("Estado: Conectado")
+    self.connection_status_label.setStyleSheet("QLabel { font-weight: bold; color: green; }")
+    self.api_info_display.setText("\n".join(message))

@@ -1,7 +1,7 @@
 import requests
 from datetime import datetime
 
-def crear_tarea(nombre_tarea, lista_id, api_token):
+def crear_tarea(self, nombre_tarea, descripcion ,lista_id, api_token):
     url = f"https://api.clickup.com/api/v2/list/{lista_id}/task"
     
     headers = {
@@ -24,7 +24,7 @@ def crear_tarea(nombre_tarea, lista_id, api_token):
         "priority": 2,
         "due_date": convertir_a_timestamp(fecha_vencimiento),
         "start_date": convertir_a_timestamp(fecha_inicio),
-        "description": "Esta es una tarea de ejemplo creada automáticamente.",
+        "description": descripcion,
         "assignees": [12345678],  # Example assignee ID
         "tags": ["ejemplo", "automático"],
         "custom_fields": [
@@ -49,9 +49,3 @@ def crear_tarea(nombre_tarea, lista_id, api_token):
         print("Tarea creada exitosamente:", response.json())
     else:
         print("Error al crear la tarea:", response.status_code, response.text)
-
-# Ejemplo de uso
-api_token = "pk_126014776_6XFCEVXQE0VRTDBMVKQBGJL1PA6YAI4M"
-lista_id = "901311099260"
-nombre_tarea = "Tarea de ejemplo completa"
-crear_tarea(nombre_tarea, lista_id, api_token)
