@@ -5,6 +5,7 @@ from PyQt5.QtGui import QFont, QIcon
 from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem
 from Style import *
 from src.utils.getDate import fecha_actual
+from DataBase.managerInventario import *
 
 
 class SalidaMaterial(QWidget):
@@ -57,36 +58,61 @@ class SalidaMaterial(QWidget):
         proyect_line.addWidget(self.entry_ubicacion, 1)
         proyect_line.addWidget(self.entry_fecha_Actual, 1)
 
+        self.entry_buscar_inventario = QLineEdit()
+        self.entry_buscar_inventario.setPlaceholderText("Buscar Proyecto")
+        self.entry_buscar_inventario.setStyleSheet(ENTRY_GENERAL_DESIGN)
+        self.entry_buscar_inventario.textChanged.connect(self.buscar_inventario)
+
+    # Agrega los resultados al QComboBox
+
+        
         self.layout.addLayout(proyect_line)
+        self.layout.addWidget(self.entry_buscar_inventario)
+
+        # Layout horizontal para las tablas
+        tables_layout = QHBoxLayout()
+        tables_layout.setSpacing(10)
 
         # Tabla de materiales disponibles
-        table_layout = QVBoxLayout()
-        table_layout.setSpacing(10)
+        available_table_layout = QVBoxLayout()
+        available_table_layout.setSpacing(10)
 
-        table_title = QLabel("Materiales Disponibles")
-        table_title.setAlignment(Qt.AlignLeft)
-        table_title.setFont(QFont("Arial", 14, QFont.Bold))
-        table_layout.addWidget(table_title)
+        available_table_title = QLabel("Materiales Disponibles")
+        available_table_title.setAlignment(Qt.AlignLeft)
+        available_table_title.setFont(QFont("Arial", 14, QFont.Bold))
+        available_table_layout.addWidget(available_table_title)
 
-        # Crear la tabla de materiales disponibles
         self.table = QTableWidget()
-        self.table.setColumnCount(6)  # Número de columnas
-        self.table.setHorizontalHeaderLabels(["ID", "Nombre", "Cantidad", "Unidad", "Descripción", "Seleccionar"])
-        self.table.setRowCount(0)  # Inicialmente sin filas
+        self.table.setColumnCount(7)
+        self.table.setHorizontalHeaderLabels(["ID", "Nombre", "Cantidad\nDisponible", "Unidad", "Precio Unitario", "Precio Total", "Seleccionar"])
+        self.table.setRowCount(0)
+        self.table.setEditTriggers(QTableWidget.NoEditTriggers)  # Hacer que la tabla sea de solo lectura
+        self.table.setSelectionBehavior(QTableWidget.SelectRows)  # Seleccionar filas completas
+        #quita el borde de la tabla y la enumeracion de filas
+        self.table.setShowGrid(False)  # Quitar la cuadrícula
+        #no motrar la numeracion de filas8
+        self.table.verticalHeader().setVisible(False)
+        self.table.setAlternatingRowColors(True)  # Alternar colores de fila+
+        # 
+        # Ocultar encabezado de filas
+        self.table.setRowCount(0)  # Inicialmente no hay filas
+        # hacer que la tabla se organice dando click en el encabezado
+        #hacer que la tabla se ajuste al tamaño de la ventana y organice los encabezados que ocupen el mismo tamaño
+        #hacer que la tabla se ajuste al ancho
+        self.table.setColumnWidth(0, 20)
 
-        # Ajustar el comportamiento de las columnas
+        self.table.setColumnWidth(0, 60)
+        self.table.setColumnWidth(1, 200)
+        self.table.setColumnWidth(2, 120)
+        self.table.setColumnWidth(3, 100)
+        self.table.setColumnWidth(4, 120)
+        self.table.setColumnWidth(5, 120)
+        self.table.setColumnWidth(6, 100)
+
         self.table.horizontalHeader().setStretchLastSection(True)
 
-        # Agregar una fila de ejemplo con un checkbox en la columna "Seleccionar"
-        self.table.setRowCount(1)
-        checkbox_item = QTableWidgetItem()
-        checkbox_item.setFlags(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)
-        checkbox_item.setCheckState(Qt.Unchecked)
-        self.table.setItem(0, 5, checkbox_item)
-
-        table_layout.addWidget(self.table)
-
-        self.layout.addLayout(table_layout)
+        available_table_layout.addWidget(self.table)
+        tables_layout.addLayout(available_table_layout)
 
         # Tabla de materiales seleccionados
         selected_table_layout = QVBoxLayout()
@@ -97,18 +123,22 @@ class SalidaMaterial(QWidget):
         selected_table_title.setFont(QFont("Arial", 14, QFont.Bold))
         selected_table_layout.addWidget(selected_table_title)
 
-        # Crear la tabla de materiales seleccionados
         self.selected_table = QTableWidget()
-        self.selected_table.setColumnCount(6)  # Número de columnas
-        self.selected_table.setHorizontalHeaderLabels(["ID", "Nombre", "Cantidad Seleccionada", "Unidad", "Descripción", "Seleccionar"])
-        self.selected_table.setRowCount(0)  # Inicialmente sin filas
+        self.selected_table.setColumnCount(7)
+        self.selected_table.setHorizontalHeaderLabels(["ID", "Nombre", "Cantidad Seleccionada", "Unidad", 'Precio Unitario', 'Precio Total', "Quitar"])
+        self.selected_table.setRowCount(0)
 
-        # Ajustar el comportamiento de las columnas
+        self.selected_table.setColumnWidth(0, 50)
+        self.selected_table.setColumnWidth(5, 50)
+        self.selected_table.setColumnWidth(6, 50)
+
         self.selected_table.horizontalHeader().setStretchLastSection(True)
 
         selected_table_layout.addWidget(self.selected_table)
+        tables_layout.addLayout(selected_table_layout)
 
-        self.layout.addLayout(selected_table_layout)
+        # Agregar el layout horizontal de tablas al layout principal
+        self.layout.addLayout(tables_layout)
 
         # Botones de acción
         button_layout = QHBoxLayout()
@@ -116,11 +146,20 @@ class SalidaMaterial(QWidget):
 
         self.btn_limpiar = QPushButton("Limpiar")
         self.btn_limpiar.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        self.btn_limpiar.clicked.connect(self.select_producto)
 
         self.btn_generar_recibo = QPushButton("Generar Recibo de Salida")
         self.btn_generar_recibo.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        self.btn_generar_recibo.clicked.connect(self.imprimir_tabla)
 
         button_layout.addWidget(self.btn_limpiar)
         button_layout.addWidget(self.btn_generar_recibo)
 
         self.layout.addLayout(button_layout)
+    def imprimir_tabla(self):
+        getManagerInventario(self)
+    def select_producto(self):
+        updateSelectedTable(self)
+    def buscar_inventario(self, text):
+        filterTable(self, text)
+        
