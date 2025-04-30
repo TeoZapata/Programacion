@@ -99,8 +99,6 @@ class SalidaMaterial(QWidget):
         # hacer que la tabla se organice dando click en el encabezado
         #hacer que la tabla se ajuste al tamaño de la ventana y organice los encabezados que ocupen el mismo tamaño
         #hacer que la tabla se ajuste al ancho
-        self.table.setColumnWidth(0, 20)
-
         self.table.setColumnWidth(0, 60)
         self.table.setColumnWidth(1, 200)
         self.table.setColumnWidth(2, 120)
@@ -127,6 +125,18 @@ class SalidaMaterial(QWidget):
         self.selected_table.setColumnCount(7)
         self.selected_table.setHorizontalHeaderLabels(["ID", "Nombre", "Cantidad Seleccionada", "Unidad", 'Precio Unitario', 'Precio Total', "Quitar"])
         self.selected_table.setRowCount(0)
+        
+        self.selected_table.setEditTriggers(QTableWidget.NoEditTriggers)  # Hacer que la tabla sea de solo lectura
+        self.selected_table.setSelectionBehavior(QTableWidget.SelectRows)  # Seleccionar filas completas
+        #quita el borde de la tabla y la enumeracion de filas
+        self.selected_table.setShowGrid(False)  # Quitar la cuadrícula
+        #no motrar la numeracion de filas8
+        self.selected_table.verticalHeader().setVisible(False)
+        self.selected_table.setAlternatingRowColors(True)  # Alternar colores de fila+
+        # 
+        # Ocultar encabezado de filas
+        self.selected_table.setRowCount(0)  
+        
 
         self.selected_table.setColumnWidth(0, 50)
         self.selected_table.setColumnWidth(5, 50)

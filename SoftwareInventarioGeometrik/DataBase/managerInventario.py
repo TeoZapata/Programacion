@@ -1,6 +1,6 @@
 
 from DataBase.storeDB import storeBD
-from PyQt5.QtWidgets import QTableWidgetItem, QTableWidget, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QTableWidgetItem, QInputDialog, QMessageBox, QWidget
 from PyQt5.QtCore import Qt
 
 
@@ -58,16 +58,50 @@ def getManagerInventario(self):
                 
                 # Add a checkbox for the "Seleccionar" column
                 checkbox_item = QTableWidgetItem()
-                checkbox_item.setFlags(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)
                 checkbox_item.setCheckState(Qt.Unchecked)
-                self.table.setItem(row_position, 6, checkbox_item) 
+
                 
-                # Add an editable field for the quantity to withdraw
-                quantity_item = QTableWidgetItem()
-                quantity_item.setFlags(Qt.ItemIsEditable | Qt.ItemIsEnabled)
+                self.table.setItem(row_position, 6, checkbox_item)
+                
+                # Connect the checkbox state change to updateSelectedTable
+                
+            self.table.itemChanged.connect(lambda item: ventana_selec_cantidad(self, item) )  # Connect itemChanged to the function
 
-                self.table.setItem(row_position, 7, quantity_item)  # Editable quantity column
+def ventana_selec_cantidad(self, item):
+    """Se abre una ventana para elegir la cantidad cuando se selecciona el checkbox"""
+    # Obtener información del material seleccionado
+    nombre_item = self.table.item(item.row(), 1)  # Nombre del material
+    cantidad_disponible_item = self.table.item(item.row(), 2)  # Cantidad disponible
+    unidad_item = self.table.item(item.row(), 3)  # Unidad de medida
 
+    if nombre_item and cantidad_disponible_item and unidad_item:
+        nombre = nombre_item.text()
+        cantidad_disponible = cantidad_disponible_item.text()
+        unidad = unidad_item.text()
+
+        # Crear una ventana emergente para elegir la cantidad
+        cantidad, ok = QInputDialog.getInt(
+            self,
+            "Seleccione Cantidad",
+            f"Cantidad disponible para {nombre}: {cantidad_disponible} {unidad}\nIngrese la cantidad a retirar:",
+            1,  # Valor inicial
+            1,  # Valor mínimo
+            int(cantidad_disponible),  # Valor máximo
+            1  # Incremento
+        )
+        
+        # Add the selected item to the selected_table
+        row_position = self.selected_table.rowCount()
+        self.selected_table.insertRow(row_position)
+        
+        # Copy relevant columns from the main table to the selected_table
+        self.selected_table.setItem(row_position, 0, QTableWidgetItem(self.table.item(item.row(), 0).text()))  # ID
+        self.selected_table.setItem(row_position, 1, QTableWidgetItem(nombre))  # Nombre
+        self.selected_table.setItem(row_position, 2, QTableWidgetItem(str(cantidad)))  # Cantidad seleccionada
+        self.selected_table.setItem(row_position, 3, QTableWidgetItem(unidad))  # Unidad
+        self.selected_table.setItem(row_position, 4, QTableWidgetItem(self.table.item(item.row(), 4).text()))  # Precio Unitario
+        self.selected_table.setItem(row_position, 5, QTableWidgetItem(self.table.item(item.row(), 5).text()))  # Precio Total
+     
 
 def updateSelectedTable(self):
             """Update the selected_table with items that are checked in the main table."""
