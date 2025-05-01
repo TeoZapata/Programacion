@@ -156,20 +156,17 @@ class SalidaMaterial(QWidget):
 
         self.btn_limpiar = QPushButton("Limpiar")
         self.btn_limpiar.setStyleSheet(BUTTON_GENERAL_DESIGN)
-        self.btn_limpiar.clicked.connect(self.select_producto)
 
-        self.btn_generar_recibo = QPushButton("Generar Recibo de Salida")
+        self.btn_generar_recibo = QPushButton("Actualizar Tabla")
         self.btn_generar_recibo.setStyleSheet(BUTTON_GENERAL_DESIGN)
-        self.btn_generar_recibo.clicked.connect(self.imprimir_tabla)
+        self.btn_generar_recibo.clicked.connect(lambda: getManagerInventario(self))
 
-        button_layout.addWidget(self.btn_limpiar)
         button_layout.addWidget(self.btn_generar_recibo)
+        button_layout.addWidget(self.btn_limpiar)
 
         self.layout.addLayout(button_layout)
-    def imprimir_tabla(self):
-        getManagerInventario(self)
-    def select_producto(self):
-        updateSelectedTable(self)
+        
+
     def buscar_inventario(self, text):
         filterTable(self, text)
         

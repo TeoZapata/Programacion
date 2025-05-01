@@ -1,12 +1,11 @@
 import sys
-import google.generativeai as genai
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QVBoxLayout,QFileDialog,
                              QWidget, QAction, QStackedWidget)
 from src.IniciarCotizaciones import IniciarCotizacionWindow
 from src.HistorialCotizaciones import HistorialCotizacionWindow
 from src.DBInversores import BDInversoresWindow
 from src.GenerarDocumentos import DocumentoGenerarWindow
-
+import google.generativeai as genai
 
 # Configura tu clave de API de Gemini
 GEMINI_API_KEY = 'AIzaSyCbjnUU79z4mnAo4VVa7QxLSLuOiYNNjlo'  # Reemplaza con tu clave real
@@ -21,7 +20,6 @@ class ImageAnalysisApp(QMainWindow):
         """Configurar cliente de Gemini"""
         genai.configure(api_key=GEMINI_API_KEY)
         self.model = genai.GenerativeModel('gemini-1.5-flash')
-
     def initUI(self):
         """Inicializar la interfaz de usuario"""
         self.setWindowTitle('Sistema de Gestión de Inversiones')

@@ -1,8 +1,9 @@
 
 from DataBase.storeDB import storeBD
-from PyQt5.QtWidgets import QTableWidgetItem, QInputDialog, QMessageBox, QWidget
+from PyQt5.QtWidgets import QTableWidgetItem, QInputDialog, QPushButton, QWidget
 from PyQt5.QtCore import Qt
-
+from PyQt5.QtCore import QThread, pyqtSignal
+import numpy as np
 
 class ManagerInventario():
     def __init__(self, parent=None):
@@ -35,50 +36,73 @@ class ManagerInventario():
         print(dato)
 
         return dato
+class DatabaseThread(QThread):
+    data_fetched = pyqtSignal(list)  # Signal to emit the fetched data
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.db = storeBD()
+
+
+    def run(self):
+        # Fetch data from the database in a separate thread
+        datos = self.db.ejecutar_consulta("SELECT * FROM inventario WHERE cantidad > 0")
+        self.data_fetched.emit(datos)  # Emit the fetched data
+
+
 def getManagerInventario(self):
-            db = storeBD()
-            datos = db.ejecutar_consulta("SELECT * FROM inventario WHERE cantidad > 0")
-            print(datos)
-            
-            # Clear the table before inserting new rows
-            self.table.setRowCount(0)
-            
-            for dato in datos:
-                row_position = self.table.rowCount()
-                self.table.insertRow(row_position)
-                
-                # Assuming the columns are in the following order in the database:
-                # ID, Nombre, Cantidad Disponible, Unidad, Precio Unitario, Precio Total
-                self.table.setItem(row_position, 0, QTableWidgetItem(str(dato[0])))  # ID
-                self.table.setItem(row_position, 1, QTableWidgetItem(dato[1]))       # Nombre
-                self.table.setItem(row_position, 2, QTableWidgetItem(str(dato[4])))  # Cantidad Disponible
-                self.table.setItem(row_position, 3, QTableWidgetItem(dato[5]))       # Unidad
-                self.table.setItem(row_position, 4, QTableWidgetItem(str(dato[6])))  # Precio Unitario
-                self.table.setItem(row_position, 5, QTableWidgetItem(str(dato[7])))  # Precio Total
-                
-                # Add a checkbox for the "Seleccionar" column
-                checkbox_item = QTableWidgetItem()
-                checkbox_item.setCheckState(Qt.Unchecked)
+    def update_table(datos):
+        """Update the table with the fetched data."""
+        self.table.blockSignals(True)  # Temporarily block signals to avoid triggering during updates
 
-                
-                self.table.setItem(row_position, 6, checkbox_item)
-                
-                # Connect the checkbox state change to updateSelectedTable
-                
-            self.table.itemChanged.connect(lambda item: ventana_selec_cantidad(self, item) )  # Connect itemChanged to the function
+        # Clear the table before inserting new data
+        self.table.setRowCount(0)
 
+        for dato in datos:
+            row_position = self.table.rowCount()
+            self.table.insertRow(row_position)
+
+            # Assuming the columns are in the following order in the database:
+            # ID, Nombre, Cantidad Disponible, Unidad, Precio Unitario, Precio Total
+            self.table.setItem(row_position, 0, QTableWidgetItem(str(dato[0])))  # ID
+            self.table.setItem(row_position, 1, QTableWidgetItem(dato[1]))       # Nombre
+            self.table.setItem(row_position, 2, QTableWidgetItem(str(dato[4])))  # Cantidad Disponible
+            self.table.setItem(row_position, 3, QTableWidgetItem(dato[5]))       # Unidad
+            self.table.setItem(row_position, 4, QTableWidgetItem(str(dato[6])))  # Precio Unitario
+            self.table.setItem(row_position, 5, QTableWidgetItem(str(dato[7])))  # Precio Total
+
+            # Add a checkbox for the "Seleccionar" column
+            self.checkBox_item = QTableWidgetItem()
+            self.checkBox_item.setCheckState(Qt.Unchecked)
+            self.table.setItem(row_position, 6, self.checkBox_item)
+
+        self.table.blockSignals(False)  # Re-enable signals after updates
+        # Ensure the signal is connected only once
+        if not hasattr(self, '_item_changed_connected') or not self._item_changed_connected:
+            self.table.itemChanged.connect(lambda item: 
+            ventana_selec_cantidad(self, item) if item.column() == 6 and item.checkState() == Qt.Checked else None
+            )
+            self._item_changed_connected = True
+
+    # Create and start the database thread
+    self.db_thread = DatabaseThread(self)
+    self.db_thread.data_fetched.connect(update_table)  # Connect the signal to update the table
+    self.db_thread.start()
+    
 def ventana_selec_cantidad(self, item):
     """Se abre una ventana para elegir la cantidad cuando se selecciona el checkbox"""
     # Obtener información del material seleccionado
     nombre_item = self.table.item(item.row(), 1)  # Nombre del material
     cantidad_disponible_item = self.table.item(item.row(), 2)  # Cantidad disponible
     unidad_item = self.table.item(item.row(), 3)  # Unidad de medida
+    precio_unitario_item = self.table.item(item.row(), 4)  # Precio Unitario
 
     if nombre_item and cantidad_disponible_item and unidad_item:
         nombre = nombre_item.text()
         cantidad_disponible = cantidad_disponible_item.text()
         unidad = unidad_item.text()
-
+        precio_unitario = float(precio_unitario_item.text())
+        
         # Crear una ventana emergente para elegir la cantidad
         cantidad, ok = QInputDialog.getInt(
             self,
@@ -90,39 +114,34 @@ def ventana_selec_cantidad(self, item):
             1  # Incremento
         )
         
-        # Add the selected item to the selected_table
-        row_position = self.selected_table.rowCount()
-        self.selected_table.insertRow(row_position)
+        if ok:    # Add the selected item to the selected_table
+            row_position = self.selected_table.rowCount()
+            self.selected_table.insertRow(row_position)
+            precio_total = str(round(precio_unitario * cantidad, 2))  # Calculate total price
+            # Copy relevant columns from the main table to the selected_table
+            self.selected_table.setItem(row_position, 0, QTableWidgetItem(self.table.item(item.row(), 0).text()))  # ID
+            self.selected_table.setItem(row_position, 1, QTableWidgetItem(nombre))  # Nombre
+            self.selected_table.setItem(row_position, 2, QTableWidgetItem(str(cantidad)))  # Cantidad seleccionada
+            self.selected_table.setItem(row_position, 3, QTableWidgetItem(unidad))  # Unidad
+            self.selected_table.setItem(row_position, 4, QTableWidgetItem(self.table.item(item.row(), 4).text()))  # Precio Unitario
+            self.selected_table.setItem(row_position, 5, QTableWidgetItem(precio_total))
+            
+            # Precio Total
+            remove_button = QPushButton("Quitar")
+            remove_button.clicked.connect(lambda:limpiar_tabla(self))  # Connect to remove_item
+            self.selected_table.setCellWidget(row_position, 6, remove_button)  # Add the button to the table
         
-        # Copy relevant columns from the main table to the selected_table
-        self.selected_table.setItem(row_position, 0, QTableWidgetItem(self.table.item(item.row(), 0).text()))  # ID
-        self.selected_table.setItem(row_position, 1, QTableWidgetItem(nombre))  # Nombre
-        self.selected_table.setItem(row_position, 2, QTableWidgetItem(str(cantidad)))  # Cantidad seleccionada
-        self.selected_table.setItem(row_position, 3, QTableWidgetItem(unidad))  # Unidad
-        self.selected_table.setItem(row_position, 4, QTableWidgetItem(self.table.item(item.row(), 4).text()))  # Precio Unitario
-        self.selected_table.setItem(row_position, 5, QTableWidgetItem(self.table.item(item.row(), 5).text()))  # Precio Total
-     
+            # Set the checkbox to checked
 
-def updateSelectedTable(self):
-            """Update the selected_table with items that are checked in the main table."""
-            self.selected_table.setRowCount(0)  # Clear the selected_table
+        
 
-            for row in range(self.table.rowCount()):
-                checkbox_item = self.table.item(row, 6)  # Get the checkbox item
-                if checkbox_item and checkbox_item.checkState() == Qt.Checked:
-                    row_position = self.selected_table.rowCount()
-                    self.selected_table.insertRow(row_position)
-                    
-                    # Copy all columns from the main table to the selected_table
-                    for col in range(6):  # Assuming there are 6 columns to copy
-                        item = self.table.item(row, col)
-                        if item:
-                            self.selected_table.setItem(row_position, col, QTableWidgetItem(item.text()))
-                    
-                    # Copy the quantity to withdraw
-                    quantity_item = self.table.item(row, 7)  # Get the quantity item
-                    if quantity_item:
-                        self.selected_table.setItem(row_position, 6, QTableWidgetItem(quantity_item.text()))  # Add to selected_table
+def limpiar_tabla(self):
+    """Limpia la tabla de materiales seleccionados."""
+    row = self.selected_table.currentRow()
+    if row >= 0:
+        self.selected_table.removeRow(row)  # Remove the selected row from the table
+        # Uncheck the checkbox in the main table
+
 
 def filterTable(self, search_text):
     """Filtra las filas de la tabla principal según el texto ingresado."""
