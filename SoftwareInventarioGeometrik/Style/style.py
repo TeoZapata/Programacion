@@ -1,4 +1,50 @@
 
+BUTTON_ADD_MATERIAL= """
+    QPushButton {
+        background-color: transparent;
+        border: 2px solid rgb(74,230,26); /* Green border */
+        border-radius: 5px;
+        color: Green; /* Green text */
+        font-size: 16px;
+        font-weight: bold;
+        font-family: 'Arial';
+        padding: 3px;
+        text-align: center;
+    }
+    QPushButton:hover {
+        border: 2px solid rgb(195,204,51); /* Red border */
+        color: Green; /* Red text */
+        background-color: rgba(255, 0, 0, 0.1); /* Slight red background */
+    }
+    QPushButton:pressed {
+        background-color: rgba(0, 255, 0, 0.2); /* Slight green background */
+        border: 2px solid rgb(74,230,26); /* Green border */
+        color: Green; /* Green text */
+    }
+    """
+BUTTON_DELETE_MATERIAL= """
+    QPushButton {
+        background-color: transparent;
+        border: 2px solid rgb(217,38,38); /* Green border */
+        border-radius: 5px;
+        color: rgb(217,38,38); /* Green text */
+        font-size: 16px;
+        font-weight: bold;
+        font-family: 'Arial';
+        padding: 3px;
+        text-align: center;
+    }
+    QPushButton:hover {
+        border: 2px solid rgb(217,26,230); /* Red border */
+        color: rgb(217,26,230); /* Red text */
+        background-color: rgba(255, 0, 0, 0.1); /* Slight red background */
+    }
+    QPushButton:pressed {
+        background-color: rgba(0, 255, 0, 0.2); /* Slight green background */
+        border: 2px solid rgb(217,38,38); /* Green border */
+        color: rgb(217,38,38); /* Green text */
+    }
+    """
 BUTTON_TAB_MAIN= """
     QPushButton {
         color: white;

@@ -23,6 +23,7 @@ class DevolucionMaterial(QWidget):
 
         self.entry_proyecto = QComboBox()
         self.entry_proyecto.addItems(["Proyecto 1", "Proyecto 2", "Proyecto 3"])
+        
         self.entry_proyecto.setStyleSheet(COMBOBOX_GENERAL_DESIGN)
 
         self.entry_responsable = QLineEdit()

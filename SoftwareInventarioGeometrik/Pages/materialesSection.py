@@ -25,6 +25,8 @@ class materialesSection(QWidget):
         self.tab_widget.setStyleSheet(TAB_DESIGN_GENERAL)
         # hace que tab_widget ocupe todo el espacio disponible
         self.tab_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.tab_widget.setMovable(True)
+        self.tab_widget.setTabBarAutoHide(True)
         
         self.tab_widget.addTab(SalidaMaterial(), "Salida de Material")
         self.tab_widget.addTab(EntradaMaterial(), "Entrada de Material")

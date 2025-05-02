@@ -144,11 +144,42 @@ def eliminar_producto(self) -> None:
                                      QMessageBox.Yes | QMessageBox.No)
     if respuesta == QMessageBox.Yes:
         # Eliminar el producto de la base de datos
+        db = conex()
+        if db:
+            db.ejecutar_consulta(
+                "DELETE FROM inventario WHERE id=?",
+                (id_producto,)
+            )
+            # Limpiar los campos de entrada
+            clear_entry(self.line_edits.values())
+def conex():
+    """Conecta a la base de datos y devuelve el objeto de conexión."""
+    try:
         db = storeBD()
         db.iniciar_bd()
-        db.ejecutar_consulta(
-            "DELETE FROM inventario WHERE id=?",
-            (id_producto,)
-        )
-        # Limpiar los campos de entrada
-        clear_entry(self.line_edits.values())
+        return db
+    except Exception as e:
+        QMessageBox.warning(None, "Error", f"Error al conectar a la base de datos: {str(e)}")
+        return None
+
+def actualizar_cantidad(self,datos:list):
+        
+
+    for dato in datos:
+        id_producto = dato[0]
+        nombre = dato[1]
+        cantidad = dato[2]
+        unidad = dato[3]
+        precio_unitario = dato[4]
+        precio_total = dato[5]
+
+        db = conex()
+        if db:
+            # Actualizar la cantidad en la base de datos
+            db.ejecutar_consulta(
+                "UPDATE inventario SET cantidad=cantidad-?, precio=?, precioTotal=? WHERE id=?",
+                (cantidad, precio_unitario, precio_total, id_producto)
+            )
+            print(f"Cantidad actualizada para el producto {nombre} (ID: {id_producto})")
+            
+    

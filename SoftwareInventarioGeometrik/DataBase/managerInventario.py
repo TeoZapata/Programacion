@@ -1,9 +1,12 @@
 
 from DataBase.storeDB import storeBD
 from PyQt5.QtWidgets import QTableWidgetItem, QInputDialog, QPushButton, QWidget
+from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import QThread, pyqtSignal
 import numpy as np
+from Style import *
+from src.utils.standarFunc import *
 
 class ManagerInventario():
     def __init__(self, parent=None):
@@ -71,18 +74,15 @@ def getManagerInventario(self):
             self.table.setItem(row_position, 4, QTableWidgetItem(str(dato[6])))  # Precio Unitario
             self.table.setItem(row_position, 5, QTableWidgetItem(str(dato[7])))  # Precio Total
 
-            # Add a checkbox for the "Seleccionar" column
-            self.checkBox_item = QTableWidgetItem()
-            self.checkBox_item.setCheckState(Qt.Unchecked)
-            self.table.setItem(row_position, 6, self.checkBox_item)
+            # Add a button for the "Agregar" column
+            add_button = QPushButton("Agregar")
+            add_button.setStyleSheet(BUTTON_ADD_MATERIAL)  # Set an icon for the button
+            add_button.clicked.connect(lambda _, row=row_position: ventana_selec_cantidad(self, self.table.item(row, 0)))  # Connect to the selection function
+            self.table.setCellWidget(row_position, 6, add_button)  # Add the button to the table
+
 
         self.table.blockSignals(False)  # Re-enable signals after updates
-        # Ensure the signal is connected only once
-        if not hasattr(self, '_item_changed_connected') or not self._item_changed_connected:
-            self.table.itemChanged.connect(lambda item: 
-            ventana_selec_cantidad(self, item) if item.column() == 6 and item.checkState() == Qt.Checked else None
-            )
-            self._item_changed_connected = True
+        
 
     # Create and start the database thread
     self.db_thread = DatabaseThread(self)
@@ -115,6 +115,7 @@ def ventana_selec_cantidad(self, item):
         )
         
         if ok:    # Add the selected item to the selected_table
+            self.entry_buscar_inventario.clear()  # Clear the search entry|
             row_position = self.selected_table.rowCount()
             self.selected_table.insertRow(row_position)
             precio_total = str(round(precio_unitario * cantidad, 2))  # Calculate total price
@@ -129,10 +130,15 @@ def ventana_selec_cantidad(self, item):
             # Precio Total
             remove_button = QPushButton("Quitar")
             remove_button.clicked.connect(lambda:limpiar_tabla(self))  # Connect to remove_item
+            remove_button.setStyleSheet(BUTTON_DELETE_MATERIAL)  # Set an icon for the button
             self.selected_table.setCellWidget(row_position, 6, remove_button)  # Add the button to the table
         
             # Set the checkbox to checked
 
+def limpiarSelectTable(self):
+    """Limpia todos los campos de entrada."""
+    self.selected_table.setRowCount(0)
+    self.entry_buscar_inventario.clear()  # Clear the search entry
         
 
 def limpiar_tabla(self):
@@ -154,3 +160,20 @@ def filterTable(self, search_text):
                 match_found = True
                 break
         self.table.setRowHidden(row, not match_found)
+
+def getSelectedTable(self):
+    """Devuelve los datos de la tabla seleccionada."""
+    selected_data = []
+    for row in range(self.selected_table.rowCount()):
+        row_data = []
+        for col in range(self.selected_table.columnCount()):
+            item = self.selected_table.item(row, col)
+            if item:
+                row_data.append(item.text())
+            else:
+                row_data.append(None)  # Agregar None si no hay elemento en la celda
+        selected_data.append(row_data)
+    
+    actualizar_cantidad(self,selected_data)
+    self.selected_table.setRowCount(0)
+    getManagerInventario(self)  # Actualizar la cantidad en la base de datos

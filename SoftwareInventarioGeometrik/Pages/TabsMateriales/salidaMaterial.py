@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem
 from Style import *
 from src.utils.getDate import fecha_actual
 from DataBase.managerInventario import *
+from src.utils.generarPdf import *
 
 
 class SalidaMaterial(QWidget):
@@ -84,7 +85,7 @@ class SalidaMaterial(QWidget):
 
         self.table = QTableWidget()
         self.table.setColumnCount(7)
-        self.table.setHorizontalHeaderLabels(["ID", "Nombre", "Cantidad\nDisponible", "Unidad", "Precio Unitario", "Precio Total", "Seleccionar"])
+        self.table.setHorizontalHeaderLabels(["ID", "Nombre", "Cantidad\nDisponible", "Unidad", "Precio\nUnitario", "Precio\nTotal", "Seleccionar"])
         self.table.setRowCount(0)
         self.table.setEditTriggers(QTableWidget.NoEditTriggers)  # Hacer que la tabla sea de solo lectura
         self.table.setSelectionBehavior(QTableWidget.SelectRows)  # Seleccionar filas completas
@@ -123,7 +124,7 @@ class SalidaMaterial(QWidget):
 
         self.selected_table = QTableWidget()
         self.selected_table.setColumnCount(7)
-        self.selected_table.setHorizontalHeaderLabels(["ID", "Nombre", "Cantidad Seleccionada", "Unidad", 'Precio Unitario', 'Precio Total', "Quitar"])
+        self.selected_table.setHorizontalHeaderLabels(["ID", "Nombre", "Cantidad\nSeleccionada", "Unidad", 'Precio\nUnitario', 'Precio\nTotal', "Quitar"])
         self.selected_table.setRowCount(0)
         
         self.selected_table.setEditTriggers(QTableWidget.NoEditTriggers)  # Hacer que la tabla sea de solo lectura
@@ -136,15 +137,18 @@ class SalidaMaterial(QWidget):
         # 
         # Ocultar encabezado de filas
         self.selected_table.setRowCount(0)  
-        
 
-        self.selected_table.setColumnWidth(0, 50)
-        self.selected_table.setColumnWidth(5, 50)
-        self.selected_table.setColumnWidth(6, 50)
-
+    
         self.selected_table.horizontalHeader().setStretchLastSection(True)
 
         selected_table_layout.addWidget(self.selected_table)
+
+        btn_limpiar = QPushButton("Limpiar Tabla")
+        btn_limpiar.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        btn_limpiar.clicked.connect(lambda: limpiarSelectTable(self))
+
+        selected_table_layout.addWidget(btn_limpiar)
+
         tables_layout.addLayout(selected_table_layout)
 
         # Agregar el layout horizontal de tablas al layout principal
@@ -154,8 +158,9 @@ class SalidaMaterial(QWidget):
         button_layout = QHBoxLayout()
         button_layout.setSpacing(10)
 
-        self.btn_limpiar = QPushButton("Limpiar")
+        self.btn_limpiar = QPushButton("Generar PDF")
         self.btn_limpiar.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        self.btn_limpiar.clicked.connect(self.generar_pdf)
 
         self.btn_generar_recibo = QPushButton("Actualizar Tabla")
         self.btn_generar_recibo.setStyleSheet(BUTTON_GENERAL_DESIGN)
@@ -165,8 +170,12 @@ class SalidaMaterial(QWidget):
         button_layout.addWidget(self.btn_limpiar)
 
         self.layout.addLayout(button_layout)
-        
+    
+    def generar_pdf(self):
+        gen_pdf(self)
+        getSelectedTable(self)
 
     def buscar_inventario(self, text):
-        filterTable(self, text)
+        filterTable(self, text) 
+
         
