@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,QComboBox,
+from PyQt5.QtWidgets import (QHeaderView, QMainWindow, QWidget, QVBoxLayout,QComboBox,
                              QHBoxLayout, QPushButton, QLabel, QLineEdit, QStackedWidget, QFormLayout)
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QFont, QIcon
@@ -26,37 +26,47 @@ class SalidaMaterial(QWidget):
         proyect_line.setContentsMargins(0, 0, 0, 0)
         proyect_line.setSpacing(10)
 
+        self.label_proyecto = QLabel("Proyecto")
+        self.label_proyecto.setStyleSheet(LABEL_GENERAL_DESIGN)
         self.entry_proyecto = QComboBox()
         self.entry_proyecto.setStyleSheet(COMBOBOX_GENERAL_DESIGN)
-        self.entry_proyecto.addItems(["Proyecto 1", "Proyecto 2", "Proyecto 3"])
+        obtener_nombres_proyectos(self.entry_proyecto)
         self.entry_proyecto.setMinimumWidth(150)
 
+        self.label_responsable = QLabel("Responsable")
+        self.label_responsable.setStyleSheet(LABEL_GENERAL_DESIGN)
         self.entry_responsable = QLineEdit()
-        self.entry_responsable.setPlaceholderText("Ingrese el nombre del responsable")
         self.entry_responsable.setStyleSheet(ENTRY_GENERAL_DESIGN)
         self.entry_responsable.setMinimumWidth(150)
 
+        self.label_cliente = QLabel("Cliente")
+        self.label_cliente.setStyleSheet(LABEL_GENERAL_DESIGN)
         self.entry_cliente = QLineEdit()
-        self.entry_cliente.setPlaceholderText("Nombre del cliente")
         self.entry_cliente.setStyleSheet(ENTRY_GENERAL_DESIGN)
-        self.entry_cliente.setReadOnly(True)
         self.entry_cliente.setMinimumWidth(150)
 
+        self.label_ubicacion = QLabel("Ubicación")
+        self.label_ubicacion.setStyleSheet(LABEL_GENERAL_DESIGN)
         self.entry_ubicacion = QLineEdit()
-        self.entry_ubicacion.setPlaceholderText("Ubicación del material")
         self.entry_ubicacion.setStyleSheet(ENTRY_GENERAL_DESIGN)
         self.entry_ubicacion.setMinimumWidth(150)
 
+        self.label_fecha_actual = QLabel("Fecha Actual")
+        self.label_fecha_actual.setStyleSheet(LABEL_GENERAL_DESIGN)
         self.entry_fecha_Actual = QLineEdit()
-        self.entry_fecha_Actual.setReadOnly(True)
         self.entry_fecha_Actual.setText(fecha_actual())
         self.entry_fecha_Actual.setMinimumWidth(150)
         self.entry_fecha_Actual.setStyleSheet(ENTRY_GENERAL_DESIGN)
 
+        proyect_line.addWidget(self.label_proyecto)
         proyect_line.addWidget(self.entry_proyecto, 1)
+        proyect_line.addWidget(self.label_responsable)
         proyect_line.addWidget(self.entry_responsable, 1)
+        proyect_line.addWidget(self.label_cliente)
         proyect_line.addWidget(self.entry_cliente, 1)
+        proyect_line.addWidget(self.label_ubicacion)
         proyect_line.addWidget(self.entry_ubicacion, 1)
+        proyect_line.addWidget(self.label_fecha_actual)
         proyect_line.addWidget(self.entry_fecha_Actual, 1)
 
         self.entry_buscar_inventario = QLineEdit()
@@ -71,7 +81,7 @@ class SalidaMaterial(QWidget):
         self.layout.addWidget(self.entry_buscar_inventario)
 
         # Layout horizontal para las tablas
-        tables_layout = QHBoxLayout()
+        tables_layout = QVBoxLayout()
         tables_layout.setSpacing(10)
 
         # Tabla de materiales disponibles
@@ -87,28 +97,15 @@ class SalidaMaterial(QWidget):
         self.table.setColumnCount(7)
         self.table.setHorizontalHeaderLabels(["ID", "Nombre", "Cantidad\nDisponible", "Unidad", "Precio\nUnitario", "Precio\nTotal", "Seleccionar"])
         self.table.setRowCount(0)
+        self.table.setAlternatingRowColors(True)
         self.table.setEditTriggers(QTableWidget.NoEditTriggers)  # Hacer que la tabla sea de solo lectura
-        self.table.setSelectionBehavior(QTableWidget.SelectRows)  # Seleccionar filas completas
-        #quita el borde de la tabla y la enumeracion de filas
-        self.table.setShowGrid(False)  # Quitar la cuadrícula
-        #no motrar la numeracion de filas8
+        self.table.setSelectionBehavior(QTableWidget.SelectRows)
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.table.setSelectionMode(QTableWidget.SingleSelection)
+        self.table.setShowGrid(False)
         self.table.verticalHeader().setVisible(False)
-        self.table.setAlternatingRowColors(True)  # Alternar colores de fila+
-        # 
-        # Ocultar encabezado de filas
-        self.table.setRowCount(0)  # Inicialmente no hay filas
-        # hacer que la tabla se organice dando click en el encabezado
-        #hacer que la tabla se ajuste al tamaño de la ventana y organice los encabezados que ocupen el mismo tamaño
-        #hacer que la tabla se ajuste al ancho
-        self.table.setColumnWidth(0, 60)
-        self.table.setColumnWidth(1, 200)
-        self.table.setColumnWidth(2, 120)
-        self.table.setColumnWidth(3, 100)
-        self.table.setColumnWidth(4, 120)
-        self.table.setColumnWidth(5, 120)
-        self.table.setColumnWidth(6, 100)
-
-        self.table.horizontalHeader().setStretchLastSection(True)
+    
+        
 
         available_table_layout.addWidget(self.table)
         tables_layout.addLayout(available_table_layout)
@@ -126,50 +123,47 @@ class SalidaMaterial(QWidget):
         self.selected_table.setColumnCount(7)
         self.selected_table.setHorizontalHeaderLabels(["ID", "Nombre", "Cantidad\nSeleccionada", "Unidad", 'Precio\nUnitario', 'Precio\nTotal', "Quitar"])
         self.selected_table.setRowCount(0)
-        
         self.selected_table.setEditTriggers(QTableWidget.NoEditTriggers)  # Hacer que la tabla sea de solo lectura
-        self.selected_table.setSelectionBehavior(QTableWidget.SelectRows)  # Seleccionar filas completas
-        #quita el borde de la tabla y la enumeracion de filas
-        self.selected_table.setShowGrid(False)  # Quitar la cuadrícula
-        #no motrar la numeracion de filas8
+        self.selected_table.setSelectionBehavior(QTableWidget.SelectRows)
+        self.selected_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.selected_table.setSelectionMode(QTableWidget.SingleSelection)
+        self.selected_table.setShowGrid(False)
+        
         self.selected_table.verticalHeader().setVisible(False)
-        self.selected_table.setAlternatingRowColors(True)  # Alternar colores de fila+
-        # 
-        # Ocultar encabezado de filas
-        self.selected_table.setRowCount(0)  
-
-    
-        self.selected_table.horizontalHeader().setStretchLastSection(True)
+        self.selected_table.setAlternatingRowColors(True)
 
         selected_table_layout.addWidget(self.selected_table)
 
-        btn_limpiar = QPushButton("Limpiar Tabla")
-        btn_limpiar.setStyleSheet(BUTTON_GENERAL_DESIGN)
-        btn_limpiar.clicked.connect(lambda: limpiarSelectTable(self))
 
-        selected_table_layout.addWidget(btn_limpiar)
+      
 
         tables_layout.addLayout(selected_table_layout)
 
         # Agregar el layout horizontal de tablas al layout principal
-        self.layout.addLayout(tables_layout)
 
         # Botones de acción
         button_layout = QHBoxLayout()
         button_layout.setSpacing(10)
 
-        self.btn_limpiar = QPushButton("Generar PDF")
-        self.btn_limpiar.setStyleSheet(BUTTON_GENERAL_DESIGN)
-        self.btn_limpiar.clicked.connect(self.generar_pdf)
+        btn_gen_pdf = QPushButton("Generar PDF")
+        btn_gen_pdf.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        btn_gen_pdf.clicked.connect(self.generar_pdf)
 
-        self.btn_generar_recibo = QPushButton("Actualizar Tabla")
-        self.btn_generar_recibo.setStyleSheet(BUTTON_GENERAL_DESIGN)
-        self.btn_generar_recibo.clicked.connect(lambda: getManagerInventario(self))
+        btn_actualizar_tabla = QPushButton("Actualizar Tabla")
+        btn_actualizar_tabla.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        btn_actualizar_tabla.clicked.connect(lambda: getManagerInventario(self))
 
-        button_layout.addWidget(self.btn_generar_recibo)
-        button_layout.addWidget(self.btn_limpiar)
+        btn_limpiar = QPushButton("Limpiar Tabla")
+        btn_limpiar.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        btn_limpiar.clicked.connect(lambda: limpiarSelectTable(self))
+
+
+        button_layout.addWidget(btn_actualizar_tabla)
+        button_layout.addWidget(btn_limpiar)
+        button_layout.addWidget(btn_gen_pdf)
 
         self.layout.addLayout(button_layout)
+        self.layout.addLayout(tables_layout)
     
     def generar_pdf(self):
         gen_pdf(self)

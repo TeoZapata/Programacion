@@ -162,6 +162,33 @@ TAB_DESIGN_GENERAL= """
             border-radius: 5px;
             }
         """
+TAB_MAIN_DESIGN= """
+            QTabBar::tab {
+            width: 160px;
+            background: #2c3e50; /* Dark blue-gray background */
+            border: 1px solid #34495e; /* Slightly lighter gray-blue border */
+            padding: 10px;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            color: #ecf0f1; /* Light gray text */
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
+            }
+            QTabBar::tab:selected {
+            background: rgb(94,191,64); /* Slightly lighter gray-blue for the selected tab */
+            font-weight: bold;
+            color: #ecf0f1; /* Light gray text for contrast */
+            }
+            QTabBar::tab:hover {
+            font-weight: bold;
+            background:rgb(80,217,38); /* Slightly brighter gray-blue for hover effect */
+            color: #ecf0f1; /* Light gray text */
+            }
+            QTabWidget::pane {
+            border: 1px solid #34495e; /* Slightly lighter gray-blue border */
+            border-radius: 5px;
+            }
+        """
 
 COMBOBOX_GENERAL_DESIGN= """
     QComboBox {

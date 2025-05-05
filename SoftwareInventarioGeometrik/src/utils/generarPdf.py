@@ -4,6 +4,7 @@ from reportlab.lib import colors
 from PyQt5.QtWidgets import QMessageBox
 import os
 from datetime import datetime
+from src.utils.standarFunc import *
 
 def generar_pdf_simple(data, save_directory):
     """
@@ -75,7 +76,7 @@ def generar_pdf_simple(data, save_directory):
     # Agrega un espacio para firmar el responsable de la salida
     c.drawString(50, y - 40, "______________________________")
     c.drawString(50, y - 60, "Firma del Responsable de la Salida")
-    c.drawString(50, y - 80, "Nombre: ______________________")  
+    c.drawString(50, y - 120, "Nombre: ______________________")  
     # Save the PDF
     c.save()
     QMessageBox.information(None, "PDF Generado", f"El PDF ha sido generado y guardado en: {save_path}")
@@ -89,6 +90,9 @@ def gen_pdf(self):
         proyecto = self.entry_proyecto.currentText()
         responsable = self.entry_responsable.text()
         fecha = self.entry_fecha_Actual.text()
+        if not all([cliente, proyecto, responsable, fecha]):
+            QMessageBox.warning(None, "Error", "Por favor, completa todos los campos.")
+            return
 
         productos = []
         for row in range(self.selected_table.rowCount()):
@@ -99,9 +103,9 @@ def gen_pdf(self):
                 "unidad": self.selected_table.item(row, 3).text(),
                 "precio_unitario": float(self.selected_table.item(row, 4).text()),
             }
+            item["precio_total"] = item["cantidad"] * item["precio_unitario"]
             productos.append(item)
-        
-        # Generar el PDF
+
         generar_pdf_simple(data={
             "cliente": cliente,
             "proyecto": proyecto,
@@ -110,6 +114,13 @@ def gen_pdf(self):
             "productos": productos,
         }, save_directory="./") # Cambia el directorio según sea necesario
 
+        agregar_salida_material(data={
+            "cliente": cliente,
+            "proyecto": proyecto,
+            "responsable": responsable,
+            "fecha": fecha,
+            "productos": productos,
+        })
 
         
         

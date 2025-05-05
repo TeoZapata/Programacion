@@ -16,7 +16,7 @@ class materialesSection(QWidget):
         # Layout principal
         self.layout = QVBoxLayout(self)
         self.layout.setContentsMargins(10, 10, 10, 10)
-        self.layout.setSpacing(0)
+        self.layout.setSpacing(15)
         # Contenedor de pestañas
         self.tab_widget = QTabWidget()
         self.layout.addWidget(self.tab_widget)
@@ -24,13 +24,10 @@ class materialesSection(QWidget):
         # Aplicar un estilo personalizado a las pestañas
         self.tab_widget.setStyleSheet(TAB_DESIGN_GENERAL)
         # hace que tab_widget ocupe todo el espacio disponible
-        self.tab_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.tab_widget.setMovable(True)
-        self.tab_widget.setTabBarAutoHide(True)
         
         self.tab_widget.addTab(SalidaMaterial(), "Salida de Material")
-        self.tab_widget.addTab(EntradaMaterial(), "Entrada de Material")
         self.tab_widget.addTab(DevolucionMaterial(), "Devolución de Material")
+        self.tab_widget.addTab(EntradaMaterial(), "Entrada de Material")
         self.tab_widget.addTab(SubirListadoClickUp(), "Subir Listado de Material")
         self.tab_widget.addTab(HistorialMaterial(), "Historial de Material")
 

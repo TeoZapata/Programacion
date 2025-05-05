@@ -27,34 +27,35 @@ class storeBD:
                         )''')
             cur.execute('''CREATE TABLE IF NOT EXISTS proyectos (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        nombre TEXT,
-                        cliente TEXT UNIQUE,
+                        nombre TEXT UNIQUE,
+                        cliente TEXT,
                         ubicacion INTEGER,
-                        kwp INTEGER,
+                        kwp FLOAT,
                         fechaCreacion DATE
                         )''')
-            cur.execute('''CREATE TABLE IF NOT EXISTS materialProyecto (
+            cur.execute('''CREATE TABLE IF NOT EXISTS salida (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         proyecto TEXT,
                         cliente TEXT,
                         responsable TEXT,
+                        id_material INTEGER,
                         material TEXT,
                         cantidad INTEGER,
                         unidad TEXT,
                         precio INTEGER,
                         precioTotal INTEGER,
-                        proveedor TEXT,
+                        descripcion TEXT,
                         fecha DATE
                         )''')
             cur.execute(
                 '''CREATE TABLE IF NOT EXISTS clientes (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    nombre TEXT,
+                    id INTEGER UNIQUE PRIMARY KEY AUTOINCREMENT,
+                    nombre TEXT UNIQUE,
                     email TEXT,
                     telefono TEXT,
                     direccion TEXT,
                     ciudad TEXT,
-                    tipo TEXT
+                    fecha DATE
                 )'''
             )
             cur.execute('''CREATE TABLE IF NOT EXISTS historial (
@@ -201,6 +202,7 @@ class storeBD:
             return None
         finally:
             conexion.close()
+
     
     
     

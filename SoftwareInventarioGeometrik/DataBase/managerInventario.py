@@ -177,3 +177,6 @@ def getSelectedTable(self):
     actualizar_cantidad(self,selected_data)
     self.selected_table.setRowCount(0)
     getManagerInventario(self)  # Actualizar la cantidad en la base de datos
+
+    
+

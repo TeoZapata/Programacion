@@ -1,119 +1,133 @@
 import sys
 from PyQt5.QtWidgets import (QComboBox, QLineEdit, QWidget, QVBoxLayout, 
-                            QHBoxLayout, QPushButton, QLabel, QTableWidget, QTableWidgetItem)
+                            QHBoxLayout, QPushButton, QLabel, QTableWidget, QFormLayout, QHeaderView)
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QFont, QIcon
 from Style import *
 from src.utils.getDate import *
+from src.utils.standarFunc import *
 
 
-class proyectoSecion(QWidget):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.init_ui()
+class proyecto(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.initUi()
         
-       
-    def init_ui(self):
+    def initUi(self):
         # Layout principal
         self.layout = QVBoxLayout(self)
         self.layout.setContentsMargins(20, 20, 20, 20)
         self.layout.setSpacing(15)
 
         # Formulario de entrada
-        self.form_layout = QHBoxLayout()
+        self.formLayout = QHBoxLayout()
 
         # Columna izquierda del formulario
-        self.left_form_layout = QVBoxLayout()
+        self.leftFormLayout = QFormLayout()
 
         # Entrada para el nombre del proyecto
-        self.project_name_input = QLineEdit()
-        self.project_name_input.setPlaceholderText("Ingrese el nombre del proyecto")
-        self.project_name_input.setStyleSheet(ENTRY_GENERAL_DESIGN)
-        self.left_form_layout.addWidget(self.project_name_input)
+        self.projectNameLabel = QLabel("Nombre del Proyecto:")
+        self.projectNameLabel.setStyleSheet(LABEL_GENERAL_DESIGN)
+        self.projectNameInput = QLineEdit()
+        self.projectNameInput.setStyleSheet(ENTRY_GENERAL_DESIGN)
+        self.leftFormLayout.addRow(self.projectNameLabel, self.projectNameInput)
 
         # Selección de cliente
-        self.client_dropdown = QComboBox()
-        self.client_dropdown.setStyleSheet(COMBOBOX_GENERAL_DESIGN)
-        self.client_dropdown.addItems(["Cliente 1", "Cliente 2", "Cliente 3", "Cliente 4"])
-        self.left_form_layout.addWidget(self.client_dropdown)
+        self.clientLabel = QLabel("Cliente:")
+        self.clientLabel.setStyleSheet(LABEL_GENERAL_DESIGN)
+        self.clientDropdown = QComboBox()
+        self.clientDropdown.setStyleSheet(COMBOBOX_GENERAL_DESIGN)
+        self.clientDropdown.addItems(["Cliente 1", "Cliente 2", "Cliente 3", "Cliente 4"])
+        self.leftFormLayout.addRow(self.clientLabel, self.clientDropdown)
 
         # Entrada para capacidad DC
-        self.capacity_input = QLineEdit()
-        self.capacity_input.setPlaceholderText("Ingrese la capacidad en kWp")
-        self.capacity_input.setStyleSheet(ENTRY_GENERAL_DESIGN)
-        self.left_form_layout.addWidget(self.capacity_input)
+        self.capacityLabel = QLabel("Capacidad (kWp):")
+        self.capacityLabel.setStyleSheet(LABEL_GENERAL_DESIGN)
+        self.capacityInput = QLineEdit()
+        self.capacityInput.setStyleSheet(ENTRY_GENERAL_DESIGN)
+        self.leftFormLayout.addRow(self.capacityLabel, self.capacityInput)
 
         # Columna derecha del formulario
-        self.right_form_layout = QVBoxLayout()
+        self.rightFormLayout = QFormLayout()
 
         # Entrada para ubicación del proyecto
-        self.location_input = QLineEdit()
-        self.location_input.setPlaceholderText("Ingrese la ubicación del proyecto")
-        self.location_input.setStyleSheet(ENTRY_GENERAL_DESIGN)
-        self.right_form_layout.addWidget(self.location_input)
+        self.locationLabel = QLabel("Ubicación del Proyecto:")
+        self.locationLabel.setStyleSheet(LABEL_GENERAL_DESIGN)
+        self.locationInput = QLineEdit()
+        self.locationInput.setStyleSheet(ENTRY_GENERAL_DESIGN)
+        self.rightFormLayout.addRow(self.locationLabel, self.locationInput)
 
         # Fecha de inicio del proyecto
-        self.start_date_input = QLineEdit()
-        self.start_date_input.setText(fecha_actual())
-        self.start_date_input.setReadOnly(True)
-        self.start_date_input.setStyleSheet(ENTRY_GENERAL_DESIGN)
-        self.right_form_layout.addWidget(self.start_date_input)
+        self.startDateLabel = QLabel("Fecha de Registro:")
+        self.startDateLabel.setStyleSheet(LABEL_GENERAL_DESIGN)
+        self.startDateInput = QLineEdit()
+        self.startDateInput.setText(fecha_actual())
+        self.startDateInput.setReadOnly(True)
+        self.startDateInput.setStyleSheet(ENTRY_GENERAL_DESIGN)
+        self.rightFormLayout.addRow(self.startDateLabel, self.startDateInput)
 
-        # Estado del proyecto
-        self.status_dropdown = QComboBox()
-        self.status_dropdown.addItems(["En Progreso", "Completado", "Pendiente"])
-        self.status_dropdown.setStyleSheet(COMBOBOX_GENERAL_DESIGN)
-        self.right_form_layout.addWidget(self.status_dropdown)
+        self.id_project = QLabel("ID del Proyecto")
+        self.id_project.setStyleSheet(LABEL_GENERAL_DESIGN)
+        self.id_project_input = QLineEdit()
+        self.id_project_input.setStyleSheet(ENTRY_ONLY_READ_DESIGN)
+        self.id_project_input.setReadOnly(True)
+        self.rightFormLayout.addRow(self.id_project, self.id_project_input)
 
         # Agregar columnas al formulario principal
-        self.form_layout.addLayout(self.left_form_layout)
-        self.form_layout.addLayout(self.right_form_layout)
-        self.layout.addLayout(self.form_layout)
+        self.formLayout.addLayout(self.leftFormLayout)
+        self.formLayout.addLayout(self.rightFormLayout)
+        self.layout.addLayout(self.formLayout)
 
+        self.buttonsLayout = QHBoxLayout()
+
+        self.addButton = QPushButton("Agregar")
+        self.addButton.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        self.addButton.clicked.connect(lambda : agregar_proyecto(self))
+
+        self.editButton = QPushButton("Editar")
+        self.editButton.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        self.editButton.clicked.connect(lambda : edit_proyecto(self))
+        
+        self.deleteButton = QPushButton("Eliminar")
+        self.deleteButton.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        self.deleteButton.clicked.connect(lambda : eliminar_proyecto(self))
+
+        self.updateButton = QPushButton("Actualizar")
+        self.updateButton.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        self.updateButton.clicked.connect(lambda : cargar_proyecto_tabla(self))
+
+        self.clear_input = QPushButton("Limpiar")
+        self.clear_input.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        self.clear_input.clicked.connect(lambda : clear_entry([self.projectNameInput,self.id_project_input ,self.capacityInput, self.locationInput, self.startDateInput], True))
+        
+        
+        self.buttonsLayout.addWidget(self.addButton)
+        self.buttonsLayout.addWidget(self.editButton)
+        self.buttonsLayout.addWidget(self.deleteButton)
+        self.buttonsLayout.addWidget(self.updateButton)
+        self.buttonsLayout.addWidget(self.clear_input)
+
+
+        self.layout.addLayout(self.buttonsLayout)
         # Tabla para mostrar proyectos registrados
-        self.table_label = QLabel("Proyectos Registrados:")
-        self.table_label.setFont(QFont("Arial", 16, QFont.Bold))
-        self.layout.addWidget(self.table_label)
+        self.tableLabel = QLabel("Proyectos Registrados:")
+        self.tableLabel.setFont(QFont("Arial", 16, QFont.Bold))
+        self.layout.addWidget(self.tableLabel)
 
-        self.projects_table = QTableWidget()
-        self.projects_table.setColumnCount(6)
-        self.projects_table.setHorizontalHeaderLabels(["Nombre", "Cliente", "Capacidad (kW)", "Ubicación", "Fecha Inicio", "Estado"])
-        self.projects_table.setStyleSheet("border: 1px solid #ccc; border-radius: 5px;")
-        self.projects_table.setAlternatingRowColors(True)
-        self.projects_table.setRowCount(4)
+        self.projectsTable = QTableWidget()
+        self.projectsTable.setColumnCount(6)
+        self.projectsTable.setHorizontalHeaderLabels(["ID","Nombre", "Cliente", "Ubicación", "Capacidad (kW)", "Fecha Registro"])
+        self.projectsTable.setAlternatingRowColors(True)
+        self.projectsTable.setSelectionMode(QTableWidget.SingleSelection)
+        self.projectsTable.setEditTriggers(QTableWidget.NoEditTriggers)
+        self.projectsTable.setSelectionBehavior(QTableWidget.SelectRows)
+        self.projectsTable.setShowGrid(False)
+        self.projectsTable.verticalHeader().setVisible(False)
+        self.projectsTable.horizontalHeader().setStretchLastSection(True)
+        self.projectsTable.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.projectsTable.doubleClicked.connect(lambda _: double_click_tabla_proyecto(self))
 
-        # Datos ficticios
-        sample_data = [
-            ["Proyecto A", "Cliente 1", "100", "Ubicación 1", "01/01/2023", "En Progreso"],
-            ["Proyecto B", "Cliente 2", "200", "Ubicación 2", "15/02/2023", "Completado"],
-            ["Proyecto C", "Cliente 3", "300", "Ubicación 3", "10/03/2023", "Pendiente"],
-            ["Proyecto D", "Cliente 4", "400", "Ubicación 4", "20/04/2023", "En Progreso"]
-        ]
-
-        for row, data in enumerate(sample_data):
-            for col, value in enumerate(data):
-                self.projects_table.setItem(row, col, QTableWidgetItem(value))
-
-        self.layout.addWidget(self.projects_table)
+        self.layout.addWidget(self.projectsTable)
 
         # Botones CRUD
-        self.buttons_layout = QHBoxLayout()
 
-        self.add_button = QPushButton("Agregar")
-        self.add_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
-        
-        self.edit_button = QPushButton("Editar")
-        self.edit_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
-        
-        self.delete_button = QPushButton("Eliminar")
-        self.delete_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
-        
-        self.save_button = QPushButton("Guardar")
-        self.save_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
-        
-        self.buttons_layout.addWidget(self.add_button)
-        self.buttons_layout.addWidget(self.edit_button)
-        self.buttons_layout.addWidget(self.delete_button)
-        self.buttons_layout.addWidget(self.save_button)
-
-        self.layout.addLayout(self.buttons_layout)

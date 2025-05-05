@@ -7,74 +7,46 @@ from Pages import *
 from Style import *
 from DataBase import *
 
+
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         
         # Configuración de la ventana principal
         self.setWindowTitle("Geometrik - Inventario Version 2.0")
-        self.setWindowState(Qt.WindowMaximized)
-        self.setWindowIcon(QIcon("path/to/your/icon.png"))
-        
-        # Widget central
         self.central_widget = QWidget()
+        self.central_widget.setStyleSheet("background-color:hsl(180, 29%, 78%);")
+
         self.setCentralWidget(self.central_widget)
-        
-        # Layout principal
         self.main_layout = QVBoxLayout(self.central_widget)
         self.main_layout.setContentsMargins(0, 0, 0, 0)
         self.main_layout.setSpacing(0)
         
-        # Crear la barra de navegación
         self.init_navbar()
-        
-        # Crear el contenedor de páginas
         self.init_pages()
-        
-        # Establecer la primera página como predeterminada
         self.change_page(0)
+        self.setWindowState(Qt.WindowMaximized)  # Maximizar)
     
     def init_navbar(self):
-        # Crear el widget para la barra de navegación
-        navbar = QWidget()
-        navbar.setStyleSheet("background-color: #2C3E50;")
-        navbar.setMinimumHeight(70)
-        navbar.setMaximumHeight(70)
+        # Crear un QTabWidget para la barra de navegación
+        self.navbar = QTabWidget()
+        self.navbar.setStyleSheet(TAB_MAIN_DESIGN) # Asegurar que las pestañas estén en la parte superior
+        self.navbar.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)  # Ajustar la política de tamaño
         
-        # Layout horizontal para los botones de navegación
-        nav_layout = QHBoxLayout(navbar)
-        nav_layout.setContentsMargins(20, 5, 20, 5)
-        nav_layout.setSpacing(15)
+        # Añadir pestañas al QTabWidget
+        self.navbar.addTab(QWidget(), "Inventario")
+        self.navbar.addTab(QWidget(), "Materiales")
+        self.navbar.addTab(QWidget(), "Proyectos")
+        self.navbar.addTab(QWidget(), "Clientes")
+        self.navbar.addTab(QWidget(), "Estadísticas")
         
-        # Crear los botones para las diferentes secciones
-        self.nav_buttons = []
-        sections = ["Inventario", "Materiales", "Proyectos", "Clientes", "Estadisticas"]
-        name = ['inventario', 'in-out', 'proyecto', 'clientes', 'graph']
+        # Conectar el cambio de pestaña al cambio de página
+        self.navbar.currentChanged.connect(self.change_page)
         
-        # Añadir un espaciador al inicio para mejor distribución
-        nav_layout.addStretch(1)
-        
-        for i, section in enumerate(sections):
-            button = QPushButton(f'{section}')
-            button.setCheckable(True)
-            button.setStyleSheet(BUTTON_TAB_MAIN)
-            button.setFont(QFont("Fantasy", 15))
-            
-            icon = QIcon(f'src/svg/{name[i]}.svg')
-            icon_label = QLabel()
-            icon_label.setPixmap(icon.pixmap(QSize(30, 30)))
-            icon_label.setAlignment(Qt.AlignVCenter)
-            
-            nav_layout.addWidget(icon_label)
-            nav_layout.addWidget(button)
-            self.nav_buttons.append(button)
-        
-        # Añadir un espaciador al final para mejor distribución
-        nav_layout.addStretch(1)
-        
-        # Añadir la barra de navegación al layout principal
-        self.main_layout.addWidget(navbar)
-    
+        # Añadir el QTabWidget al layout principal
+        self.main_layout.addWidget(self.navbar)
+
     def init_pages(self):
         # Crear el widget apilado para manejar las páginas
         self.pages = QStackedWidget()
@@ -88,38 +60,42 @@ class MainWindow(QMainWindow):
         
         # Añadir el widget apilado al layout principal
         self.main_layout.addWidget(self.pages)
-        
-        # Conectar los botones de navegación a la función de cambio de página
-        for i, button in enumerate(self.nav_buttons):
-            button.clicked.connect(lambda checked, idx=i: self.change_page(idx))
 
     def change_page(self, index):
-        # Cargar la página si no ha sido inicializada
-        if self.section_widgets[index] is None:
-            self.section_widgets[index] = self.load_section(index)
-            self.pages.insertWidget(index, self.section_widgets[index])
-        
-        # Cambiar a la página seleccionada
-        self.pages.setCurrentIndex(index)
-        
-        # Actualizar el estado de los botones de navegación
-        for i, button in enumerate(self.nav_buttons):
-            button.setChecked(i == index)
-    
-    def load_section(self, index):
-        # Cargar la sección correspondiente
-        sections = [
-            inventarioSection,
-            materialesSection,
-            proyectoSecion,
-            clientesSection,
-            estadisticasSection,
-        ]
-        return sections[index]()
+        # Cargar la página correspondiente solo si no ha sido inicializada
+        if index == 0:
+            if self.section_widgets[0] is None:
+                self.section_widgets[0] = inventarioSection()
+                self.pages.insertWidget(0, self.section_widgets[0])
+            self.pages.setCurrentWidget(self.section_widgets[0])
 
-# Ejecutar la aplicación
+        elif index == 1:
+            if self.section_widgets[1] is None:
+                self.section_widgets[1] = materialesSection()
+                self.pages.insertWidget(1, self.section_widgets[1])
+            self.pages.setCurrentWidget(self.section_widgets[1])
+
+        elif index == 2:
+            if self.section_widgets[2] is None:
+                self.section_widgets[2] = proyecto()
+                self.pages.insertWidget(2, self.section_widgets[2])
+            self.pages.setCurrentWidget(self.section_widgets[2])
+
+        elif index == 3:
+            if self.section_widgets[3] is None:
+                self.section_widgets[3] = clientesSection()
+                self.pages.insertWidget(3, self.section_widgets[3])
+            self.pages.setCurrentWidget(self.section_widgets[3])
+
+        elif index == 4:
+            if self.section_widgets[4] is None:
+                self.section_widgets[4] = estadisticasSection()
+                self.pages.insertWidget(4, self.section_widgets[4])
+            self.pages.setCurrentWidget(self.section_widgets[4])
+
+
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
+    app = QApplication([])
     window = MainWindow()
     window.show()
-    sys.exit(app.exec_())
+    app.exec_()

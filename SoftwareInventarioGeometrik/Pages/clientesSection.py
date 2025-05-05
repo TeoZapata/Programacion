@@ -1,6 +1,6 @@
 import sys
-from PyQt5.QtWidgets import (QComboBox, QLineEdit, QWidget, QVBoxLayout, 
-                            QHBoxLayout, QPushButton, QLabel, QTableWidget, QTableWidgetItem)
+from PyQt5.QtWidgets import (QHeaderView, QLineEdit, QWidget, QVBoxLayout, 
+                            QHBoxLayout, QPushButton, QLabel, QTableWidget, QFormLayout)
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QFont, QIcon
 from Style import *
@@ -17,100 +17,132 @@ class clientesSection(QWidget):
         # Layout principal
         self.layout = QVBoxLayout(self)
         self.layout.setContentsMargins(20, 20, 20, 20)
-        self.layout.setSpacing(15)
 
         # Formulario de entrada
-        self.form_layout = QHBoxLayout()
+        self.form_layout = QVBoxLayout()
+
+        # Grid layout para organizar los campos
+        self.grid_layout = QHBoxLayout()
 
         # Columna izquierda del formulario
-        self.left_form_layout = QVBoxLayout()
+        self.left_form_layout = QFormLayout()
 
-        # Entrada para el nombre del cliente
+        self.client_id_label = QLabel("ID del Cliente")
+        self.client_id_label.setStyleSheet(LABEL_GENERAL_DESIGN)
+
+        self.client_id_input = QLineEdit()
+        self.client_id_input.setStyleSheet(ENTRY_ONLY_READ_DESIGN)
+        self.client_id_input.setReadOnly(True)
+
+        self.client_name_label = QLabel("Nombre del Cliente")
+        self.client_name_label.setStyleSheet(LABEL_GENERAL_DESIGN)
         self.client_name_input = QLineEdit()
-        self.client_name_input.setPlaceholderText("Nombre del Cliente")
         self.client_name_input.setStyleSheet(ENTRY_GENERAL_DESIGN)
 
+        self.client_address_label = QLabel("Dirección del Cliente")
+        self.client_address_label.setStyleSheet(LABEL_GENERAL_DESIGN)
         self.client_address_input = QLineEdit()
-        self.client_address_input.setPlaceholderText("Dirección del Cliente")
         self.client_address_input.setStyleSheet(ENTRY_GENERAL_DESIGN)
 
+        self.client_city_label = QLabel("Ciudad del Cliente")
+        self.client_city_label.setStyleSheet(LABEL_GENERAL_DESIGN)
+        self.client_city_input = QLineEdit()
+        self.client_city_input.setStyleSheet(ENTRY_GENERAL_DESIGN)
 
-        self.btn_clear = QPushButton("Limpiar")
-        self.btn_clear.setStyleSheet(BUTTON_GENERAL_DESIGN)
-        self.btn_clear.clicked.connect(lambda: clear_entry([self.client_name_input, self.client_address_input, self.client_phone_input, self.client_email_input]))
-
-        self.left_form_layout.addWidget(self.client_name_input)
-        self.left_form_layout.addWidget(self.client_address_input)
-        self.left_form_layout.addWidget(self.btn_clear)
+        self.left_form_layout.addRow(self.client_name_label,self.client_name_input)
+        self.left_form_layout.addRow(self.client_address_label,self.client_address_input)
+        self.left_form_layout.addRow(self.client_city_label,self.client_city_input)
+        self.left_form_layout.addRow(self.client_id_label,self.client_id_input)
 
         # Columna derecha del formulario
-        self.right_form_layout = QVBoxLayout()
+        self.right_form_layout = QFormLayout()
 
-        # Entrada para el teléfono del cliente y correo electrónico (lado derecho)
+        self.client_phone_label = QLabel("Teléfono del Cliente")
+        self.client_phone_label.setStyleSheet(LABEL_GENERAL_DESIGN)
         self.client_phone_input = QLineEdit()
-        self.client_phone_input.setPlaceholderText("Teléfono del Cliente")
         self.client_phone_input.setStyleSheet(ENTRY_GENERAL_DESIGN)
 
+        self.client_email_label = QLabel("Correo Electrónico del Cliente")
+        self.client_email_label.setStyleSheet(LABEL_GENERAL_DESIGN)
         self.client_email_input = QLineEdit()
-        self.client_email_input.setPlaceholderText("Correo Electrónico del Cliente")
         self.client_email_input.setStyleSheet(ENTRY_GENERAL_DESIGN)
 
-        self.right_form_layout.addWidget(self.client_phone_input)
-        self.right_form_layout.addWidget(self.client_email_input)
+        self.client_fecha_label = QLabel("Fecha de Registro")
+        self.client_fecha_label.setStyleSheet(LABEL_GENERAL_DESIGN)
+        self.client_fecha_input = QLineEdit()
+        self.client_fecha_input.setStyleSheet(ENTRY_GENERAL_DESIGN)
+        self.client_fecha_input.setText(fecha_actual())
+        self.client_fecha_input.setReadOnly(True)
 
-        # Agregar columnas al formulario principal
-        self.form_layout.addLayout(self.left_form_layout)
-        self.form_layout.addLayout(self.right_form_layout)
+        self.button_clear=QPushButton("Limpiar Registro")
+        self.button_clear.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        self.button_clear.clicked.connect(lambda: clear_entry([self.client_id_input,self.client_name_input,self.client_address_input,self.client_city_input,self.client_phone_input,self.client_email_input], True))
+
+
+        self.right_form_layout.addRow(self.client_phone_label,self.client_phone_input)
+        self.right_form_layout.addRow(self.client_email_label,self.client_email_input)
+        self.right_form_layout.addRow(self.client_fecha_label,self.client_fecha_input)
+        self.right_form_layout.addWidget(self.button_clear)
+
+        # Agregar columnas al layout principal
+        self.grid_layout.addLayout(self.left_form_layout)
+        self.grid_layout.addLayout(self.right_form_layout)
+
+        # Título del formulario
+        self.form_layout.addLayout(self.grid_layout)
 
         self.layout.addLayout(self.form_layout)
+        self.buttons_layout = QHBoxLayout()
+
+        self.add_button = QPushButton("Agregar")
+        self.add_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        self.add_button.clicked.connect(lambda: agregar_cliente(self))
+
+        self.edit_button = QPushButton("Editar")
+        self.edit_button.clicked.connect(lambda: editar_cliente(self))
+        self.edit_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
+
+        self.delete_button = QPushButton("Eliminar")
+        self.delete_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        self.delete_button.clicked.connect(lambda: eliminar_cliente(self))
+
+        self.update_button = QPushButton("Actualizar")
+        self.update_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        self.update_button.clicked.connect(lambda: tabla_cliente(self))
+
+        self.buttons_layout.addWidget(self.add_button)
+        self.buttons_layout.addWidget(self.edit_button)
+        self.buttons_layout.addWidget(self.delete_button)
+        self.buttons_layout.addWidget(self.update_button)
+        self.layout.addLayout(self.buttons_layout)
 
         # Tabla para mostrar proyectos registrados
         self.table_label = QLabel("Clientes Registrados:")
         self.table_label.setFont(QFont("Arial", 16, QFont.Bold))
         self.layout.addWidget(self.table_label)
 
-        self.projects_table = QTableWidget()
-        self.projects_table.setColumnCount(6)
-        self.projects_table.setHorizontalHeaderLabels(["Nombre", "Cliente", "Capacidad (kW)", "Ubicación", "Fecha Inicio", "Estado"])
-        self.projects_table.setAlternatingRowColors(True)
-        self.projects_table.setRowCount(4)
+        self.client_table = QTableWidget()
+        self.client_table.setColumnCount(7)
+        self.client_table.setHorizontalHeaderLabels(["ID", "Nombre", "Correo", "Telefono", "Dirección", "Ciudad", "Fecha de Registro"])
+        self.client_table.setAlternatingRowColors(True)
+        self.client_table.doubleClicked.connect(lambda _: mostrar_cliente(self))
+        self.client_table.horizontalHeader().setStretchLastSection(True)
+        self.client_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.client_table.setSelectionMode(QTableWidget.SingleSelection)
+        self.client_table.setEditTriggers(QTableWidget.NoEditTriggers)  # Hacer que la tabla sea de solo lectura
+        self.client_table.setSelectionBehavior(QTableWidget.SelectRows)  # Seleccionar filas completas
+        #quita el borde de la tabla y la enumeracion de filas
+        self.client_table.setShowGrid(False)  # Quitar la cuadrícula
+        #no motrar la numeracion de filas8
+        self.client_table.verticalHeader().setVisible(False)
+        
+        
+
+
+        self.client_table.setRowCount(4)
 
         # Datos ficticios
-        sample_data = [
-            ["Proyecto A", "Cliente 1", "100", "Ubicación 1", "01/01/2023", "En Progreso"],
-            ["Proyecto B", "Cliente 2", "200", "Ubicación 2", "15/02/2023", "Completado"],
-            ["Proyecto C", "Cliente 3", "300", "Ubicación 3", "10/03/2023", "Pendiente"],
-            ["Proyecto D", "Cliente 4", "400", "Ubicación 4", "20/04/2023", "En Progreso"]
-        ]
-
-        for row, data in enumerate(sample_data):
-            for col, value in enumerate(data):
-                item = QTableWidgetItem(value)
-                item.setTextAlignment(Qt.AlignCenter)
-                self.projects_table.setItem(row, col, item)
-
-        self.layout.addWidget(self.projects_table)
+        
+        self.layout.addWidget(self.client_table)
 
         # Botones CRUD
-        self.buttons_layout = QHBoxLayout()
-
-        self.add_button = QPushButton("Agregar")
-        self.add_button.setIcon(QIcon("icons/add.png"))
-        self.add_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
-
-        self.edit_button = QPushButton("Editar")
-        self.edit_button.setIcon(QIcon("icons/edit.png"))
-        self.edit_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
-
-        self.delete_button = QPushButton("Eliminar")
-        self.delete_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
-
-        self.save_button = QPushButton("Guardar")
-        self.save_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
-
-        self.buttons_layout.addWidget(self.add_button)
-        self.buttons_layout.addWidget(self.edit_button)
-        self.buttons_layout.addWidget(self.delete_button)
-        self.buttons_layout.addWidget(self.save_button)
-
-        self.layout.addLayout(self.buttons_layout)
