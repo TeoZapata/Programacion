@@ -47,6 +47,7 @@ class DevolucionMaterial(QWidget):
         self.entry_buscar_inventario = QLineEdit()
         self.entry_buscar_inventario.setPlaceholderText("Buscar Material")
         self.entry_buscar_inventario.setStyleSheet(ENTRY_GENERAL_DESIGN)
+        self.entry_buscar_inventario.textChanged.connect(self.buscar_inventario)
 
     # Agrega los resultados al QComboBox
 
@@ -78,8 +79,8 @@ class DevolucionMaterial(QWidget):
         self.table.setSelectionMode(QTableWidget.SingleSelection)
         self.table.setShowGrid(False)
         self.table.verticalHeader().setVisible(False)
+        self.table.doubleClicked.connect(lambda : click_tablaDevolucion(self))
     
-        
 
         available_table_layout.addWidget(self.table)
         tables_layout.addLayout(available_table_layout)
@@ -94,9 +95,8 @@ class DevolucionMaterial(QWidget):
         selected_table_layout.addWidget(selected_table_title)
 
         self.selected_table = QTableWidget()
-        self.selected_table.setColumnCount(7)
-        self.selected_table.setHorizontalHeaderLabels(["ID", "Nombre", "Cantidad\nSeleccionada", "Unidad", 'Precio\nUnitario', 'Precio\nTotal', "Quitar"])
-        self.selected_table.setRowCount(0)
+        self.selected_table.setColumnCount(10)
+        self.selected_table.setHorizontalHeaderLabels(["ID", "Nombre", "Cliente", "Responsable\nde Salida","id Material" ,"Material","Cantidad\na retirar","Unidad","Precio\nUnitario", "Precio\nTotal"])
         self.selected_table.setEditTriggers(QTableWidget.NoEditTriggers)  # Hacer que la tabla sea de solo lectura
         self.selected_table.setSelectionBehavior(QTableWidget.SelectRows)
         self.selected_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
@@ -118,8 +118,9 @@ class DevolucionMaterial(QWidget):
         button_layout = QHBoxLayout()
         button_layout.setSpacing(10)
 
-        btn_gen_pdf = QPushButton("Generar PDF")
+        btn_gen_pdf = QPushButton("Generar Devolución")
         btn_gen_pdf.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        btn_gen_pdf.clicked.connect(lambda: (generar_devolucion(self), cargar_salidaMaterial_proyecto(self), limpiarSelectTable(self)))
 
         btn_generar_recibo = QPushButton("Buscar Material")
         btn_generar_recibo.setStyleSheet(BUTTON_GENERAL_DESIGN)
@@ -127,6 +128,8 @@ class DevolucionMaterial(QWidget):
 
         btn_limpiar = QPushButton("Limpiar Tabla")
         btn_limpiar.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        btn_limpiar.clicked.connect(lambda: limpiarSelectTable(self))
+
 
         
 
@@ -136,4 +139,5 @@ class DevolucionMaterial(QWidget):
 
         self.layout.addLayout(button_layout)
         self.layout.addLayout(tables_layout)
-  
+    def buscar_inventario(self, text):
+        filterTable(self, text)

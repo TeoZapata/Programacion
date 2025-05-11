@@ -1,10 +1,11 @@
 
-from PyQt5.QtWidgets import QLineEdit,QTableWidgetItem, QMessageBox
+from PyQt5.QtWidgets import QLineEdit,QTableWidgetItem, QMessageBox,QInputDialog
 from PyQt5.QtCore import Qt
 from Style import  *
 from DataBase.storeDB import storeBD
 from src.utils.getCodeBar import getCodeBar
 from src.utils.getDate import fecha_actual
+
 
 
 def clear_entry(listaWidget: list, comp:bool = False ) -> None:
@@ -29,8 +30,23 @@ def cargar_invenario(self):
             for column, data in enumerate(material):
                 item = QTableWidgetItem(str(data))
                 item.setTextAlignment(Qt.AlignCenter)
+
+                # Aplicar color según la cantidad
+                if column == 4:  # Suponiendo que la columna 4 es la de cantidad
+                    cantidad = int(data)
+                    cantidad_minima = int(material[8])  # Suponiendo que la columna 8 es la cantidad mínima
+                    cantidad_maxima = int(material[9])  # Suponiendo que la columna 9 es la cantidad máxima
+
+                    if cantidad == 0:
+                        item.setBackground(Qt.red)
+                    elif cantidad < cantidad_minima:
+                        item.setBackground(Qt.yellow)
+                    elif cantidad_minima <= cantidad <= cantidad_maxima:
+                        item.setBackground(Qt.green)
+                    else: 
+                        item.setBackground(Qt.blue)
+
                 self.data_table.setItem(row_position, column, item)
-            
             
 def agregar_cliente(self) -> None:
     """Agrega un nuevo cliente a la base de datos."""
@@ -326,7 +342,6 @@ def actualizar_cantidad(self,datos:list):
         id_producto = dato[0]
         nombre = dato[1]
         cantidad = dato[2]
-        unidad = dato[3]
         precio_unitario = dato[4]
         precio_total = dato[5]
 
@@ -334,9 +349,10 @@ def actualizar_cantidad(self,datos:list):
         if db:
             # Actualizar la cantidad en la base de datos
             db.ejecutar_consulta(
-                "UPDATE inventario SET cantidad=cantidad-?, precio=?, precioTotal=? WHERE id=?",
-                (cantidad, precio_unitario, precio_total, id_producto)
+                "UPDATE inventario SET cantidad=cantidad-? WHERE id=?",
+                (cantidad, id_producto)
             )
+            db.ejecutar_consulta(" UPDATE inventario SET precioTotal = cantidad * precio WHERE id = ? ", (id_producto,))
             print(f"Cantidad actualizada para el producto {nombre} (ID: {id_producto})")
 
 def cargar_proyecto_tabla(self):
@@ -437,16 +453,14 @@ def obtener_nombres_proyectos(combobox):
     """Carga los nombres de los proyectos desde la base de datos."""
     db = conex()
     proyectos = db.ejecutar_consulta("SELECT nombre FROM proyectos")
-    print("me ejecute")
     combobox.addItems([proyecto[0] for proyecto in proyectos])
 
 def cargar_salidaMaterial_proyecto(self):
     """Carga el material agrupado por proyecto y retorna las listas de materiales con su información."""
     self.table.setRowCount(0)
     proyecto = self.entry_proyecto.currentText()
-    print(proyecto)
     db = conex()
-    datos = db.ejecutar_consulta('SELECT * FROM salida WHERE proyecto = ?', (proyecto,))
+    datos = db.ejecutar_consulta('SELECT * FROM registro WHERE proyecto = ? AND descripcion = "salida" ', (proyecto,))
     for dato in datos:
         row_position = self.table.rowCount()
         self.table.insertRow(row_position)
@@ -455,15 +469,15 @@ def cargar_salidaMaterial_proyecto(self):
             item.setTextAlignment(Qt.AlignCenter)
             self.table.setItem(row_position, column, item)
 
-    self.entry_proyecto.clear()
     obtener_nombres_proyectos(self.entry_proyecto)
+    self.selected_table.setRowCount(0)
 
 def agregar_salida_material(data):
     
     db = conex()
     for i in range(len(data['productos'])):
         
-        db.ejecutar_consulta("INSERT INTO salida (proyecto,cliente,responsable,id_material,material,cantidad,unidad,precio,precioTotal,descripcion,fecha) VALUES (?,?,?,?,?,?,?,?,?,?,? )",
+        db.ejecutar_consulta("INSERT INTO registro (proyecto,cliente,responsable,id_material,material,cantidad,unidad,precio,precioTotal,descripcion,fecha) VALUES (?,?,?,?,?,?,?,?,?,?,? )",
                             (data['proyecto'],
                             data['cliente'],
                             data['responsable'],
@@ -475,6 +489,41 @@ def agregar_salida_material(data):
                             data['productos'][i]['precio_total'],
                             'salida',
                             data['fecha']))
+def click_tablaDevolucion(self):
+    row = self.table.currentRow()
+    id_salida = self.table.item(row, 0).text()
+    nombre = self.table.item(row, 1).text()
+    cliente = self.table.item(row, 2).text()
+    responsable = self.table.item(row, 3).text()
+    id_material = self.table.item(row, 4).text()
+    material = self.table.item(row, 5).text()
+    cantida = self.table.item(row, 6).text()
+    unidad = self.table.item(row, 7).text()
+    precio_unitario = self.table.item(row, 8).text()
 
-    
-    
+    if int(cantida)==0:
+        QMessageBox.warning(None,"Error", f"{material} tiene una cantidad de 0")
+        return
+
+    cantidad_ingresada, ok = QInputDialog.getInt(
+        None,
+        "Seleccionar Cantidad",
+        f"Selecciona la cantidad para el material {material}:",
+        min=1,
+        max=int(cantida),
+        step=1
+    )
+    if ok:
+        QMessageBox.information(None, "Cantidad Seleccionada", f"Has seleccionado {cantidad_ingresada} unidades de {material}.")
+        row_position = self.selected_table.rowCount()
+        self.selected_table.insertRow(row_position)
+        self.selected_table.setItem(row_position, 0, QTableWidgetItem(id_salida))
+        self.selected_table.setItem(row_position, 1, QTableWidgetItem(nombre))
+        self.selected_table.setItem(row_position, 2, QTableWidgetItem(cliente))
+        self.selected_table.setItem(row_position, 3, QTableWidgetItem(responsable))
+        self.selected_table.setItem(row_position, 4, QTableWidgetItem(id_material))
+        self.selected_table.setItem(row_position, 5, QTableWidgetItem(material))
+        self.selected_table.setItem(row_position, 6, QTableWidgetItem(str(cantidad_ingresada)))
+        self.selected_table.setItem(row_position, 7, QTableWidgetItem(unidad))
+        self.selected_table.setItem(row_position, 8, QTableWidgetItem(precio_unitario))
+        self.selected_table.setItem(row_position, 9, QTableWidgetItem(str(int(precio_unitario)*int(cantidad_ingresada))))

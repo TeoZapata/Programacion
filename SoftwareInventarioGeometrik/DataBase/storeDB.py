@@ -33,7 +33,7 @@ class storeBD:
                         kwp FLOAT,
                         fechaCreacion DATE
                         )''')
-            cur.execute('''CREATE TABLE IF NOT EXISTS salida (
+            cur.execute('''CREATE TABLE IF NOT EXISTS registro (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         proyecto TEXT,
                         cliente TEXT,

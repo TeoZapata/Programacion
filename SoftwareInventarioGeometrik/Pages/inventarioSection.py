@@ -12,6 +12,7 @@ from src.utils.importExcel import import_excel_and_store_inventory
 from src.utils.exportExcel import iniciar_exportacion
 from src.utils.calcularInventario import *
 from DataBase.storeDB import *
+from DataBase.managerInventario import *
 
 
 
@@ -164,6 +165,7 @@ class inventarioSection(QWidget):
         self.entry_search.setMinimumHeight(30)
         self.entry_search.setPlaceholderText("Ingrese el nombre del producto")
         self.entry_search.setStyleSheet(ENTRY_GENERAL_DESIGN)
+        self.entry_search.textChanged.connect(self.buscar_inventario)
         #agrega espacio al ente_search
         self.entry_search.setContentsMargins(10, 0, 0, 0)  # Espacio a la izquierda
         search_and_crud_layout.addWidget(search_input)
@@ -214,4 +216,6 @@ class inventarioSection(QWidget):
     def get_export(self):
         iniciar_exportacion(self.db)
         cargar_invenario(self)
-
+    def buscar_inventario(self, text):
+        filterTableInventario(self, text)
+   

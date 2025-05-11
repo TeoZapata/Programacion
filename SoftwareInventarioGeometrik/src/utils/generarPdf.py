@@ -5,6 +5,8 @@ from PyQt5.QtWidgets import QMessageBox
 import os
 from datetime import datetime
 from src.utils.standarFunc import *
+from DataBase.managerInventario import *
+from DataBase.storeDB import *
 
 def generar_pdf_simple(data, save_directory):
     """
@@ -106,13 +108,6 @@ def gen_pdf(self):
             item["precio_total"] = item["cantidad"] * item["precio_unitario"]
             productos.append(item)
 
-        generar_pdf_simple(data={
-            "cliente": cliente,
-            "proyecto": proyecto,
-            "responsable": responsable,
-            "fecha": fecha,
-            "productos": productos,
-        }, save_directory="./") # Cambia el directorio según sea necesario
 
         agregar_salida_material(data={
             "cliente": cliente,
@@ -122,5 +117,14 @@ def gen_pdf(self):
             "productos": productos,
         })
 
+        getSelectedTable(self)
+
+        generar_pdf_simple(data={
+            "cliente": cliente,
+            "proyecto": proyecto,
+            "responsable": responsable,
+            "fecha": fecha,
+            "productos": productos,
+        }, save_directory="./") # Cambia el directorio según sea necesario
         
         

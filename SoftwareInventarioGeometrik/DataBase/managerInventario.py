@@ -160,6 +160,19 @@ def filterTable(self, search_text):
                 match_found = True
                 break
         self.table.setRowHidden(row, not match_found)
+def filterTableInventario(self, search_text):
+    """Filtra las filas de la tabla principal según el texto ingresado."""
+    search_text = search_text.lower()  # Convertir a minúsculas para búsqueda insensible a mayúsculas
+    for row in range(self.data_table.rowCount()):
+        match_found = False
+        for col in range(self.data_table.columnCount()):
+            item = self.data_table.item(row, col)
+            if item and search_text in item.text().lower():
+                match_found = True
+                break
+        self.data_table.setRowHidden(row, not match_found)
+
+
 
 def getSelectedTable(self):
     """Devuelve los datos de la tabla seleccionada."""
@@ -175,8 +188,76 @@ def getSelectedTable(self):
         selected_data.append(row_data)
     
     actualizar_cantidad(self,selected_data)
-    self.selected_table.setRowCount(0)
     getManagerInventario(self)  # Actualizar la cantidad en la base de datos
 
-    
+def generar_devolucion(self):
+    responsable = self.entry_responsable.text()
+    if not responsable:
+        QMessageBox.warning(None, "Error", "Debes ingresar un Responsable")
+        return
+
+    selected_data = []
+    for row in range(self.selected_table.rowCount()):
+        row_data = []
+        for col in range(self.selected_table.columnCount()):
+            item = self.selected_table.item(row, col)
+            if item:
+                row_data.append(item.text())
+            else:
+                row_data.append(None)  # Agregar None si no hay elemento en la celda
+        selected_data.append(row_data)
+
+    if not selected_data:
+        QMessageBox.warning(None, "Error", "No hay materiales seleccionados para devolver")
+        return
+
+    confirmacion = QMessageBox.question(
+        None,
+        "Atención",
+        f"Desea realizar la devolución para {responsable}?",
+        QMessageBox.Yes | QMessageBox.No
+    )
+
+    if confirmacion == QMessageBox.Yes:
+        db = conex()
+        db.iniciar_bd()
+
+        for material in selected_data:
+            print(f"Material: {material}")
+            # actulizar en la base de datos en la tabla 'registro'
+            # Validate material list to avoid IndexError
+            if len(material) < 10:
+                QMessageBox.warning(None, "Error", "Datos incompletos en el material seleccionado")
+                return
+
+            # Update the 'registro' table
+            db.ejecutar_consulta("UPDATE registro SET cantidad = cantidad - ? WHERE id = ?", (material[6], material[0]))
+            db.ejecutar_consulta("UPDATE registro SET precioTotal=cantidad*precio WHERE id = ?", (material[0],))
+            # Add the return entry with a description
+            db.ejecutar_consulta(
+                "INSERT INTO registro (proyecto, cliente, responsable, id_material, material, cantidad, unidad, precio, precioTotal, descripcion, fecha) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                (
+                    material[1],  # proyecto
+                    material[2],  # cliente
+                    responsable,  # responsable
+                    material[4],  # id_material
+                    material[5],  # material
+                    material[6],  # cantidad
+                    material[7],  # unidad
+                    material[8],  # precio
+                    material[9],  # precioTotal
+                    "devolucion",  # descripcion
+                    fecha_actual(),  # fecha (función que genera la fecha actual)
+                )
+            )
+
+            # Update the 'inventario' table
+            db.ejecutar_consulta("UPDATE inventario SET cantidad = cantidad + ? WHERE id = ?", (material[6], material[4]))
+            db.ejecutar_consulta("UPDATE inventario SET precioTotal = cantidad * precio WHERE id = ?",(material[4],))
+                  
+
+        QMessageBox.information(None, "Éxito", "Devolución registrada exitosamente")
+        limpiarSelectTable(self)  # Limpiar la tabla seleccionada
+    else:
+        QMessageBox.warning(None, "Cancelado", "La devolución ha sido cancelada")
 

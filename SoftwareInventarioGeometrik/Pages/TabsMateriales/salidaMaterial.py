@@ -55,8 +55,9 @@ class SalidaMaterial(QWidget):
         self.label_fecha_actual.setStyleSheet(LABEL_GENERAL_DESIGN)
         self.entry_fecha_Actual = QLineEdit()
         self.entry_fecha_Actual.setText(fecha_actual())
+        self.entry_fecha_Actual.setReadOnly(True)
         self.entry_fecha_Actual.setMinimumWidth(150)
-        self.entry_fecha_Actual.setStyleSheet(ENTRY_GENERAL_DESIGN)
+        self.entry_fecha_Actual.setStyleSheet(ENTRY_ONLY_READ_DESIGN)
 
         proyect_line.addWidget(self.label_proyecto)
         proyect_line.addWidget(self.entry_proyecto, 1)
@@ -147,7 +148,7 @@ class SalidaMaterial(QWidget):
 
         btn_gen_pdf = QPushButton("Generar PDF")
         btn_gen_pdf.setStyleSheet(BUTTON_GENERAL_DESIGN)
-        btn_gen_pdf.clicked.connect(self.generar_pdf)
+        btn_gen_pdf.clicked.connect(lambda :(gen_pdf(self), getManagerInventario(self), limpiarSelectTable(self)))
 
         btn_actualizar_tabla = QPushButton("Actualizar Tabla")
         btn_actualizar_tabla.setStyleSheet(BUTTON_GENERAL_DESIGN)
@@ -165,9 +166,7 @@ class SalidaMaterial(QWidget):
         self.layout.addLayout(button_layout)
         self.layout.addLayout(tables_layout)
     
-    def generar_pdf(self):
-        gen_pdf(self)
-        getSelectedTable(self)
+
 
     def buscar_inventario(self, text):
         filterTable(self, text) 
