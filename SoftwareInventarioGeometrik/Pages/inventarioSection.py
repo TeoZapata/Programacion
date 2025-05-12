@@ -23,7 +23,7 @@ class inventarioSection(QWidget):
         self.db = storeBD()
         self.db.iniciar_bd()
         cargar_invenario(self)
-
+        iniciar_calculo_inventario(self)
 
     def init_ui(self):
         # Layout principal
@@ -119,23 +119,23 @@ class inventarioSection(QWidget):
 
         self.add_button = QPushButton("Agregar")
         self.add_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
-        self.add_button.clicked.connect(lambda: (agregar_producto(self.line_edits.values()), cargar_invenario(self)))  # Conectar el botón a la función de agregar producto y cargar inventario nuevamente
+        self.add_button.clicked.connect(lambda: (agregar_producto(self.line_edits.values()), cargar_invenario(self),iniciar_calculo_inventario(self)))  # Conectar el botón a la función de agregar producto y cargar inventario nuevamente
         
         self.edit_button = QPushButton("Editar")
         self.edit_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
-        self.edit_button.clicked.connect(lambda: (editar_producto(self), cargar_invenario(self)))  # Conectar el botón a la función de editar producto y cargar inventario nuevamente
+        self.edit_button.clicked.connect(lambda: (editar_producto(self), cargar_invenario(self),iniciar_calculo_inventario(self)))  # Conectar el botón a la función de editar producto y cargar inventario nuevamente
         
         self.delete_button = QPushButton("Eliminar")
         self.delete_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
-        self.delete_button.clicked.connect(lambda: (eliminar_producto(self), cargar_invenario(self)))  # Conectar el botón a la función de eliminar producto y cargar inventario nuevamente
+        self.delete_button.clicked.connect(lambda: (eliminar_producto(self), cargar_invenario(self),iniciar_calculo_inventario(self)))  # Conectar el botón a la función de eliminar producto y cargar inventario nuevamente
         
         self.import_excel_button = QPushButton("Importar Excel")
         self.import_excel_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
-        self.import_excel_button.clicked.connect(self.get_import)  # Conectar el botón a la función de importación
+        self.import_excel_button.clicked.connect(lambda: (import_excel_and_store_inventory(self.db),cargar_invenario(self)))  # Conectar el botón a la función de importación
         
         self.export_excel_button = QPushButton("Exportar Excel")
         self.export_excel_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
-        self.export_excel_button.clicked.connect(self.get_export)  # Conectar el botón a la función de exportación
+        self.export_excel_button.clicked.connect(lambda: (iniciar_exportacion(self.db), cargar_invenario(self) ))  # Conectar el botón a la función de exportación
 
         botton_box.addWidget(self.add_button)
         botton_box.addWidget(self.edit_button)
@@ -210,12 +210,7 @@ class inventarioSection(QWidget):
         layout.addWidget(pages_container)
 
 
-    def get_import(self):
-        import_excel_and_store_inventory(self.db)
-        cargar_invenario(self)
-    def get_export(self):
-        iniciar_exportacion(self.db)
-        cargar_invenario(self)
+    
     def buscar_inventario(self, text):
         filterTableInventario(self, text)
    

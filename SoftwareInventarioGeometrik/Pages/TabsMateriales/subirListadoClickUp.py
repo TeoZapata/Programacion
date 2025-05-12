@@ -5,6 +5,7 @@ from PyQt5.QtGui import QFont, QIcon
 from Style import *
 from src.utils.clickup import *
 from src.utils.prueba_clicup import *
+from PyQt5.QtWidgets import QFileDialog
 
 class SubirListadoClickUp(QWidget):
     def __init__(self, parent=None):
@@ -100,14 +101,23 @@ class SubirListadoClickUp(QWidget):
         # Botón para generar PDF con los materiales seleccionados
         self.generate_pdf_button = QPushButton("Generar PDF")
         self.generate_pdf_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        def select_file():
+            file_dialog = QFileDialog()
+            file_dialog.setNameFilter("PDF Files (*.pdf)")
+            if file_dialog.exec_():
+                selected_file = file_dialog.selectedFiles()[0]
+                return [selected_file]
+            return None
+
         self.generate_pdf_button.clicked.connect(lambda: crear_tarea(
             self,
             self.task_name_input.text(),
             ", ".join([f"{self.materiales_table.item(row, 0).text()} ({self.materiales_table.item(row, 1).text()} {self.materiales_table.item(row, 2).text()})"
-                   for row in range(self.materiales_table.rowCount())
-                   if self.materiales_table.item(row, 0) and self.materiales_table.item(row, 1) and self.materiales_table.item(row, 2)]),
+               for row in range(self.materiales_table.rowCount())
+               if self.materiales_table.item(row, 0) and self.materiales_table.item(row, 1) and self.materiales_table.item(row, 2)]),
             self.list_id_input.text(),
-            self.api_key_input.text()
+            self.api_key_input.text(),
+            select_file()  # Allow the user to select the file
         ))
         self.layout.addWidget(self.generate_pdf_button)
 

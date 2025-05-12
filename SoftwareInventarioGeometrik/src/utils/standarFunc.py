@@ -1,6 +1,7 @@
 
 from PyQt5.QtWidgets import QLineEdit,QTableWidgetItem, QMessageBox,QInputDialog
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QColor
 from Style import  *
 from DataBase.storeDB import storeBD
 from src.utils.getCodeBar import getCodeBar
@@ -40,11 +41,11 @@ def cargar_invenario(self):
                     if cantidad == 0:
                         item.setBackground(Qt.red)
                     elif cantidad < cantidad_minima:
-                        item.setBackground(Qt.yellow)
+                        item.setBackground(QColor("orange"))
                     elif cantidad_minima <= cantidad <= cantidad_maxima:
                         item.setBackground(Qt.green)
                     else: 
-                        item.setBackground(Qt.blue)
+                        item.setBackground(QColor('#E10098'))
 
                 self.data_table.setItem(row_position, column, item)
             
