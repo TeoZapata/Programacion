@@ -21,9 +21,10 @@ def cargar_invenario(self):
         """Carga el inventario desde la base de datos y lo muestra en la tabla."""
         # Limpiar la tabla antes de cargar nuevos datos
         self.data_table.setRowCount(0)
-
+        db = conex()
+        db.iniciar_bd()
         # Obtener los datos del inventario desde la base de datos
-        materiales = self.db.obtener_inventario()
+        materiales = db.obtener_inventario()
         # Llenar la tabla con los datos obtenidos
         for material in materiales:
             row_position = self.data_table.rowCount()

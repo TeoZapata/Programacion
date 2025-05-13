@@ -223,9 +223,6 @@ def generar_devolucion(self):
         db.iniciar_bd()
 
         for material in selected_data:
-            print(f"Material: {material}")
-            # actulizar en la base de datos en la tabla 'registro'
-            # Validate material list to avoid IndexError
             if len(material) < 10:
                 QMessageBox.warning(None, "Error", "Datos incompletos en el material seleccionado")
                 return
@@ -261,3 +258,72 @@ def generar_devolucion(self):
     else:
         QMessageBox.warning(None, "Cancelado", "La devolución ha sido cancelada")
 
+def tabla_registro_historial(self):
+    db = conex()
+    db.iniciar_bd()
+
+    # Fetch all records from the 'registro' table
+    registros = db.ejecutar_consulta("SELECT * FROM registro")
+
+    # Clear the table before inserting new data
+    self.table.setRowCount(0)
+    # Populate the QTableWidget with the fetched data
+    for registro in registros:
+        row_position = self.table.rowCount()
+        self.table.insertRow(row_position)
+
+        # Assuming the columns are in the following order:
+        # proyecto, cliente, responsable, id_material, material, cantidad, unidad, precio, precioTotal, descripcion, fecha
+        for col, value in enumerate(registro[1:]):  # Skip the first column (index 0)
+            item = QTableWidgetItem(str(value))
+            item.setTextAlignment(Qt.AlignCenter)  # Align text to the center
+
+            # Check the value in the "descripcion" column (index 9)
+            if col == 9:
+                if value.lower() == "entrada":
+                    item.setBackground(QColor('#43B02A'))  # Paint the cell green for "entrada"
+                elif value.lower() == "devolucion":
+                    item.setBackground(QColor('#FF671F'))  # Paint the cell yellow for "devolucion"
+                elif value.lower() == "salida":
+                    item.setBackground(QColor('#00C1D5'))  # Paint the cell red for "salida"
+
+            self.table.setItem(row_position, col, item)
+def seleccion_material_entrada(self):
+    """Ventana emergente cuando se da doble click al elemento de la tabla de entrada, 
+    se creará una ventana pequeña que tenga un formulario para ingresar la entrada que pongan, 
+    proveedor, precio, cantidad, etc."""
+    row = self.data_table.currentRow()
+    if row >= 0:
+        # Obtener información del material seleccionado
+        nombre_item = self.data_table.item(row, 1)  # Nombre del material
+        cantidad_disponible_item = self.data_table.item(row, 2)  # Cantidad disponible
+        unidad_item = self.data_table.item(row, 3)  # Unidad de medida
+
+        if nombre_item and cantidad_disponible_item and unidad_item:
+            nombre = nombre_item.text()
+            cantidad_disponible = cantidad_disponible_item.text()
+            unidad = unidad_item.text()
+
+            # Crear una ventana emergente para ingresar los datos de entrada
+            dialog = QInputDialog(self)
+            dialog.setWindowTitle("Registrar Entrada")
+            dialog.setLabelText(
+                f"Ingrese los datos para el material '{nombre}':\n"
+                f"Cantidad disponible: {cantidad_disponible} {unidad}"
+            )
+            dialog.setInputMode(QInputDialog.TextInput)
+            dialog.setTextValue("Proveedor, Precio, Cantidad")
+            ok = dialog.exec_()
+
+            if ok:
+                entrada_datos = dialog.textValue()
+                # Procesar los datos ingresados
+                if entrada_datos:
+                    # Aquí puedes dividir los datos ingresados y realizar las operaciones necesarias
+                    QMessageBox.information(
+                        self, "Entrada Registrada", f"Datos ingresados: {entrada_datos}"
+                    )
+                else:
+                    QMessageBox.warning(
+                        self, "Error", "No se ingresaron datos válidos para la entrada."
+                    )

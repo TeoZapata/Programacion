@@ -1,8 +1,9 @@
 from PyQt5.QtWidgets import (QDateEdit, QLineEdit, QWidget, QVBoxLayout,
-                             QHBoxLayout, QPushButton, QLabel, QTableWidget,QComboBox)
+                             QHBoxLayout, QPushButton, QHeaderView, QTableWidget,QComboBox)
 from PyQt5.QtCore import Qt, QSize,QDate
 from PyQt5.QtGui import QFont, QIcon
 from Style import *
+from DataBase.managerInventario import *
 
 class HistorialMaterial(QWidget):
     def __init__(self, parent=None):
@@ -48,14 +49,29 @@ class HistorialMaterial(QWidget):
 
         # Tabla de visualización
         self.table = QTableWidget()
-        self.table.setColumnCount(4)  # Example: 4 columns
-        self.table.setHorizontalHeaderLabels(["Fecha", "Responsable", "Concepto", "Detalles"])
-        self.table.horizontalHeader().setStretchLastSection(True)
+        self.table.setColumnCount(11)  # Example: 4 columns
+        self.table.setHorizontalHeaderLabels(['proyecto' ,
+                        'cliente' ,
+                        'responsable' ,
+                        'id_material' ,
+                        'material' ,
+                        'cantidad' ,
+                        'unidad' ,
+                        'precio' ,
+                        'precioTotal' ,
+                        'descripcion' ,
+                        'fecha' ])
         self.table.setAlternatingRowColors(True)
-        self.table.setStyleSheet("QTableWidget { border: 1px solid #ccc; }")
+        self.table.setEditTriggers(QTableWidget.NoEditTriggers)  # Hacer que la tabla sea de solo lectura
+        self.table.setSelectionBehavior(QTableWidget.SelectRows)
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.table.setSelectionMode(QTableWidget.SingleSelection)
+        self.table.setShowGrid(False)
+        self.table.verticalHeader().setVisible(False)
         self.layout.addWidget(self.table)
 
         # Botón para generar reporte
         self.report_button = QPushButton("Generar Reporte")
         self.report_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        self.report_button.clicked.connect(lambda: tabla_registro_historial(self))
         self.layout.addWidget(self.report_button)
