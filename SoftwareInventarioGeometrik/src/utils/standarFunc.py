@@ -529,3 +529,64 @@ def click_tablaDevolucion(self):
         self.selected_table.setItem(row_position, 7, QTableWidgetItem(unidad))
         self.selected_table.setItem(row_position, 8, QTableWidgetItem(precio_unitario))
         self.selected_table.setItem(row_position, 9, QTableWidgetItem(str(int(precio_unitario)*int(cantidad_ingresada))))
+
+def informacion_cliente(self):
+    """obtiene los datos en los ordenes de la tabla clientes"""
+    proyecto = self.entry_proyecto.currentText()
+
+    try:
+        db = conex()
+        db.iniciar_bd()
+        datos = db.ejecutar_consulta("SELECT cliente, ubicacion direccion FROM proyectos WHERE nombre = ?", (proyecto,))
+        if datos:
+            cliente = datos[0][0]
+            proyecto = datos[0][1]
+            return cliente, proyecto
+        else:
+            QMessageBox.warning(None, "Error", "No se encontró información del cliente.")
+            return None
+
+       
+    except Exception as e:
+        QMessageBox.warning(None, "Error", f"Error al obtener la información del cliente: {str(e)}")
+        return None
+
+def agregar_entrada_material(responsable, productos):
+    """
+    Agrega registros de entrada para una lista de productos seleccionados.
+    Cada producto debe ser un diccionario con la estructura especificada.
+    """
+    db = conex()
+    for producto in productos:
+        db.ejecutar_consulta(
+            "INSERT INTO registro (proyecto,cliente,responsable,id_material,material,cantidad,unidad,precio,precioTotal,descripcion,fecha) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+            (
+                'Almacen',                # proyecto
+                'N/A',                    # cliente
+                responsable,              # responsable
+                producto['id'],           # id_material
+                producto['nombre'],       # material
+                producto['cantidad_disponible'], # cantidad
+                producto['unidad'],       # unidad
+                producto['precio_unitario'],     # precio
+                producto['precio_total'],        # precioTotal
+                'entrada',                # descripcion
+                fecha_actual()                     # fecha
+            )
+        )
+    
+    print("Registros de entrada agregados correctamente.")
+
+def actualizar_cantidad_entrada(productos):
+    """Actualiza la cantidad de los productos en la base de datos después de una entrada."""
+    for dato in productos:
+
+        db = conex()
+        if db:
+            # Actualizar la cantidad en la base de datos
+            db.ejecutar_consulta(
+                "UPDATE inventario SET cantidad=cantidad+? WHERE id=?",
+                (dato['cantidad_disponible'], dato['id'])
+            )
+            
+            db.ejecutar_consulta("UPDATE inventario SET precioTotal = cantidad * precio WHERE id = ?", (dato['id'],))

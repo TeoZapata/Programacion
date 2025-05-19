@@ -87,16 +87,16 @@ def generar_pdf_simple(data, save_directory):
 def gen_pdf(self):
         """Genera el PDF con los datos de la tabla seleccionada."""
         # Obtener los datos de la tabla seleccionada
-        
-        cliente = self.entry_cliente.text()
+        cliente , proyecto = informacion_cliente(self)
         proyecto = self.entry_proyecto.currentText()
         responsable = self.entry_responsable.text()
         fecha = self.entry_fecha_Actual.text()
-        if not all([cliente, proyecto, responsable, fecha]):
-            QMessageBox.warning(None, "Error", "Por favor, completa todos los campos.")
-            return
 
+        if responsable == "":
+            QMessageBox.warning(self, "Error", "Por favor, ingrese el nombre del responsable.")
+            return
         productos = []
+        
         for row in range(self.selected_table.rowCount()):
             item = {
                 "id": self.selected_table.item(row, 0).text(),

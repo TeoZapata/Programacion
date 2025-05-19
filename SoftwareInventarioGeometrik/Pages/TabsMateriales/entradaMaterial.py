@@ -12,6 +12,7 @@ class EntradaMaterial(QWidget):
         super().__init__(parent)
         self.init_ui()
 
+
     def init_ui(self):
         # Layout principal
         self.layout = QVBoxLayout()
@@ -23,7 +24,7 @@ class EntradaMaterial(QWidget):
         top_line.setContentsMargins(0, 0, 0, 0)
         top_line.setSpacing(10)
 
-        label_responsable = QLabel("Responsable:")
+        label_responsable = QLabel("Factura o Identificación:")
         label_responsable.setStyleSheet(LABEL_GENERAL_DESIGN)
 
         self.entry_responsable = QLineEdit()
@@ -32,6 +33,10 @@ class EntradaMaterial(QWidget):
 
         label_fecha_actual = QLabel("Fecha Actual:")
         label_fecha_actual.setStyleSheet(LABEL_GENERAL_DESIGN)
+
+        btn_buscar_cliente = QPushButton("Buscar Cliente")
+        btn_buscar_cliente.setStyleSheet(BUTTON_GENERAL_DESIGN)
+
 
         self.entry_fecha_actual = QLineEdit()
         self.entry_fecha_actual.setText(fecha_actual())
@@ -43,6 +48,8 @@ class EntradaMaterial(QWidget):
         top_line.addWidget(self.entry_responsable,1)
         top_line.addWidget(label_fecha_actual)
         top_line.addWidget(self.entry_fecha_actual,1)
+        top_line.addWidget(btn_buscar_cliente)
+        
 
         self.setLayout(self.layout)
         self.layout.addLayout(top_line)
@@ -57,6 +64,8 @@ class EntradaMaterial(QWidget):
 
         self.btn_buscar_material = QPushButton("Buscar")
         self.btn_buscar_material.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        self.btn_buscar_material.clicked.connect(lambda : cargar_invenario(self))
+
         self.btn_agregar_material = QPushButton("Agregar Material")
         self.btn_agregar_material.setStyleSheet(BUTTON_GENERAL_DESIGN)
 
@@ -78,7 +87,6 @@ class EntradaMaterial(QWidget):
         self.data_table.setColumnCount(12)
         self.data_table.setHorizontalHeaderLabels(["ID","Nombre","Sección","Codigo\nDe\nBarras","Cantidad\nDisponible","Unidad", "Precio\nUnitario", "Precio\nTotal", "Cantidad\nMinima","Cantidad\nMaxima","Proveedor", "Ultima\nActualización"])
         self.data_table.setRowCount(0)
-        cargar_invenario(self)
         self.data_table.setAlternatingRowColors(True)
         self.data_table.setEditTriggers(QTableWidget.NoEditTriggers)  # Hacer que la tabla sea de solo lectura
         self.data_table.setSelectionBehavior(QTableWidget.SelectRows)
@@ -89,7 +97,6 @@ class EntradaMaterial(QWidget):
         self.data_table.doubleClicked.connect(lambda: seleccion_material_entrada(self))
         zero_quantity_table_layout.addWidget(self.data_table)
 
-        
         label_selected_table = QLabel("Material Existente")
         label_selected_table.setAlignment(Qt.AlignLeft)
 
@@ -99,7 +106,6 @@ class EntradaMaterial(QWidget):
         self.selected_table.setColumnCount(12)
         self.selected_table.setHorizontalHeaderLabels(["ID","Nombre","Sección","Codigo\nDe\nBarras","Cantidad\nDisponible","Unidad", "Precio\nUnitario", "Precio\nTotal", "Cantidad\nMinima","Cantidad\nMaxima","Proveedor", "Ultima\nActualización"])
         self.selected_table.setRowCount(0)
-        cargar_invenario(self)
         self.selected_table.setAlternatingRowColors(True)
         self.selected_table.setEditTriggers(QTableWidget.NoEditTriggers)  # Hacer que la tabla sea de solo lectura
         self.selected_table.setSelectionBehavior(QTableWidget.SelectRows)
@@ -118,9 +124,13 @@ class EntradaMaterial(QWidget):
 
         self.btn_limpiar = QPushButton("Limpiar")
         self.btn_limpiar.setStyleSheet(BUTTON_GENERAL_DESIGN)
+
+
         self.btn_generar_entrada = QPushButton("Generar Entrada de Almacén")
         self.btn_generar_entrada.setStyleSheet(BUTTON_GENERAL_DESIGN)
-        self.btn_generar_entrada.clicked.connect(lambda : cargar_invenario(self))
+        self.btn_generar_entrada.clicked.connect(lambda: generar_entrada_material(self))
+        
+
 
         button_layout.addWidget(self.btn_limpiar)
         button_layout.addWidget(self.btn_generar_entrada)

@@ -32,24 +32,13 @@ class SalidaMaterial(QWidget):
         self.entry_proyecto.setStyleSheet(COMBOBOX_GENERAL_DESIGN)
         obtener_nombres_proyectos(self.entry_proyecto)
         self.entry_proyecto.setMinimumWidth(150)
+        
 
         self.label_responsable = QLabel("Responsable")
         self.label_responsable.setStyleSheet(LABEL_GENERAL_DESIGN)
         self.entry_responsable = QLineEdit()
         self.entry_responsable.setStyleSheet(ENTRY_GENERAL_DESIGN)
         self.entry_responsable.setMinimumWidth(150)
-
-        self.label_cliente = QLabel("Cliente")
-        self.label_cliente.setStyleSheet(LABEL_GENERAL_DESIGN)
-        self.entry_cliente = QLineEdit()
-        self.entry_cliente.setStyleSheet(ENTRY_GENERAL_DESIGN)
-        self.entry_cliente.setMinimumWidth(150)
-
-        self.label_ubicacion = QLabel("Ubicación")
-        self.label_ubicacion.setStyleSheet(LABEL_GENERAL_DESIGN)
-        self.entry_ubicacion = QLineEdit()
-        self.entry_ubicacion.setStyleSheet(ENTRY_GENERAL_DESIGN)
-        self.entry_ubicacion.setMinimumWidth(150)
 
         self.label_fecha_actual = QLabel("Fecha Actual")
         self.label_fecha_actual.setStyleSheet(LABEL_GENERAL_DESIGN)
@@ -59,14 +48,12 @@ class SalidaMaterial(QWidget):
         self.entry_fecha_Actual.setMinimumWidth(150)
         self.entry_fecha_Actual.setStyleSheet(ENTRY_ONLY_READ_DESIGN)
 
+
+
         proyect_line.addWidget(self.label_proyecto)
         proyect_line.addWidget(self.entry_proyecto, 1)
         proyect_line.addWidget(self.label_responsable)
         proyect_line.addWidget(self.entry_responsable, 1)
-        proyect_line.addWidget(self.label_cliente)
-        proyect_line.addWidget(self.entry_cliente, 1)
-        proyect_line.addWidget(self.label_ubicacion)
-        proyect_line.addWidget(self.entry_ubicacion, 1)
         proyect_line.addWidget(self.label_fecha_actual)
         proyect_line.addWidget(self.entry_fecha_Actual, 1)
 

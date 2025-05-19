@@ -7,6 +7,7 @@ from PyQt5.QtCore import QThread, pyqtSignal
 import numpy as np
 from Style import *
 from src.utils.standarFunc import *
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QFormLayout, QLineEdit, QDialogButtonBox, QLabel
 
 class ManagerInventario():
     def __init__(self, parent=None):
@@ -295,35 +296,125 @@ def seleccion_material_entrada(self):
     row = self.data_table.currentRow()
     if row >= 0:
         # Obtener información del material seleccionado
+        id_item = self.data_table.item(row, 0)  # ID
         nombre_item = self.data_table.item(row, 1)  # Nombre del material
-        cantidad_disponible_item = self.data_table.item(row, 2)  # Cantidad disponible
-        unidad_item = self.data_table.item(row, 3)  # Unidad de medida
+        seccion_item = self.data_table.item(row, 2)  # Sección
+        codigo_barras_item = self.data_table.item(row, 3)  # Codigo de Barras
+        cantidad_disponible_item = self.data_table.item(row, 4)  # Cantidad disponible
+        unidad_item = self.data_table.item(row, 5)  # Unidad
+        precio_unitario_item = self.data_table.item(row, 6)  # Precio Unitario
+        precio_total_item = self.data_table.item(row, 7)  # Precio Total
+        cantidad_minima_item = self.data_table.item(row, 8)  # Cantidad Minima
+        cantidad_maxima_item = self.data_table.item(row, 9)  # Cantidad Maxima
+        proveedor_item = self.data_table.item(row, 10)  # Proveedor
+        ultima_actualizacion_item = self.data_table.item(row, 11)  # Ultima Actualización  # Unidad de medida
 
         if nombre_item and cantidad_disponible_item and unidad_item:
             nombre = nombre_item.text()
             cantidad_disponible = cantidad_disponible_item.text()
             unidad = unidad_item.text()
 
-            # Crear una ventana emergente para ingresar los datos de entrada
-            dialog = QInputDialog(self)
-            dialog.setWindowTitle("Registrar Entrada")
-            dialog.setLabelText(
-                f"Ingrese los datos para el material '{nombre}':\n"
-                f"Cantidad disponible: {cantidad_disponible} {unidad}"
-            )
-            dialog.setInputMode(QInputDialog.TextInput)
-            dialog.setTextValue("Proveedor, Precio, Cantidad")
-            ok = dialog.exec_()
+            # Crear una ventana personalizada para ingresar los datos de entrada
 
-            if ok:
-                entrada_datos = dialog.textValue()
-                # Procesar los datos ingresados
-                if entrada_datos:
-                    # Aquí puedes dividir los datos ingresados y realizar las operaciones necesarias
-                    QMessageBox.information(
-                        self, "Entrada Registrada", f"Datos ingresados: {entrada_datos}"
+            class EntradaDialog(QDialog):
+                def __init__(self, nombre, cantidad_disponible, unidad,proveedor_Actual, parent=None):
+                    super().__init__(parent)
+                    self.setWindowTitle("Registrar Entrada")
+                    self.setFixedWidth(400)
+                    layout = QVBoxLayout(self)
+
+                    info_label = QLabel(
+                        f"<b>Material:</b> {nombre}<br>"
+                        f"<b>Cantidad disponible:</b> {cantidad_disponible} {unidad}"
                     )
+                    layout.addWidget(info_label)
+
+                    form = QFormLayout()
+                    self.proveedor_input = QLineEdit()
+                    self.cantidad_input = QLineEdit()
+                    self.precio_input = QLineEdit()
+                    self.cantidad_input.setPlaceholderText("Ej: 10")
+                    self.proveedor_input.setText(proveedor_Actual)
+                    self.precio_input.setText('{:2}'.format(precio_unitario_item.text()))
+
+                    form.addRow("Proveedor:", self.proveedor_input)
+                    form.addRow("Cantidad:", self.cantidad_input)
+                    form.addRow("Precio Unitario:", self.precio_input)
+                    layout.addLayout(form)
+
+                    buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+                    buttons.accepted.connect(self.accept)
+                    buttons.rejected.connect(self.reject)
+                    layout.addWidget(buttons)
+
+                def get_data(self):
+                    return (
+                        self.proveedor_input.text(),
+                        self.cantidad_input.text(),
+                        self.precio_input.text()
+                    )
+
+            # Mostrar el diálogo personalizado
+            dialog = EntradaDialog(nombre, cantidad_disponible, unidad, proveedor_item.text(), self)
+            if dialog.exec_() == QDialog.Accepted:
+                proveedor, cantidad, precio = dialog.get_data()
+                if proveedor and cantidad and precio:
+                    # Aquí puedes procesar y validar los datos ingresados
+                    
+                    row_position = self.selected_table.rowCount()
+                    self.selected_table.insertRow(row_position)
+                    self.selected_table.setItem(row_position, 0, QTableWidgetItem(id_item.text()))  # ID
+                    self.selected_table.setItem(row_position, 1, QTableWidgetItem(nombre_item.text() ))  # Nombre
+                    self.selected_table.setItem(row_position, 2, QTableWidgetItem(seccion_item.text() ))  # Sección
+                    self.selected_table.setItem(row_position, 3, QTableWidgetItem(codigo_barras_item.text()))  # Codigo De Barras
+                    self.selected_table.setItem(row_position, 4, QTableWidgetItem(cantidad))  # Cantidad Disponible
+                    self.selected_table.setItem(row_position, 5, QTableWidgetItem(unidad_item.text() ))  # Unidad
+                    self.selected_table.setItem(row_position, 6, QTableWidgetItem(precio))  # Precio Unitario
+                    self.selected_table.setItem(row_position, 7, QTableWidgetItem(str(float(cantidad)*float(precio))))  # Precio Total
+                    self.selected_table.setItem(row_position, 8, QTableWidgetItem(cantidad_minima_item.text()))  # Cantidad Minima
+                    self.selected_table.setItem(row_position, 9, QTableWidgetItem(cantidad_maxima_item.text() ))  # Cantidad Maxima
+                    self.selected_table.setItem(row_position, 10, QTableWidgetItem(proveedor))  # Proveedor
+                    self.selected_table.setItem(row_position, 11, QTableWidgetItem(ultima_actualizacion_item.text()))  # Ultima Actualización  # Limpiar la tabla seleccionada
+                    
+                
+
                 else:
                     QMessageBox.warning(
-                        self, "Error", "No se ingresaron datos válidos para la entrada."
+                        self, "Error", "Todos los campos son obligatorios."
                     )
+
+
+def generar_entrada_material(self):
+    """Genera el PDF con los datos de la tabla seleccionada."""
+
+    responsable = self.entry_responsable.text()
+
+    if responsable == "":
+        QMessageBox.warning(self, "Error", "Por favor, ingrese el nombre del responsable.")
+        return
+    productos = []
+    
+    for row in range(self.selected_table.rowCount()):
+        item = {
+            "id": self.selected_table.item(row, 0).text(),
+            "nombre": self.selected_table.item(row, 1).text(),
+            "seccion": self.selected_table.item(row, 2).text(),
+            "codigo_barras": self.selected_table.item(row, 3).text(),
+            "cantidad_disponible": self.selected_table.item(row, 4).text(),
+            "unidad": self.selected_table.item(row, 5).text(),
+            "precio_unitario": self.selected_table.item(row, 6).text(),
+            "precio_total": self.selected_table.item(row, 7).text(),
+            "cantidad_minima": self.selected_table.item(row, 8).text(),
+            "cantidad_maxima": self.selected_table.item(row, 9).text(),
+            "proveedor": self.selected_table.item(row, 10).text(),
+            "ultima_actualizacion": self.selected_table.item(row, 11).text(),
+        }
+        productos.append(item)
+
+    print(productos)
+
+
+    agregar_entrada_material(responsable, productos)
+    actualizar_cantidad_entrada(productos)
+
+    self.selected_table.setRowCount(0)  # Limpiar la barra de búsqueda
