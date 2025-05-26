@@ -7,8 +7,35 @@ from datetime import datetime
 from src.utils.standarFunc import *
 from DataBase.managerInventario import *
 from DataBase.storeDB import *
+from reportlab.lib.utils import ImageReader
 
-def generar_pdf_simple(data, save_directory):
+def calcular_cuantas_SalidasDB():
+    """Calcula cuantas salidas hay en la base de datos"""
+    db = conex()
+    db.iniciar_bd()
+    resultado = db.ejecutar_consulta("SELECT cantSalidas FROM informacion WHERE id = 0")
+    if resultado:
+        return resultado[0][0]
+    return 0
+def calcular_cuantas_EntradasDB():
+    """Calcula cuantas entradas hay en la base de datos"""
+    db = conex()
+    db.iniciar_bd()
+    resultado = db.ejecutar_consulta("SELECT cantEntradas FROM informacion WHERE id = 0")
+    if resultado:
+        return resultado[0][0]
+    return 0
+def calcular_cuantas_DevolucionesDB():
+    """Calcula cuantas devoluciones hay en la base de datos"""
+    db = conex()
+    db.iniciar_bd()
+    resultado = db.ejecutar_consulta("SELECT cantDevoluciones FROM informacion WHERE id = 0")
+    if resultado:
+        return resultado[0][0]
+    return 0
+
+
+def generar_pdf_simple(data, save_directory, descripcion):
     """
     Generate a simple PDF report with improved table design.
 
@@ -21,18 +48,44 @@ def generar_pdf_simple(data, save_directory):
     if not isinstance(data, dict) or not required_keys.issubset(data.keys()):
         raise ValueError("Datos inválidos o incompletos para generar el PDF.")
 
+    if descripcion == "Salida":
+        num = calcular_cuantas_SalidasDB()
+    elif descripcion == "Entrada":
+        num = calcular_cuantas_EntradasDB()
+    else:
+        num = calcular_cuantas_DevolucionesDB()
     # Generate the file name
-    file_name = f"{data['proyecto']}_{data['fecha'].replace('/', '-')}_{datetime.now().strftime('%H-%M-%S')}.pdf"
+    file_name = f"{descripcion}_{num+1}_{data['proyecto']}_{fecha_actual().replace('/', '-')}.pdf"
     save_path = os.path.join(save_directory, file_name)
 
     c = canvas.Canvas(save_path, pagesize=letter)
     c.setFont("Helvetica", 12)
 
+         
+
     # Header
+    # Centra el título en la parte superior
+    titulo = f"{descripcion} No. {num + 1}"
+    page_width, _ = letter
+    text_width = c.stringWidth(titulo, "Helvetica-Bold", 14)
+    c.setFont("Helvetica-Bold", 14)
+    c.drawString((page_width - text_width) / 2, 770, titulo)
+    c.setFont("Helvetica", 12)  # Restablece la fuente para el resto del documento
     c.drawString(50, 750, f"Cliente: {data['cliente']}")
     c.drawString(50, 730, f"Proyecto: {data['proyecto']}")
-    c.drawString(50, 710, f"Responsable: {data['responsable']}")
+    c.drawString(50, 710, f"{'No. Remisión/Factura' if descripcion == 'Entrada' else 'Responsable'}: {data['responsable']}")
     c.drawString(50, 690, f"Fecha de salida: {data['fecha']}")
+    # Intenta dibujar el logo con fondo blanco detrás
+    logo_path = "src/img/logo.png"
+    logo_x, logo_y, logo_w, logo_h = 400, 700, 150, 50
+
+    # Dibuja un rectángulo blanco como fondo del logo
+    c.setFillColor(colors.white)
+    c.rect(logo_x, logo_y, logo_w, logo_h, fill=1, stroke=0)
+    c.setFillColor(colors.black)  # Restablece el color de relleno
+
+    # Dibuja el logo encima del fondo blanco
+    c.drawImage(logo_path, logo_x, logo_y, width=logo_w, height=logo_h, mask='auto')
 
     # Table header
     c.setFont("Helvetica-Bold", 12)
@@ -58,10 +111,10 @@ def generar_pdf_simple(data, save_directory):
     # Table content
     for producto in data["productos"]:
         nombre = producto.get("nombre", "")
-        cantidad = producto.get("cantidad", 0)
+        cantidad = float(producto.get("cantidad", 0))
         unidad = producto.get("unidad", "")
-        precio_unitario = producto.get("precio_unitario", 0)
-        precio_total = cantidad * precio_unitario
+        precio_unitario = float( producto.get("precio_unitario", 0))
+        precio_total = float(cantidad) * float(precio_unitario)
         total_final += precio_total
 
         values = [nombre, str(cantidad), unidad, f"${precio_unitario:.2f}", f"${precio_total:.2f}"]
@@ -76,8 +129,7 @@ def generar_pdf_simple(data, save_directory):
     c.setFont("Helvetica-Bold", 12)
     c.drawString(50, y - 20, f"Precio Final Total: ${total_final:,.2f}")
     # Agrega un espacio para firmar el responsable de la salida
-    c.drawString(50, y - 40, "______________________________")
-    c.drawString(50, y - 60, "Firma del Responsable de la Salida")
+    c.drawString(50, y - 100, "Firma del Responsable de la Salida")
     c.drawString(50, y - 120, "Nombre: ______________________")  
     # Save the PDF
     c.save()
@@ -97,6 +149,14 @@ def gen_pdf(self):
             return
         productos = []
         
+        ok = QMessageBox.question(
+            self,
+            "COnfirmación",
+            "¿Está seguro de que desea generar el PDF con los datos seleccionados?",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.Yes )
+        if ok == QMessageBox.No:
+            return
         for row in range(self.selected_table.rowCount()):
             item = {
                 "id": self.selected_table.item(row, 0).text(),
@@ -117,7 +177,8 @@ def gen_pdf(self):
             "productos": productos,
         })
 
-        getSelectedTable(self)
+        
+
 
         generar_pdf_simple(data={
             "cliente": cliente,
@@ -125,6 +186,6 @@ def gen_pdf(self):
             "responsable": responsable,
             "fecha": fecha,
             "productos": productos,
-        }, save_directory="./") # Cambia el directorio según sea necesario
+        }, save_directory="./Salidas", descripcion="Salida") # Cambia el directorio según sea necesario
         
         

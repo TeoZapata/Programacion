@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QLineEdit,QTableWidgetItem, QMessageBox,QInputDialog
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor
 from Style import  *
-from DataBase.storeDB import storeBD
+from DataBase.storeDB import *
 from src.utils.getCodeBar import getCodeBar
 from src.utils.getDate import fecha_actual
 
@@ -491,6 +491,12 @@ def agregar_salida_material(data):
                             data['productos'][i]['precio_total'],
                             'salida',
                             data['fecha']))
+        db.ejecutar_consulta("UPDATE inventario SET cantidad=cantidad-? WHERE id=?", (data['productos'][i]['cantidad'], data['productos'][i]['id']))
+        db.ejecutar_consulta("UPDATE inventario SET precioTotal = cantidad * precio WHERE id = ?", (data['productos'][i]['id'],))
+
+    db.ejecutar_consulta("UPDATE informacion SET cantSalidas = cantSalidas + 1 WHERE id = 0")
+
+        
 def click_tablaDevolucion(self):
     row = self.table.currentRow()
     id_salida = self.table.item(row, 0).text()
@@ -566,7 +572,7 @@ def agregar_entrada_material(responsable, productos):
                 responsable,              # responsable
                 producto['id'],           # id_material
                 producto['nombre'],       # material
-                producto['cantidad_disponible'], # cantidad
+                producto['cantidad'], # cantidad
                 producto['unidad'],       # unidad
                 producto['precio_unitario'],     # precio
                 producto['precio_total'],        # precioTotal
@@ -575,7 +581,8 @@ def agregar_entrada_material(responsable, productos):
             )
         )
     
-    print("Registros de entrada agregados correctamente.")
+    db.ejecutar_consulta("UPDATE informacion SET cantEntradas = cantEntradas + 1 WHERE id = 0")
+    
 
 def actualizar_cantidad_entrada(productos):
     """Actualiza la cantidad de los productos en la base de datos después de una entrada."""
@@ -586,7 +593,7 @@ def actualizar_cantidad_entrada(productos):
             # Actualizar la cantidad en la base de datos
             db.ejecutar_consulta(
                 "UPDATE inventario SET cantidad=cantidad+? WHERE id=?",
-                (dato['cantidad_disponible'], dato['id'])
+                (dato['cantidad'], dato['id'])
             )
             
             db.ejecutar_consulta("UPDATE inventario SET precioTotal = cantidad * precio WHERE id = ?", (dato['id'],))

@@ -71,7 +71,19 @@ class storeBD:
                         precioTotal INTEGER,
                         proveedor TEXT,
                         fecha DATE
-                        )''')            
+                        )''')   
+
+            cur.execute('''CREATE TABLE IF NOT EXISTS informacion (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        cantSalidas INTEGER DEFAULT 0,
+                        cantEntradas INTEGER DEFAULT 0,
+                        cantDevoluciones INTEGER DEFAULT 0
+                        )''')
+            # Insertar registro con id=0 si no existe
+            cur.execute("SELECT COUNT(*) FROM informacion WHERE id = 0")
+            if cur.fetchone()[0] == 0:
+                cur.execute("INSERT INTO informacion (id, cantSalidas, cantEntradas, cantDevoluciones) VALUES (0, 0, 0, 0)")
+                     
             
             conexion.commit()
 

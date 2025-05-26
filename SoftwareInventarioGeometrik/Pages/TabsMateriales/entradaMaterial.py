@@ -61,6 +61,7 @@ class EntradaMaterial(QWidget):
         self.entry_buscar_material = QLineEdit()
         self.entry_buscar_material.setPlaceholderText("Buscar material existente")
         self.entry_buscar_material.setStyleSheet(ENTRY_GENERAL_DESIGN)
+        self.entry_buscar_material.textChanged.connect(self.buscar_inventario)
 
         self.btn_buscar_material = QPushButton("Buscar")
         self.btn_buscar_material.setStyleSheet(BUTTON_GENERAL_DESIGN)
@@ -128,7 +129,7 @@ class EntradaMaterial(QWidget):
 
         self.btn_generar_entrada = QPushButton("Generar Entrada de Almacén")
         self.btn_generar_entrada.setStyleSheet(BUTTON_GENERAL_DESIGN)
-        self.btn_generar_entrada.clicked.connect(lambda: generar_entrada_material(self))
+        self.btn_generar_entrada.clicked.connect(lambda: (generar_entrada_material(self), cargar_invenario(self)))
         
 
 
@@ -136,3 +137,5 @@ class EntradaMaterial(QWidget):
         button_layout.addWidget(self.btn_generar_entrada)
 
         self.layout.addLayout(button_layout)
+    def buscar_inventario(self, text):
+        filterTableInventario(self, text)

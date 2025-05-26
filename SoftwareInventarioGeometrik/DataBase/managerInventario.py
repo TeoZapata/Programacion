@@ -8,6 +8,7 @@ import numpy as np
 from Style import *
 from src.utils.standarFunc import *
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QFormLayout, QLineEdit, QDialogButtonBox, QLabel
+from src.utils.generarPdf import *
 
 class ManagerInventario():
     def __init__(self, parent=None):
@@ -89,7 +90,28 @@ def getManagerInventario(self):
     self.db_thread = DatabaseThread(self)
     self.db_thread.data_fetched.connect(update_table)  # Connect the signal to update the table
     self.db_thread.start()
-    
+def calcular_cuantas_SalidasDB():
+    """Calcula cuantas salidas hay en la base de datos"""
+    db = conex()
+    db.iniciar_bd()
+    # Obtener el número de salidas
+    cantidad_salidas = db.ejecutar_consulta("SELECT COUNT(*) FROM registro WHERE descripcion = 'salida'")
+    return cantidad_salidas[0][0] if cantidad_salidas else 0
+def calcular_cuantas_EntradasDB():
+    """Calcula cuantas entradas hay en la base de datos"""
+    db = conex()
+    db.iniciar_bd()
+    # Obtener el número de entradas
+    cantidad_entradas = db.ejecutar_consulta("SELECT COUNT(*) FROM registro WHERE descripcion = 'entrada'")
+    return cantidad_entradas[0][0] if cantidad_entradas else 0
+def calcular_cuantas_DevolucionesDB():
+    """Calcula cuantas devoluciones hay en la base de datos"""
+    db = conex()
+    db.iniciar_bd()
+    # Obtener el número de devoluciones
+    cantidad_devoluciones = db.ejecutar_consulta("SELECT COUNT(*) FROM registro WHERE descripcion = 'devolucion'")
+    return cantidad_devoluciones[0][0] if cantidad_devoluciones else 0
+
 def ventana_selec_cantidad(self, item):
     """Se abre una ventana para elegir la cantidad cuando se selecciona el checkbox"""
     # Obtener información del material seleccionado
@@ -222,12 +244,22 @@ def generar_devolucion(self):
     if confirmacion == QMessageBox.Yes:
         db = conex()
         db.iniciar_bd()
-
+        productos = []
         for material in selected_data:
             if len(material) < 10:
                 QMessageBox.warning(None, "Error", "Datos incompletos en el material seleccionado")
                 return
 
+            item = {
+                "id": material[4],
+                "nombre": material[5],
+                "cantidad": material[6],
+                "unidad": material[7],
+                "precio_unitario": material[8],
+                "precio_total": material[9],
+            }
+
+            productos.append(item)
             # Update the 'registro' table
             db.ejecutar_consulta("UPDATE registro SET cantidad = cantidad - ? WHERE id = ?", (material[6], material[0]))
             db.ejecutar_consulta("UPDATE registro SET precioTotal=cantidad*precio WHERE id = ?", (material[0],))
@@ -252,10 +284,19 @@ def generar_devolucion(self):
             # Update the 'inventario' table
             db.ejecutar_consulta("UPDATE inventario SET cantidad = cantidad + ? WHERE id = ?", (material[6], material[4]))
             db.ejecutar_consulta("UPDATE inventario SET precioTotal = cantidad * precio WHERE id = ?",(material[4],))
-                  
-
+     # Cambia el directorio según sea necesario
+               
+        generar_pdf_simple(data={
+            "cliente": material[2],
+            "proyecto": material[1],
+            "responsable": responsable,
+            "fecha": fecha_actual(),
+            "productos": productos,
+        }, save_directory="./Devoluciones", descripcion="Devolución") # Cambia el directorio según sea necesario
+        
+        db.ejecutar_consulta("UPDATE informacion SET cantDevoluciones = cantDevoluciones + 1 WHERE id = 0")
         QMessageBox.information(None, "Éxito", "Devolución registrada exitosamente")
-        limpiarSelectTable(self)  # Limpiar la tabla seleccionada
+
     else:
         QMessageBox.warning(None, "Cancelado", "La devolución ha sido cancelada")
 
@@ -400,7 +441,7 @@ def generar_entrada_material(self):
             "nombre": self.selected_table.item(row, 1).text(),
             "seccion": self.selected_table.item(row, 2).text(),
             "codigo_barras": self.selected_table.item(row, 3).text(),
-            "cantidad_disponible": self.selected_table.item(row, 4).text(),
+            "cantidad": self.selected_table.item(row, 4).text(),
             "unidad": self.selected_table.item(row, 5).text(),
             "precio_unitario": self.selected_table.item(row, 6).text(),
             "precio_total": self.selected_table.item(row, 7).text(),
@@ -413,6 +454,14 @@ def generar_entrada_material(self):
 
     print(productos)
 
+    generar_pdf_simple(data={
+            "cliente": 'N/A',
+            "proyecto": "Almacen",
+            "responsable": responsable,
+            "fecha": fecha_actual(),
+            "productos": productos,
+        }, save_directory="./Entradas", descripcion="Entrada") # Cambia el directorio según sea necesario
+        
 
     agregar_entrada_material(responsable, productos)
     actualizar_cantidad_entrada(productos)
