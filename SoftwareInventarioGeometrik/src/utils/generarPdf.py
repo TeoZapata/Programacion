@@ -7,7 +7,6 @@ from datetime import datetime
 from src.utils.standarFunc import *
 from DataBase.managerInventario import *
 from DataBase.storeDB import *
-from reportlab.lib.utils import ImageReader
 
 def calcular_cuantas_SalidasDB():
     """Calcula cuantas salidas hay en la base de datos"""
@@ -43,97 +42,109 @@ def generar_pdf_simple(data, save_directory, descripcion):
         data (dict): A dictionary containing the required keys.
         save_directory (str): The directory to save the generated PDF.
     """
+    try:
+        required_keys = {"cliente", "proyecto", "responsable", "fecha", "productos"}
+        if not isinstance(data, dict) or not required_keys.issubset(data.keys()):
+            raise ValueError("Datos inválidos o incompletos para generar el PDF.")
 
-    required_keys = {"cliente", "proyecto", "responsable", "fecha", "productos"}
-    if not isinstance(data, dict) or not required_keys.issubset(data.keys()):
-        raise ValueError("Datos inválidos o incompletos para generar el PDF.")
+        if descripcion == "Salida":
+            num = calcular_cuantas_SalidasDB()
+        elif descripcion == "Entrada":
+            num = calcular_cuantas_EntradasDB()
+        else:
+            num = calcular_cuantas_DevolucionesDB()
+        # Generate the file name
+        file_name = f"{descripcion}_{num+1}_{data['proyecto']}_{fecha_actual().replace('/', '-')}.pdf"
+        save_path = os.path.join(save_directory, file_name)
 
-    if descripcion == "Salida":
-        num = calcular_cuantas_SalidasDB()
-    elif descripcion == "Entrada":
-        num = calcular_cuantas_EntradasDB()
-    else:
-        num = calcular_cuantas_DevolucionesDB()
-    # Generate the file name
-    file_name = f"{descripcion}_{num+1}_{data['proyecto']}_{fecha_actual().replace('/', '-')}.pdf"
-    save_path = os.path.join(save_directory, file_name)
+        c = canvas.Canvas(save_path, pagesize=letter)
+        c.setFont("Helvetica", 12)
 
-    c = canvas.Canvas(save_path, pagesize=letter)
-    c.setFont("Helvetica", 12)
+        # Header
+        # Centra el título en la parte superior
+        titulo = f"{descripcion} No. {num+1}"
+        page_width, _ = letter
+        text_width = c.stringWidth(titulo, "Helvetica-Bold", 14)
+        c.setFont("Helvetica-Bold", 14)
+        c.drawString((page_width - text_width) / 2, 770, titulo)
+        c.setFont("Helvetica", 12)  # Restablece la fuente para el resto del documento
+        c.drawString(50, 750, f"Cliente: {data['cliente']}")
+        c.drawString(50, 730, f"Proyecto: {data['proyecto']}")
+        c.drawString(50, 710, f"{'No. Remisión/Factura' if descripcion == 'Entrada' else 'Responsable'}: {data['responsable']}")
+        c.drawString(50, 690, f"Fecha de salida: {data['fecha']}")
+        # Intenta dibujar el logo con fondo blanco detrás
+        logo_path = "./Fuentes/logo.png"
+        logo_x, logo_y, logo_w, logo_h = 400, 700, 150, 50
 
-         
+        # Dibuja un rectángulo blanco como fondo del logo
+        c.setFillColor(colors.white)
+        c.rect(logo_x, logo_y, logo_w, logo_h, fill=1, stroke=0)
+        c.setFillColor(colors.black)  # Restablece el color de relleno
 
-    # Header
-    # Centra el título en la parte superior
-    titulo = f"{descripcion} No. {num + 1}"
-    page_width, _ = letter
-    text_width = c.stringWidth(titulo, "Helvetica-Bold", 14)
-    c.setFont("Helvetica-Bold", 14)
-    c.drawString((page_width - text_width) / 2, 770, titulo)
-    c.setFont("Helvetica", 12)  # Restablece la fuente para el resto del documento
-    c.drawString(50, 750, f"Cliente: {data['cliente']}")
-    c.drawString(50, 730, f"Proyecto: {data['proyecto']}")
-    c.drawString(50, 710, f"{'No. Remisión/Factura' if descripcion == 'Entrada' else 'Responsable'}: {data['responsable']}")
-    c.drawString(50, 690, f"Fecha de salida: {data['fecha']}")
-    # Intenta dibujar el logo con fondo blanco detrás
-    logo_path = "src/img/logo.png"
-    logo_x, logo_y, logo_w, logo_h = 400, 700, 150, 50
+        # Dibuja el logo encima del fondo blanco
+        c.drawImage(logo_path, logo_x, logo_y, width=logo_w, height=logo_h, mask='auto')
 
-    # Dibuja un rectángulo blanco como fondo del logo
-    c.setFillColor(colors.white)
-    c.rect(logo_x, logo_y, logo_w, logo_h, fill=1, stroke=0)
-    c.setFillColor(colors.black)  # Restablece el color de relleno
+        # Table header
+        c.setFont("Helvetica-Bold", 12)
+        c.drawString(50, 650, "Productos:")
+        c.setFont("Helvetica", 10)
 
-    # Dibuja el logo encima del fondo blanco
-    c.drawImage(logo_path, logo_x, logo_y, width=logo_w, height=logo_h, mask='auto')
+        # Draw table headers
+        headers = ["Nombre", "Cantidad", "Unidad", "Precio Unitario", "Precio Total"]
+        x_positions = [50, 200, 270, 340, 430]  # Adjusted positions for better spacing
+        y = 630
 
-    # Table header
-    c.setFont("Helvetica-Bold", 12)
-    c.drawString(50, 650, "Productos:")
-    c.setFont("Helvetica", 10)
+        # Draw table headers
+        for i, header in enumerate(headers):
+            c.drawString(x_positions[i], y, header)
 
-    # Draw table headers
-    headers = ["Nombre", "Cantidad", "Unidad", "Precio Unitario", "Precio Total"]
-    x_positions = [50, 200, 270, 340, 430]  # Adjusted positions for better spacing
-    y = 630
+        # Draw a line under the headers
+        c.setStrokeColor(colors.black)
+        c.line(50, y - 5, 500, y - 5)
 
-    # Draw table headers
-    for i, header in enumerate(headers):
-        c.drawString(x_positions[i], y, header)
-
-    # Draw a line under the headers
-    c.setStrokeColor(colors.black)
-    c.line(50, y - 5, 500, y - 5)
-
-    y -= 20
-    total_final = 0
-
-    # Table content
-    for producto in data["productos"]:
-        nombre = producto.get("nombre", "")
-        cantidad = float(producto.get("cantidad", 0))
-        unidad = producto.get("unidad", "")
-        precio_unitario = float( producto.get("precio_unitario", 0))
-        precio_total = float(cantidad) * float(precio_unitario)
-        total_final += precio_total
-
-        values = [nombre, str(cantidad), unidad, f"${precio_unitario:.2f}", f"${precio_total:.2f}"]
-        for i, value in enumerate(values):
-            c.drawString(x_positions[i], y, value)
         y -= 20
+        total_final = 0
 
-        # Draw a line after each row
-        c.line(50, y + 15, 500, y + 15)
+        # Table content
+        for producto in data["productos"]:
+            nombre = producto.get("nombre", "")
+            cantidad = float(producto.get("cantidad", 0))
+            unidad = producto.get("unidad", "")
+            precio_unitario = float(producto.get("precio_unitario", 0))
+            precio_total = float(cantidad) * float(precio_unitario)
+            total_final += precio_total
 
-    # Total
-    c.setFont("Helvetica-Bold", 12)
-    c.drawString(50, y - 20, f"Precio Final Total: ${total_final:,.2f}")
-    # Agrega un espacio para firmar el responsable de la salida
-    c.drawString(50, y - 100, "Firma del Responsable de la Salida")
-    c.drawString(50, y - 120, "Nombre: ______________________")  
-    # Save the PDF
-    c.save()
-    QMessageBox.information(None, "PDF Generado", f"El PDF ha sido generado y guardado en: {save_path}")
+            # Divide el nombre en partes de máximo 30 caracteres
+            nombre_lines = [nombre[i:i+20] for i in range(0, len(nombre), 30)]
+            line_count = len(nombre_lines)
+            row_height = 20 * line_count  # Ajusta la altura de la fila según las líneas
+
+            # Dibuja cada línea del nombre
+            for idx, nombre_line in enumerate(nombre_lines):
+                c.drawString(x_positions[0], y - (idx * 15), nombre_line)
+
+            # Solo la primera línea de nombre lleva los otros datos, las demás quedan vacías
+            c.drawString(x_positions[1], y, str(cantidad))
+            c.drawString(x_positions[2], y, unidad)
+            c.drawString(x_positions[3], y, f"${precio_unitario:.2f}")
+            c.drawString(x_positions[4], y, f"${precio_total:.2f}")
+
+            # Dibuja una línea después de la fila
+            c.line(50, y - (15 * (line_count - 1)) + 15, 500, y - (15 * (line_count - 1)) + 15)
+
+            y -= row_height
+
+        # Total
+        c.setFont("Helvetica-Bold", 12)
+        c.drawString(50, y - 20, f"Precio Final Total: ${total_final:,.2f}")
+        # Agrega un espacio para firmar el responsable de la salida
+        c.drawString(50, y - 100, "Firma del Responsable de la Salida")
+        c.drawString(50, y - 120, "Nombre: ______________________")  
+        # Save the PDF
+        c.save()
+        QMessageBox.information(None, "PDF Generado", f"El PDF ha sido generado y guardado en: {save_path}")
+    except Exception as e:
+        QMessageBox.critical(None, "Error al generar PDF", f"Ocurrió un error al generar el PDF:\n{str(e)}")
 
 
 def gen_pdf(self):
@@ -178,7 +189,7 @@ def gen_pdf(self):
         })
 
         
-
+        QMessageBox.information(self, "Éxito", "Salida de materiales registrada correctamente.")
 
         generar_pdf_simple(data={
             "cliente": cliente,

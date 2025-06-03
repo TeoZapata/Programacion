@@ -28,8 +28,10 @@ class ImportExcelThread(QThread):
             total_rows = len(df)
             for i, (_, row) in enumerate(df.iterrows()):
                 self.db.ejecutar_consulta(
-                    "INSERT INTO inventario (nombre, seccion, barcode, cantidad, unidad, precio, precioTotal, cantidad_minima, cantidad_maxima, proveedor, fecha_compra) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                    (row['nombre'], row['seccion'], getCodeBar(), row['cantidad'], row['unidad'], row['precio'], row['precioTotal'], row['cantidad_minima'], row['cantidad_maxima'], row['proveedor'], fecha_actual())
+                    "INSERT INTO inventario (nombre, seccion, barcode, cantidad, unidad, precio, precioTotal, cantidad_minima, cantidad_maxima, proveedor, fecha_compra, subcategoria) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)",
+                    				
+
+                    (row['Nombre'], row['Sección'], getCodeBar(self, row['Sección'], row['Subsección'], False), row['Cantidad'], row['Unidad'], row['Precio'], row['Precio Total'], row['Cantidad Minima'], row['Cantidad Maxima'], row['Proveedor'], fecha_actual(), row['Subsección'])
                 )
                 # Emitir progreso
                 self.progress.emit(int((i + 1) / total_rows * 100))

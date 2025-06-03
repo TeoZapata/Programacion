@@ -9,14 +9,15 @@ from src.utils.getDate import fecha_actual
 
 
 
-def clear_entry(listaWidget: list, comp:bool = False ) -> None:
+def clear_entry(listaWidget: list) -> None:
 
     """Limpia el campo de entrada y establece un nuevo marcador de posición."""
     lista:list[QLineEdit] = listaWidget
     for index, i in enumerate(lista):
-        i.clear()
-        if index == 3 and comp == False:
-            i.setText(getCodeBar())
+        
+        if not (index == 2 or index ==3 or index ==6 or index ==4):
+            i.clear()
+
 def cargar_invenario(self):
         """Carga el inventario desde la base de datos y lo muestra en la tabla."""
         # Limpiar la tabla antes de cargar nuevos datos
@@ -29,26 +30,84 @@ def cargar_invenario(self):
         for material in materiales:
             row_position = self.data_table.rowCount()
             self.data_table.insertRow(row_position)
-            for column, data in enumerate(material):
-                item = QTableWidgetItem(str(data))
-                item.setTextAlignment(Qt.AlignCenter)
 
-                # Aplicar color según la cantidad
-                if column == 4:  # Suponiendo que la columna 4 es la de cantidad
-                    cantidad = int(data)
-                    cantidad_minima = int(material[8])  # Suponiendo que la columna 8 es la cantidad mínima
-                    cantidad_maxima = int(material[9])  # Suponiendo que la columna 9 es la cantidad máxima
+            # Asignar variables explícitas a cada campo de la base de datos
+            id_producto = material[0]
+            nombre = material[1]
+            seccion = material[2]
+            barcode = material[3]
+            cantidad = int(material[4])
+            unidad = material[5]
+            precio = material[6]
+            precio_total = material[7]
+            cantidad_minima = int(material[8])
+            cantidad_maxima = int(material[9])
+            proveedor = material[10]
+            fecha_compra = material[11]
+            subcategoria = material[12]
 
-                    if cantidad == 0:
-                        item.setBackground(Qt.red)
-                    elif cantidad < cantidad_minima:
-                        item.setBackground(QColor("orange"))
-                    elif cantidad_minima <= cantidad <= cantidad_maxima:
-                        item.setBackground(Qt.green)
-                    else: 
-                        item.setBackground(QColor('#E10098'))
+            # Crear QTableWidgetItem para cada columna
+            item_id = QTableWidgetItem(str(id_producto))
+            item_id.setTextAlignment(Qt.AlignCenter)
+            self.data_table.setItem(row_position, 0, item_id)
 
-                self.data_table.setItem(row_position, column, item)
+            item_nombre = QTableWidgetItem(str(nombre))
+            item_nombre.setTextAlignment(Qt.AlignCenter)
+            self.data_table.setItem(row_position, 1, item_nombre)
+
+            item_seccion = QTableWidgetItem(str(seccion))
+            item_seccion.setTextAlignment(Qt.AlignCenter)
+            self.data_table.setItem(row_position, 2, item_seccion)
+
+            item_subcategoria = QTableWidgetItem(str(subcategoria))
+            item_subcategoria.setTextAlignment(Qt.AlignCenter)
+            self.data_table.setItem(row_position, 3, item_subcategoria)
+
+            item_barcode = QTableWidgetItem(str(barcode))
+            item_barcode.setTextAlignment(Qt.AlignCenter)
+            self.data_table.setItem(row_position, 4, item_barcode)
+
+            item_cantidad = QTableWidgetItem(str(cantidad))
+            item_cantidad.setTextAlignment(Qt.AlignCenter)
+            # Aplicar color según la cantidad
+            if cantidad == 0:
+                item_cantidad.setBackground(Qt.red)
+            elif cantidad < cantidad_minima:
+                item_cantidad.setBackground(QColor("orange"))
+            elif cantidad_minima <= cantidad <= cantidad_maxima:
+                item_cantidad.setBackground(Qt.green)
+            else:
+                item_cantidad.setBackground(QColor('#E10098'))
+            self.data_table.setItem(row_position, 5, item_cantidad)
+
+            item_unidad = QTableWidgetItem(str(unidad))
+            item_unidad.setTextAlignment(Qt.AlignCenter)
+            self.data_table.setItem(row_position, 6, item_unidad)
+
+            item_precio = QTableWidgetItem(str(precio))
+            item_precio.setTextAlignment(Qt.AlignCenter)
+            self.data_table.setItem(row_position, 7, item_precio)
+
+            item_precio_total = QTableWidgetItem(str(precio_total))
+            item_precio_total.setTextAlignment(Qt.AlignCenter)
+            self.data_table.setItem(row_position, 8, item_precio_total)
+
+            item_cantidad_minima = QTableWidgetItem(str(cantidad_minima))
+            item_cantidad_minima.setTextAlignment(Qt.AlignCenter)
+            self.data_table.setItem(row_position, 9, item_cantidad_minima)
+
+            item_cantidad_maxima = QTableWidgetItem(str(cantidad_maxima))
+            item_cantidad_maxima.setTextAlignment(Qt.AlignCenter)
+            self.data_table.setItem(row_position, 10, item_cantidad_maxima)
+
+            item_proveedor = QTableWidgetItem(str(proveedor))
+            item_proveedor.setTextAlignment(Qt.AlignCenter)
+            self.data_table.setItem(row_position, 11, item_proveedor)
+
+            item_fecha_compra = QTableWidgetItem(str(fecha_compra))
+            item_fecha_compra.setTextAlignment(Qt.AlignCenter)
+            self.data_table.setItem(row_position, 12, item_fecha_compra)
+
             
 def agregar_cliente(self) -> None:
     """Agrega un nuevo cliente a la base de datos."""
@@ -211,15 +270,16 @@ def agregar_producto(listaWidget: list):
     lista = list(listaWidget)  # Convertir a lista para que sea subscriptable
     # Obtener los datos de los campos de entrada
     nombre = lista[1].text()
-    seccion = lista[2].text()
-    barcode = lista[3].text()
-    cantidad = lista[4].text()
-    unidad = lista[5].text()
-    precio = lista[6].text()
+    seccion = lista[2].currentText()
+    subcategoria = lista[3].currentText()
+    barcode = lista[4].text()
+    cantidad = lista[5].text()
+    unidad = lista[6].currentText()
+    precio = lista[7].text()
     precioTotal = round(float(precio) * float(cantidad), 2) if cantidad else 0.0
-    cantidad_minima = lista[8].text()
-    cantidad_maxima = lista[9].text()
-    proveedor = lista[10].text()
+    cantidad_minima = lista[9].text()
+    cantidad_maxima = lista[10].text()
+    proveedor = lista[11].text()
     fecha = fecha_actual()
     # 
     # Verificar si todos los campos están llenos
@@ -234,8 +294,8 @@ def agregar_producto(listaWidget: list):
         db.iniciar_bd()
         # Inserta el producto en la base de datos
         db.ejecutar_consulta(
-            "INSERT INTO inventario (nombre, seccion, barcode, cantidad, unidad, precio, precioTotal, cantidad_minima, cantidad_maxima, proveedor, fecha_compra) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            (nombre, seccion, barcode, cantidad, unidad, precio, precioTotal, cantidad_minima, cantidad_maxima, proveedor,fecha)
+            "INSERT INTO inventario (nombre, seccion, barcode, cantidad, unidad, precio, precioTotal, cantidad_minima, cantidad_maxima, proveedor, fecha_compra, subcategoria) VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (nombre, seccion, barcode, cantidad, unidad, precio, precioTotal, cantidad_minima, cantidad_maxima, proveedor,fecha, subcategoria)
         )
     except Exception as e:
         QMessageBox.warning(None, "Error", f"Error al agregar el producto: {str(e)}")
@@ -247,59 +307,66 @@ def editar_producto(self) -> None:
     if self.line_edits['ID'] is None:
         QMessageBox.warning(None, "Error", "No hay ID para buscar.")
         return
+    # Verificar si todos los campos están llenos
 
     # Obtener los nuevos datos de los campos de entrada
     id_producto = self.line_edits['ID'].text()
     nombre = self.line_edits['Nombre'].text()
-    seccion = self.line_edits['Sección'].text()
+    seccion = self.line_edits['Sección'].currentText()
+    subcategoria = self.line_edits['Subsección'].currentText()
     barcode = self.line_edits['Código de Barras'].text()
     cantidad = self.line_edits['Cantidad Disponible'].text()
-    unidad = self.line_edits['Unidad de Medida'].text()
+    unidad = self.line_edits['Unidad de Medida'].currentText()
     precio = self.line_edits['Precio Unitario'].text()
     precioTotal = round(float(precio) * float(cantidad), 2) if cantidad else 0.0
     cantidad_minima = self.line_edits['Cantidad Mínima'].text()
     cantidad_maxima = self.line_edits['Cantidad Máxima'].text()
     proveedor = self.line_edits['Proveedor'].text()
-
-    # Verificar si todos los campos están llenos
+    
     if not all([nombre, seccion, cantidad, unidad, precio, cantidad_minima, cantidad_maxima, proveedor]):
         QMessageBox.warning(None, "Error", "Por favor, completa todos los campos.")
         return
+    
+    print(f"ID: {id_producto}, Nombre: {nombre}, Sección: {seccion}, Código de Barras: {barcode}, Cantidad: {cantidad}, Unidad: {unidad}, Precio: {precio}, Precio Total: {precioTotal}, Cantidad Mínima: {cantidad_minima}, Cantidad Máxima: {cantidad_maxima}, Proveedor: {proveedor}, Subcategoría: {subcategoria}")
 
     # Actualizar el producto en la base de datos
-    db = storeBD()
-    db.iniciar_bd()
+    db = conex()
     db.ejecutar_consulta(
-        "UPDATE inventario SET nombre=?, seccion=?, barcode=?, cantidad=?, unidad=?, precio=?, precioTotal=?, cantidad_minima=?, cantidad_maxima=?, proveedor=? WHERE id=?",
-        (nombre, seccion, barcode, cantidad, unidad, precio, precioTotal, cantidad_minima, cantidad_maxima, proveedor,id_producto)
+        "UPDATE inventario SET nombre=?, seccion=?, barcode=?, cantidad=?, unidad=?, precio=?, precioTotal=?, cantidad_minima=?, cantidad_maxima=?, proveedor=? , subcategoria=?  WHERE id=?",
+        (nombre, seccion, barcode, cantidad, unidad, precio, precioTotal, cantidad_minima, cantidad_maxima, proveedor, subcategoria, id_producto)
     )
     # Limpiar los campos de entrada 
 
 def doble_click(self) -> None:
     """Maneja el evento de doble clic en la tabla."""
     # Obtener el elemento seleccionado
-    item = self.data_table.currentItem()
-    if item is None:
-        QMessageBox.warning(None, "Error", "No se seleccionó ningún elemento.")
+    try:
+        item = self.data_table.currentItem()
+        if item is None:
+            QMessageBox.warning(None, "Error", "No se seleccionó ningún elemento.")
+            return
+
+        # Obtener la fila del elemento seleccionado
+        row = item.row()
+        # Obtener el ID del producto de la primera columnad
+
+        self.line_edits['ID'].setText(self.data_table.item(row, 0).text())
+        self.line_edits['Nombre'].setText(self.data_table.item(row, 1).text())
+        self.line_edits['Sección'].setCurrentText(self.data_table.item(row, 2).text())
+        self.line_edits['Subsección'].setCurrentText(self.data_table.item(row, 3).text())
+        self.line_edits['Código de Barras'].setText(self.data_table.item(row, 4).text())
+        self.line_edits['Cantidad Disponible'].setText(self.data_table.item(row, 5).text())
+        self.line_edits['Unidad de Medida'].setCurrentText(self.data_table.item(row, 6).text())
+        self.line_edits['Precio Unitario'].setText(self.data_table.item(row, 7).text())
+        self.line_edits['Precio Total'].setText(self.data_table.item(row, 8).text())
+        self.line_edits['Cantidad Mínima'].setText(self.data_table.item(row, 9).text())
+        self.line_edits['Cantidad Máxima'].setText(self.data_table.item(row, 10).text())
+        self.line_edits['Proveedor'].setText(self.data_table.item(row, 11).text())
+        self.line_edits['Última Fecha de Actualización'].setText(self.data_table.item(row, 12).text())
+        
+    except Exception as e:
+        QMessageBox.warning(None, "Error", f"Ocurrió un error al manejar el doble clic: {str(e)}")
         return
-
-    # Obtener la fila del elemento seleccionado
-    row = item.row()
-    # Obtener el ID del producto de la primera columnad
-
-    self.line_edits['ID'].setText(self.data_table.item(row, 0).text())
-    self.line_edits['Nombre'].setText(self.data_table.item(row, 1).text())
-    self.line_edits['Sección'].setText(self.data_table.item(row, 2).text())
-    self.line_edits['Código de Barras'].setText(self.data_table.item(row, 3).text())
-    self.line_edits['Cantidad Disponible'].setText(self.data_table.item(row, 4).text())
-    self.line_edits['Unidad de Medida'].setText(self.data_table.item(row, 5).text())
-    self.line_edits['Precio Unitario'].setText(self.data_table.item(row, 6).text())
-    self.line_edits['Precio Total'].setText(self.data_table.item(row, 7).text())
-    self.line_edits['Cantidad Mínima'].setText(self.data_table.item(row, 8).text())
-    self.line_edits['Cantidad Máxima'].setText(self.data_table.item(row, 9).text())
-    self.line_edits['Proveedor'].setText(self.data_table.item(row, 10).text())
-    self.line_edits['Última Fecha de Actualización'].setText(self.data_table.item(row, 11).text())
-
 
 def eliminar_producto(self) -> None:
     """Elimina el producto seleccionado en la tabla."""
@@ -451,11 +518,14 @@ def double_click_tabla_proyecto(self):
     self.capacityInput.setText(capacidad)
     self.startDateInput.setText(fecha_registro)
 
-def obtener_nombres_proyectos(combobox):
+def obtener_nombres_proyectos(combobox, tabla):
     """Carga los nombres de los proyectos desde la base de datos."""
     db = conex()
-    proyectos = db.ejecutar_consulta("SELECT nombre FROM proyectos")
+    proyectos = db.ejecutar_consulta(f"SELECT nombre FROM {tabla}")
+    combobox.clear()  # Limpiar el combobox antes de agregar nuevos elementos
     combobox.addItems([proyecto[0] for proyecto in proyectos])
+
+
 
 def cargar_salidaMaterial_proyecto(self):
     """Carga el material agrupado por proyecto y retorna las listas de materiales con su información."""
@@ -471,7 +541,6 @@ def cargar_salidaMaterial_proyecto(self):
             item.setTextAlignment(Qt.AlignCenter)
             self.table.setItem(row_position, column, item)
 
-    obtener_nombres_proyectos(self.entry_proyecto)
     self.selected_table.setRowCount(0)
 
 def agregar_salida_material(data):

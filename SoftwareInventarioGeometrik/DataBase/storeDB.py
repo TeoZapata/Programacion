@@ -23,7 +23,8 @@ class storeBD:
                         cantidad_minima INTEGER,
                         cantidad_maxima INTEGER,
                         proveedor TEXT,
-                        fecha_compra DATE
+                        fecha_compra DATE,
+                        subcategoria TEXT
                         )''')
             cur.execute('''CREATE TABLE IF NOT EXISTS proyectos (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,

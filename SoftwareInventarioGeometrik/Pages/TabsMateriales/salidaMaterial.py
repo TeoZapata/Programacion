@@ -30,7 +30,9 @@ class SalidaMaterial(QWidget):
         self.label_proyecto.setStyleSheet(LABEL_GENERAL_DESIGN)
         self.entry_proyecto = QComboBox()
         self.entry_proyecto.setStyleSheet(COMBOBOX_GENERAL_DESIGN)
-        obtener_nombres_proyectos(self.entry_proyecto)
+
+        
+        
         self.entry_proyecto.setMinimumWidth(150)
         
 
@@ -139,7 +141,13 @@ class SalidaMaterial(QWidget):
 
         btn_actualizar_tabla = QPushButton("Actualizar Tabla")
         btn_actualizar_tabla.setStyleSheet(BUTTON_GENERAL_DESIGN)
-        btn_actualizar_tabla.clicked.connect(lambda: getManagerInventario(self))
+        def actualizar_tabla():
+            try:
+                getManagerInventario(self)
+                obtener_nombres_proyectos(self.entry_proyecto, 'proyectos')
+            except Exception as e:
+                print(f"Error al actualizar la tabla: {e}")
+        btn_actualizar_tabla.clicked.connect(actualizar_tabla)
 
         btn_limpiar = QPushButton("Limpiar Tabla")
         btn_limpiar.setStyleSheet(BUTTON_GENERAL_DESIGN)

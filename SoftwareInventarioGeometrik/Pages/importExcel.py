@@ -34,9 +34,16 @@ class ImportWorker(QThread):
                 return
                 
             # Verificar columnas necesarias
-            required_columns = ['nombre', 'seccion' ,'cantidad', 'unidad', 
-                               'precio', 'precioTotal', 'cantidad_minima', 
-                               'cantidad_maxima', 'proveedor']
+            required_columns = ["Nombre",
+                                "Sección",
+                                "Subsección",
+                                "Cantidad",
+                                "Unidad",
+                                "Precio",
+                                "Precio Total",
+                                "Cantidad Mínima",
+                                "Cantidad Máxima",
+                                "Proveedor"]
             
             # Renombrar columnas si es necesario (ajustar según formato de entrada)
             df.columns = df.columns.str.strip().str.lower()
@@ -288,10 +295,10 @@ def insert_db(records):
         # Insertar registros
         cursor.executemany('''
         INSERT INTO inventario (
-            nombre, seccion, barcode, cantidad, unidad, 
+            nombre, seccion, subcategoria, barcode, cantidad, unidad, 
             precio, precioTotal, cantidad_minima, cantidad_maxima, 
             proveedor
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', records)
         
         conn.commit()

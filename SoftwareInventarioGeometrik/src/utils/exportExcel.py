@@ -28,6 +28,7 @@ class ExportarExcelThread(QThread):
                 "Cantidad Máxima",
                 "Proveedor",
                 "Fecha de Compra",
+                "Subcategoría",
             ])
             # Simular progreso
             for i in range(1, 101):

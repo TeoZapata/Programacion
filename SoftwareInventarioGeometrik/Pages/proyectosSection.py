@@ -12,6 +12,7 @@ class proyecto(QWidget):
     def __init__(self):
         super().__init__()
         self.initUi()
+        obtener_nombres_proyectos(self.clientDropdown, "clientes")
         
     def initUi(self):
         # Layout principal
@@ -37,7 +38,6 @@ class proyecto(QWidget):
         self.clientLabel.setStyleSheet(LABEL_GENERAL_DESIGN)
         self.clientDropdown = QComboBox()
         self.clientDropdown.setStyleSheet(COMBOBOX_GENERAL_DESIGN)
-        self.clientDropdown.addItems(["Cliente 1", "Cliente 2", "Cliente 3", "Cliente 4"])
         self.leftFormLayout.addRow(self.clientLabel, self.clientDropdown)
 
         # Entrada para capacidad DC
@@ -94,7 +94,7 @@ class proyecto(QWidget):
 
         self.updateButton = QPushButton("Actualizar")
         self.updateButton.setStyleSheet(BUTTON_GENERAL_DESIGN)
-        self.updateButton.clicked.connect(lambda : cargar_proyecto_tabla(self))
+        self.updateButton.clicked.connect(lambda : (cargar_proyecto_tabla(self), obtener_nombres_proyectos(self.clientDropdown, "clientes")))
 
         self.clear_input = QPushButton("Limpiar")
         self.clear_input.setStyleSheet(BUTTON_GENERAL_DESIGN)

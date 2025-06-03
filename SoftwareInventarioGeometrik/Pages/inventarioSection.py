@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import (QWidget, QVBoxLayout, 
+from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QComboBox,
                             QHBoxLayout, QPushButton, QLabel, QStackedWidget, QFormLayout, QLineEdit, QFileDialog)
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
@@ -38,9 +38,10 @@ class inventarioSection(QWidget):
         # Crear la tabla para mostrar datos
 
         self.data_table = QTableWidget()
-        self.data_table.setColumnCount(12)  # Número de columnas
+        self.data_table.setColumnCount(13)  # Número de columnas
         self.data_table.setHorizontalHeaderLabels(["ID","Nombre",
                                 "Sección",
+                                "Subsección",
                                 "Código de Barras",
                                 "Cantidad",
                                 "Unidad",
@@ -74,6 +75,7 @@ class inventarioSection(QWidget):
             "ID": None,
             "Nombre": None,
             "Sección": None,
+            "Subsección": None,
             "Código de Barras": None,
             "Cantidad Disponible": None,
             "Unidad de Medida": None,
@@ -90,29 +92,46 @@ class inventarioSection(QWidget):
             # Crear QLabel con el nombre del placeholder
             label = QLabel(placeholder)
             label.setStyleSheet(LABEL_GENERAL_DESIGN)
-            
-            # Crear QLineEdit asociado
-            self.line_edit = QLineEdit()
-            self.line_edit.setStyleSheet(ENTRY_GENERAL_DESIGN)
-            self.line_edit.setPlaceholderText(placeholder)
-            
-            # Agregar QLabel y QLineEdit al formulario
-            entry_formulario.addRow(label, self.line_edit)
-            self.line_edits[placeholder] = self.line_edit
-            
-            # Configurar campos de solo lectura con estilos específicos
-            read_only_fields = ["Última Fecha de Actualización", "ID", "Precio Total", "Código de Barras"]
-            if placeholder in read_only_fields:
-                self.line_edit.setReadOnly(True)
-                self.line_edit.setStyleSheet(ENTRY_ONLY_READ_DESIGN)
-            if placeholder == "Código de Barras":
-                self.line_edit.setText(str(getCodeBar()))  # Generar código de barras automáticamente
-            
+            if placeholder== "Sección" or placeholder == "Subsección":
+                self.line_edit = QComboBox()
+                self.line_edit.setStyleSheet(COMBOBOX_GENERAL_DESIGN)
+                categoria, subcategoria = obtener_categorias()  # Obtener categorías y subcategorías
+                if placeholder == "Sección":
+                    print("se carga seccion")
+                    self.line_edit.addItems(categoria.keys())
+                else:  # Si es "Subsección", agregar subcategorías
+                    print("se carga subcategoria")
+                    self.line_edit.addItems(subcategoria.keys())
+                entry_formulario.addRow(label, self.line_edit)
+                self.line_edits[placeholder] = self.line_edit  # Guardar el QComboBox en el diccionario
+            elif placeholder == "Unidad de Medida":
+                self.line_edit = QComboBox()
+                self.line_edit.setStyleSheet(COMBOBOX_GENERAL_DESIGN)
+                unidades = obtener_unidades()  # Obtener unidades de medida
+                self.line_edit.addItems(unidades)
+                entry_formulario.addRow(label, self.line_edit)
+                self.line_edits[placeholder] = self.line_edit  # Guardar el QComboBox en el diccionario    
+            else:    # Crear QLineEdit asociado
+                self.line_edit = QLineEdit()
+                self.line_edit.setStyleSheet(ENTRY_GENERAL_DESIGN)
+                self.line_edit.setPlaceholderText(placeholder)
+                
+                # Agregar QLabel y QLineEdit al formulario
+                entry_formulario.addRow(label, self.line_edit)
+                self.line_edits[placeholder] = self.line_edit
+                
+                # Configurar campos de solo lectura con estilos específicos
+                read_only_fields = ["Última Fecha de Actualización", "ID", "Precio Total", "Código de Barras"]
+                if placeholder in read_only_fields:
+                    self.line_edit.setReadOnly(True)
+                    self.line_edit.setStyleSheet(ENTRY_ONLY_READ_DESIGN)
+                if placeholder == "Código de Barras":
+                    self.line_edit.setText(str(getCodeBar(self, self.line_edits['Sección'].currentText(), self.line_edits['Subsección'].currentText())))  # Generar código de barras automáticamente
         # Botón para limpiar las entradas
         bnt_clear = QPushButton("Limpiar")
         bnt_clear.setStyleSheet(BUTTON_GENERAL_DESIGN)
         bnt_clear.setMinimumHeight(30)
-        bnt_clear.clicked.connect(lambda: clear_entry(self.line_edits.values()))  # Conectar el botón a la función de limpieza
+        bnt_clear.clicked.connect(lambda: (clear_entry(self.line_edits.values()), getCodeBar(self,self.line_edits['Sección'].currentText(), self.line_edits['Subsección'].currentText())))  # Conectar el botón a la función de limpieza
          # Espacio a la izquierda
         botton_box = QHBoxLayout()
         botton_box.setSpacing(10)

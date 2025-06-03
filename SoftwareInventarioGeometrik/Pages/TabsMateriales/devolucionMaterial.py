@@ -24,7 +24,7 @@ class DevolucionMaterial(QWidget):
 
         self.entry_proyecto = QComboBox()
         self.entry_proyecto.setStyleSheet(COMBOBOX_GENERAL_DESIGN)
-        obtener_nombres_proyectos(self.entry_proyecto)
+        obtener_nombres_proyectos(self.entry_proyecto, "proyectos")
         self.entry_proyecto.setMinimumWidth(150)
 
         self.entry_responsable = QLineEdit()
@@ -124,7 +124,7 @@ class DevolucionMaterial(QWidget):
 
         btn_generar_recibo = QPushButton("Buscar Material")
         btn_generar_recibo.setStyleSheet(BUTTON_GENERAL_DESIGN)
-        btn_generar_recibo.clicked.connect(lambda: cargar_salidaMaterial_proyecto(self))
+        btn_generar_recibo.clicked.connect(lambda: (cargar_salidaMaterial_proyecto(self), obtener_nombres_proyectos(self.entry_proyecto, "proyectos")))
 
         btn_limpiar = QPushButton("Limpiar Tabla")
         btn_limpiar.setStyleSheet(BUTTON_GENERAL_DESIGN)

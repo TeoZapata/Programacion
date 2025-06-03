@@ -36,8 +36,7 @@ class calcularInventario(threading.Thread):
                 1 for material in materiales
                 if material[8] <= material[4] <= material[9]
             )
-            print(f"Materiales: {materiales}")
-            print(f"Productos en el rango: {productos_en_rango}")
+
             return productos_en_rango
         except Exception as e:
             print(f"Error al contar productos entre min y max: {e}")
