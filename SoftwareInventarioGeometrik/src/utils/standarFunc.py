@@ -9,15 +9,19 @@ from src.utils.getDate import fecha_actual
 
 
 
-def clear_entry(listaWidget: list) -> None:
+def clear_entry(listaWidget: list, confirm:bool=False) -> None:
 
     """Limpia el campo de entrada y establece un nuevo marcador de posición."""
     lista:list[QLineEdit] = listaWidget
-    for index, i in enumerate(lista):
-        
-        if not (index == 2 or index ==3 or index ==6 or index ==4):
+    if not confirm:
+        for index, i in enumerate(lista):
+            if not (index == 2 or index ==3 or index ==6 or index ==4):
+                i.clear()
+    else:
+        for index, i in enumerate(lista):
             i.clear()
-
+            if index == 4:
+                i.setText(fecha_actual())
 def cargar_invenario(self):
         """Carga el inventario desde la base de datos y lo muestra en la tabla."""
         # Limpiar la tabla antes de cargar nuevos datos
@@ -661,8 +665,8 @@ def actualizar_cantidad_entrada(productos):
         if db:
             # Actualizar la cantidad en la base de datos
             db.ejecutar_consulta(
-                "UPDATE inventario SET cantidad=cantidad+? WHERE id=?",
-                (dato['cantidad'], dato['id'])
-            )
+                "UPDATE inventario SET cantidad=cantidad+? , precio=?, proveedor=? WHERE id=?",
+                (dato['cantidad'], dato['precio_unitario'], dato['proveedor'],dato['id'])
             
+            )
             db.ejecutar_consulta("UPDATE inventario SET precioTotal = cantidad * precio WHERE id = ?", (dato['id'],))

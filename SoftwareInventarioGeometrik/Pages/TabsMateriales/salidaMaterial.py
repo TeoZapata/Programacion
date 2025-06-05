@@ -40,6 +40,7 @@ class SalidaMaterial(QWidget):
         self.label_responsable.setStyleSheet(LABEL_GENERAL_DESIGN)
         self.entry_responsable = QLineEdit()
         self.entry_responsable.setStyleSheet(ENTRY_GENERAL_DESIGN)
+        self.entry_responsable.setPlaceholderText("Ingrese el nombre del responsable")
         self.entry_responsable.setMinimumWidth(150)
 
         self.label_fecha_actual = QLabel("Fecha Actual")
@@ -60,7 +61,7 @@ class SalidaMaterial(QWidget):
         proyect_line.addWidget(self.entry_fecha_Actual, 1)
 
         self.entry_buscar_inventario = QLineEdit()
-        self.entry_buscar_inventario.setPlaceholderText("Buscar Proyecto")
+        self.entry_buscar_inventario.setPlaceholderText("Buscar en el inventario...")
         self.entry_buscar_inventario.setStyleSheet(ENTRY_GENERAL_DESIGN)
         self.entry_buscar_inventario.textChanged.connect(self.buscar_inventario)
 

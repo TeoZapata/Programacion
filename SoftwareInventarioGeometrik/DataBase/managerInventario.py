@@ -340,15 +340,16 @@ def seleccion_material_entrada(self):
         id_item = self.data_table.item(row, 0)  # ID
         nombre_item = self.data_table.item(row, 1)  # Nombre del material
         seccion_item = self.data_table.item(row, 2)  # Sección
-        codigo_barras_item = self.data_table.item(row, 3)  # Codigo de Barras
-        cantidad_disponible_item = self.data_table.item(row, 4)  # Cantidad disponible
-        unidad_item = self.data_table.item(row, 5)  # Unidad
-        precio_unitario_item = self.data_table.item(row, 6)  # Precio Unitario
-        precio_total_item = self.data_table.item(row, 7)  # Precio Total
-        cantidad_minima_item = self.data_table.item(row, 8)  # Cantidad Minima
-        cantidad_maxima_item = self.data_table.item(row, 9)  # Cantidad Maxima
-        proveedor_item = self.data_table.item(row, 10)  # Proveedor
-        ultima_actualizacion_item = self.data_table.item(row, 11)  # Ultima Actualización  # Unidad de medida
+        subseccion_item = self.data_table.item(row, 3)  # Subsección
+        codigo_barras_item = self.data_table.item(row, 4)  # Codigo de Barras
+        cantidad_disponible_item = self.data_table.item(row, 5)  # Cantidad disponible
+        unidad_item = self.data_table.item(row, 6)  # Unidad
+        precio_unitario_item = self.data_table.item(row, 7)  # Precio Unitario
+        precio_total_item = self.data_table.item(row, 8)  # Precio Total
+        cantidad_minima_item = self.data_table.item(row, 9)  # Cantidad Minima
+        cantidad_maxima_item = self.data_table.item(row, 10)  # Cantidad Maxima
+        proveedor_item = self.data_table.item(row, 11)  # Proveedor
+        ultima_actualizacion_item = self.data_table.item(row, 12)  # Ultima Actualización  # Unidad de medida
 
         if nombre_item and cantidad_disponible_item and unidad_item:
             nombre = nombre_item.text()
@@ -398,31 +399,36 @@ def seleccion_material_entrada(self):
             # Mostrar el diálogo personalizado
             dialog = EntradaDialog(nombre, cantidad_disponible, unidad, proveedor_item.text(), self)
             if dialog.exec_() == QDialog.Accepted:
-                proveedor, cantidad, precio = dialog.get_data()
-                if proveedor and cantidad and precio:
-                    # Aquí puedes procesar y validar los datos ingresados
-                    
-                    row_position = self.selected_table.rowCount()
-                    self.selected_table.insertRow(row_position)
-                    self.selected_table.setItem(row_position, 0, QTableWidgetItem(id_item.text()))  # ID
-                    self.selected_table.setItem(row_position, 1, QTableWidgetItem(nombre_item.text() ))  # Nombre
-                    self.selected_table.setItem(row_position, 2, QTableWidgetItem(seccion_item.text() ))  # Sección
-                    self.selected_table.setItem(row_position, 3, QTableWidgetItem(codigo_barras_item.text()))  # Codigo De Barras
-                    self.selected_table.setItem(row_position, 4, QTableWidgetItem(cantidad))  # Cantidad Disponible
-                    self.selected_table.setItem(row_position, 5, QTableWidgetItem(unidad_item.text() ))  # Unidad
-                    self.selected_table.setItem(row_position, 6, QTableWidgetItem(precio))  # Precio Unitario
-                    self.selected_table.setItem(row_position, 7, QTableWidgetItem(str(float(cantidad)*float(precio))))  # Precio Total
-                    self.selected_table.setItem(row_position, 8, QTableWidgetItem(cantidad_minima_item.text()))  # Cantidad Minima
-                    self.selected_table.setItem(row_position, 9, QTableWidgetItem(cantidad_maxima_item.text() ))  # Cantidad Maxima
-                    self.selected_table.setItem(row_position, 10, QTableWidgetItem(proveedor))  # Proveedor
-                    self.selected_table.setItem(row_position, 11, QTableWidgetItem(ultima_actualizacion_item.text()))  # Ultima Actualización  # Limpiar la tabla seleccionada
-                    
-                
+                try:
+                    proveedor, cantidad, precio = dialog.get_data()
+                    if proveedor and cantidad and precio:
+                        # Aquí puedes procesar y validar los datos ingresados
+                        
+                        row_position = self.selected_table.rowCount()
+                        self.selected_table.insertRow(row_position)
+                        self.selected_table.setItem(row_position, 0, QTableWidgetItem(id_item.text()))  # ID
+                        self.selected_table.setItem(row_position, 1, QTableWidgetItem(nombre_item.text() ))  # Nombre
+                        self.selected_table.setItem(row_position, 2, QTableWidgetItem(seccion_item.text() ))  # Sección
+                        self.selected_table.setItem(row_position, 3, QTableWidgetItem(subseccion_item.text() ))  # Subsección
+                        self.selected_table.setItem(row_position, 4, QTableWidgetItem(codigo_barras_item.text()))  # Codigo De Barras
+                        self.selected_table.setItem(row_position, 5, QTableWidgetItem(cantidad))  # Cantidad Disponible
+                        self.selected_table.setItem(row_position, 6, QTableWidgetItem(unidad_item.text() ))  # Unidad
+                        self.selected_table.setItem(row_position, 7, QTableWidgetItem(precio))  # Precio Unitario
+                        self.selected_table.setItem(row_position, 8, QTableWidgetItem(str(float(cantidad)*float(precio))))  # Precio Total
+                        self.selected_table.setItem(row_position, 9, QTableWidgetItem(cantidad_minima_item.text()))  # Cantidad Minima
+                        self.selected_table.setItem(row_position, 10, QTableWidgetItem(cantidad_maxima_item.text() ))  # Cantidad Maxima
+                        self.selected_table.setItem(row_position, 11, QTableWidgetItem(proveedor))  # Proveedor
+                        self.selected_table.setItem(row_position, 12, QTableWidgetItem(ultima_actualizacion_item.text()))  # Ultima Actualización  # Limpiar la tabla seleccionada
+                except Exception as e:
+                    QMessageBox.warning(
+                        self, "Error", f"Error al registrar la entrada: {str(e)}"
+                    )        
+                  
 
-                else:
+            else:
                     QMessageBox.warning(
                         self, "Error", "Todos los campos son obligatorios."
-                    )
+                    )    
 
 
 def generar_entrada_material(self):
@@ -440,15 +446,16 @@ def generar_entrada_material(self):
             "id": self.selected_table.item(row, 0).text(),
             "nombre": self.selected_table.item(row, 1).text(),
             "seccion": self.selected_table.item(row, 2).text(),
-            "codigo_barras": self.selected_table.item(row, 3).text(),
-            "cantidad": self.selected_table.item(row, 4).text(),
-            "unidad": self.selected_table.item(row, 5).text(),
-            "precio_unitario": self.selected_table.item(row, 6).text(),
-            "precio_total": self.selected_table.item(row, 7).text(),
-            "cantidad_minima": self.selected_table.item(row, 8).text(),
-            "cantidad_maxima": self.selected_table.item(row, 9).text(),
-            "proveedor": self.selected_table.item(row, 10).text(),
-            "ultima_actualizacion": self.selected_table.item(row, 11).text(),
+            "subseccion": self.selected_table.item(row, 3).text(),
+            "codigo_barras": self.selected_table.item(row, 4).text(),
+            "cantidad": self.selected_table.item(row, 5).text(),
+            "unidad": self.selected_table.item(row, 6).text(),
+            "precio_unitario": self.selected_table.item(row, 7).text(),
+            "precio_total": self.selected_table.item(row, 8).text(),
+            "cantidad_minima": self.selected_table.item(row, 9).text(),
+            "cantidad_maxima": self.selected_table.item(row, 10).text(),
+            "proveedor": self.selected_table.item(row, 11).text(),
+            "ultima_actualizacion": self.selected_table.item(row, 12).text(),
         }
         productos.append(item)
 

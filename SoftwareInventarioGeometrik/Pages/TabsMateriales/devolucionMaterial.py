@@ -22,10 +22,19 @@ class DevolucionMaterial(QWidget):
         formlayout.setContentsMargins(0, 0, 0, 0)
         formlayout.setSpacing(10)
 
+
+        label_proyecto = QLabel("Proyecto:")
+        label_proyecto.setStyleSheet(LABEL_GENERAL_DESIGN)
+
+
         self.entry_proyecto = QComboBox()
         self.entry_proyecto.setStyleSheet(COMBOBOX_GENERAL_DESIGN)
         obtener_nombres_proyectos(self.entry_proyecto, "proyectos")
         self.entry_proyecto.setMinimumWidth(150)
+
+
+        label_responsable = QLabel("Responsable:")
+        label_responsable.setStyleSheet(LABEL_GENERAL_DESIGN)
 
         self.entry_responsable = QLineEdit()
         self.entry_responsable.setPlaceholderText("Ingrese el nombre del responsable")
@@ -33,15 +42,19 @@ class DevolucionMaterial(QWidget):
         self.entry_responsable.setMinimumWidth(150)
 
 
-
+        label_fecha_Actual = QLabel("Fecha Actual:")
+        label_fecha_Actual.setStyleSheet(LABEL_GENERAL_DESIGN)
         self.entry_fecha_Actual = QLineEdit()
         self.entry_fecha_Actual.setReadOnly(True)
         self.entry_fecha_Actual.setText(fecha_actual())
         self.entry_fecha_Actual.setMinimumWidth(150)
         self.entry_fecha_Actual.setStyleSheet(ENTRY_GENERAL_DESIGN)
 
+        formlayout.addWidget(label_proyecto)
         formlayout.addWidget(self.entry_proyecto, 1)
+        formlayout.addWidget(label_responsable)
         formlayout.addWidget(self.entry_responsable, 1)
+        formlayout.addWidget(label_fecha_Actual)
         formlayout.addWidget(self.entry_fecha_Actual, 1)
 
         self.entry_buscar_inventario = QLineEdit()

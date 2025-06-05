@@ -74,7 +74,7 @@ def generar_pdf_simple(data, save_directory, descripcion):
         c.drawString(50, 690, f"Fecha de salida: {data['fecha']}")
         # Intenta dibujar el logo con fondo blanco detrás
         logo_path = "./Fuentes/logo.png"
-        logo_x, logo_y, logo_w, logo_h = 400, 700, 150, 50
+        logo_x, logo_y, logo_w, logo_h = 400, 700, 180, 50
 
         # Dibuja un rectángulo blanco como fondo del logo
         c.setFillColor(colors.white)
@@ -150,53 +150,55 @@ def generar_pdf_simple(data, save_directory, descripcion):
 def gen_pdf(self):
         """Genera el PDF con los datos de la tabla seleccionada."""
         # Obtener los datos de la tabla seleccionada
-        cliente , proyecto = informacion_cliente(self)
-        proyecto = self.entry_proyecto.currentText()
-        responsable = self.entry_responsable.text()
-        fecha = self.entry_fecha_Actual.text()
+        try:
+            cliente , proyecto = informacion_cliente(self)
+            proyecto = self.entry_proyecto.currentText()
+            responsable = self.entry_responsable.text()
+            fecha = self.entry_fecha_Actual.text()
 
-        if responsable == "":
-            QMessageBox.warning(self, "Error", "Por favor, ingrese el nombre del responsable.")
-            return
-        productos = []
-        
-        ok = QMessageBox.question(
-            self,
-            "COnfirmación",
-            "¿Está seguro de que desea generar el PDF con los datos seleccionados?",
-            QMessageBox.Yes | QMessageBox.No,
-            QMessageBox.Yes )
-        if ok == QMessageBox.No:
-            return
-        for row in range(self.selected_table.rowCount()):
-            item = {
-                "id": self.selected_table.item(row, 0).text(),
-                "nombre": self.selected_table.item(row, 1).text(),
-                "cantidad": int(self.selected_table.item(row, 2).text()),
-                "unidad": self.selected_table.item(row, 3).text(),
-                "precio_unitario": float(self.selected_table.item(row, 4).text()),
-            }
-            item["precio_total"] = item["cantidad"] * item["precio_unitario"]
-            productos.append(item)
+            if responsable == "":
+                QMessageBox.warning(self, "Error", "Por favor, ingrese el nombre del responsable.")
+                return
+            productos = []
+            
+            ok = QMessageBox.question(
+                self,
+                "COnfirmación",
+                "¿Está seguro de que desea generar el PDF con los datos seleccionados?",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.Yes )
+            if ok == QMessageBox.No:
+                return
+            for row in range(self.selected_table.rowCount()):
+                item = {
+                    "id": self.selected_table.item(row, 0).text(),
+                    "nombre": self.selected_table.item(row, 1).text(),
+                    "cantidad": int(self.selected_table.item(row, 2).text()),
+                    "unidad": self.selected_table.item(row, 3).text(),
+                    "precio_unitario": float(self.selected_table.item(row, 4).text()),
+                }
+                item["precio_total"] = item["cantidad"] * item["precio_unitario"]
+                productos.append(item)
 
 
-        agregar_salida_material(data={
-            "cliente": cliente,
-            "proyecto": proyecto,
-            "responsable": responsable,
-            "fecha": fecha,
-            "productos": productos,
-        })
+            agregar_salida_material(data={
+                "cliente": cliente,
+                "proyecto": proyecto,
+                "responsable": responsable,
+                "fecha": fecha,
+                "productos": productos,
+            })
 
-        
-        QMessageBox.information(self, "Éxito", "Salida de materiales registrada correctamente.")
+            
+            QMessageBox.information(self, "Éxito", "Salida de materiales registrada correctamente.")
 
-        generar_pdf_simple(data={
-            "cliente": cliente,
-            "proyecto": proyecto,
-            "responsable": responsable,
-            "fecha": fecha,
-            "productos": productos,
-        }, save_directory="./Salidas", descripcion="Salida") # Cambia el directorio según sea necesario
-        
+            generar_pdf_simple(data={
+                "cliente": cliente,
+                "proyecto": proyecto,
+                "responsable": responsable,
+                "fecha": fecha,
+                "productos": productos,
+            }, save_directory="./Salidas", descripcion="Salida") # Cambia el directorio según sea necesario
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Ocurrió un error al generar el PDF:\n{str(e)}")
         
