@@ -71,10 +71,10 @@ def generar_pdf_simple(data, save_directory, descripcion):
         c.drawString(50, 750, f"Cliente: {data['cliente']}")
         c.drawString(50, 730, f"Proyecto: {data['proyecto']}")
         c.drawString(50, 710, f"{'No. Remisión/Factura' if descripcion == 'Entrada' else 'Responsable'}: {data['responsable']}")
-        c.drawString(50, 690, f"Fecha de salida: {data['fecha']}")
+        c.drawString(50, 690, f"Fecha de {descripcion.lower()}: {data['fecha']}")
         # Intenta dibujar el logo con fondo blanco detrás
         logo_path = "./Fuentes/logo.png"
-        logo_x, logo_y, logo_w, logo_h = 400, 700, 180, 50
+        logo_x, logo_y, logo_w, logo_h = 400, 700, 150, 50
 
         # Dibuja un rectángulo blanco como fondo del logo
         c.setFillColor(colors.white)
@@ -90,8 +90,8 @@ def generar_pdf_simple(data, save_directory, descripcion):
         c.setFont("Helvetica", 10)
 
         # Draw table headers
-        headers = ["Nombre", "Cantidad", "Unidad", "Precio Unitario", "Precio Total"]
-        x_positions = [50, 200, 270, 340, 430]  # Adjusted positions for better spacing
+        headers = ["Código","Nombre", "Cantidad", "Unidad", "Precio Unitario", "Precio Total"]
+        x_positions = [50,120,270, 330, 400, 490]  # Adjusted positions for better spacing
         y = 630
 
         # Draw table headers
@@ -100,13 +100,14 @@ def generar_pdf_simple(data, save_directory, descripcion):
 
         # Draw a line under the headers
         c.setStrokeColor(colors.black)
-        c.line(50, y - 5, 500, y - 5)
+        c.line(50, y - 5, 550, y - 5)
 
         y -= 20
         total_final = 0
 
         # Table content
         for producto in data["productos"]:
+            codigo = producto.get("codigo_barras", "")
             nombre = producto.get("nombre", "")
             cantidad = float(producto.get("cantidad", 0))
             unidad = producto.get("unidad", "")
@@ -119,18 +120,17 @@ def generar_pdf_simple(data, save_directory, descripcion):
             line_count = len(nombre_lines)
             row_height = 20 * line_count  # Ajusta la altura de la fila según las líneas
 
+            c.drawString(x_positions[0], y, codigo)  # Dibuja el código de barras en la primera columna
             # Dibuja cada línea del nombre
             for idx, nombre_line in enumerate(nombre_lines):
-                c.drawString(x_positions[0], y - (idx * 15), nombre_line)
+                c.drawString(x_positions[1], y - (idx * 15), nombre_line)
 
             # Solo la primera línea de nombre lleva los otros datos, las demás quedan vacías
-            c.drawString(x_positions[1], y, str(cantidad))
-            c.drawString(x_positions[2], y, unidad)
-            c.drawString(x_positions[3], y, f"${precio_unitario:.2f}")
-            c.drawString(x_positions[4], y, f"${precio_total:.2f}")
+            c.drawString(x_positions[2], y, str(cantidad))
+            c.drawString(x_positions[3], y, unidad)
+            c.drawString(x_positions[4], y, f"${precio_unitario:.2f}")
+            c.drawString(x_positions[5], y, f"${precio_total:.2f}")
 
-            # Dibuja una línea después de la fila
-            c.line(50, y - (15 * (line_count - 1)) + 15, 500, y - (15 * (line_count - 1)) + 15)
 
             y -= row_height
 
@@ -138,8 +138,8 @@ def generar_pdf_simple(data, save_directory, descripcion):
         c.setFont("Helvetica-Bold", 12)
         c.drawString(50, y - 20, f"Precio Final Total: ${total_final:,.2f}")
         # Agrega un espacio para firmar el responsable de la salida
-        c.drawString(50, y - 100, "Firma del Responsable de la Salida")
-        c.drawString(50, y - 120, "Nombre: ______________________")  
+        c.drawString(50, y - 100, f"Firma del Responsable")
+        c.drawString(50, y - 140, "Nombre: ______________________")  
         # Save the PDF
         c.save()
         QMessageBox.information(None, "PDF Generado", f"El PDF ha sido generado y guardado en: {save_path}")
@@ -172,10 +172,11 @@ def gen_pdf(self):
             for row in range(self.selected_table.rowCount()):
                 item = {
                     "id": self.selected_table.item(row, 0).text(),
-                    "nombre": self.selected_table.item(row, 1).text(),
-                    "cantidad": int(self.selected_table.item(row, 2).text()),
-                    "unidad": self.selected_table.item(row, 3).text(),
-                    "precio_unitario": float(self.selected_table.item(row, 4).text()),
+                    "codigo_barras": self.selected_table.item(row, 1).text(),
+                    "nombre": self.selected_table.item(row, 2).text(),
+                    "cantidad": int(self.selected_table.item(row, 3).text()),
+                    "unidad": self.selected_table.item(row, 4).text(),
+                    "precio_unitario": float(self.selected_table.item(row, 5).text()),
                 }
                 item["precio_total"] = item["cantidad"] * item["precio_unitario"]
                 productos.append(item)

@@ -26,6 +26,39 @@ class storeBD:
                         fecha_compra DATE,
                         subcategoria TEXT
                         )''')
+            cur.execute('''CREATE TABLE IF NOT EXISTS proveedores (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        nit TEXT UNIQUE,
+                        nombre TEXT UNIQUE,
+                        email TEXT,
+                        telefono TEXT,
+                        direccion TEXT,
+                        ciudad TEXT,
+                        fecha DATE
+                        )''')
+            cur.execute('''CREATE TABLE IF NOT EXISTS gestionHerramientas (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        id_herramienta INTEGER,
+                        codigo TEXT UNIQUE,
+                        herramienta TEXT,
+                        id_empleado INTEGER,
+                        responsable TEXT,
+                        cedula TEXT,
+                        fechaAsignacion DATE,
+                        fechaCambioEstado DATE,
+                        estado TEXT,
+                        observacion TEXT
+                        )''')
+
+            cur.execute('''CREATE TABLE IF NOT EXISTS empleados (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        nombre TEXT UNIQUE,
+                        cedula TEXT UNIQUE,
+                        cargo TEXT,
+                        telefono TEXT,
+                        fecha DATE
+                        )''')
+
             cur.execute('''CREATE TABLE IF NOT EXISTS proyectos (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         nombre TEXT UNIQUE,
@@ -40,6 +73,7 @@ class storeBD:
                         cliente TEXT,
                         responsable TEXT,
                         id_material INTEGER,
+                        codigo TEXT,
                         material TEXT,
                         cantidad INTEGER,
                         unidad TEXT,
@@ -78,7 +112,8 @@ class storeBD:
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         cantSalidas INTEGER DEFAULT 0,
                         cantEntradas INTEGER DEFAULT 0,
-                        cantDevoluciones INTEGER DEFAULT 0
+                        cantDevoluciones INTEGER DEFAULT 0,
+                        cantCodigosBarras INTEGER DEFAULT 0
                         )''')
             # Insertar registro con id=0 si no existe
             cur.execute("SELECT COUNT(*) FROM informacion WHERE id = 0")

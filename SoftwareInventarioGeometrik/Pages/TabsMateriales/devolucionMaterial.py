@@ -82,8 +82,8 @@ class DevolucionMaterial(QWidget):
         available_table_layout.addWidget(available_table_title)
 
         self.table = QTableWidget()
-        self.table.setColumnCount(12)
-        self.table.setHorizontalHeaderLabels(["ID", "Nombre", "Cliente", "Responsable\nde Salida","id Material" ,"Material","Cantidad","Unidad","Precio\nUnitario", "Precio\nTotal", "Descripción","Fecha de Salida"])
+        self.table.setColumnCount(13)
+        self.table.setHorizontalHeaderLabels(["ID", "Nombre", "Cliente", "Responsable\nde Salida","id Material","Código" ,"Material","Cantidad","Unidad","Precio\nUnitario", "Precio\nTotal", "Descripción","Fecha de Salida"])
         self.table.setRowCount(0)
         self.table.setAlternatingRowColors(True)
         self.table.setEditTriggers(QTableWidget.NoEditTriggers)  # Hacer que la tabla sea de solo lectura
@@ -108,8 +108,8 @@ class DevolucionMaterial(QWidget):
         selected_table_layout.addWidget(selected_table_title)
 
         self.selected_table = QTableWidget()
-        self.selected_table.setColumnCount(10)
-        self.selected_table.setHorizontalHeaderLabels(["ID", "Nombre", "Cliente", "Responsable\nde Salida","id Material" ,"Material","Cantidad\na retirar","Unidad","Precio\nUnitario", "Precio\nTotal"])
+        self.selected_table.setColumnCount(11)
+        self.selected_table.setHorizontalHeaderLabels(["ID", "Nombre", "Cliente", "Responsable\nde Salida","id Material" ,"Código","Material","Cantidad\na retirar","Unidad","Precio\nUnitario", "Precio\nTotal"])
         self.selected_table.setEditTriggers(QTableWidget.NoEditTriggers)  # Hacer que la tabla sea de solo lectura
         self.selected_table.setSelectionBehavior(QTableWidget.SelectRows)
         self.selected_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)

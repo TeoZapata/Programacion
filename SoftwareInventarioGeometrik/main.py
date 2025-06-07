@@ -6,6 +6,7 @@ from PyQt5.QtGui import QFont, QIcon
 from Pages import *
 from Style import *
 from DataBase import *
+from Pages.registrosSection import RegistroSection
 
 
 
@@ -37,8 +38,8 @@ class MainWindow(QMainWindow):
         # Añadir pestañas al QTabWidget
         self.navbar.addTab(QWidget(), "Inventario")
         self.navbar.addTab(QWidget(), "Materiales")
-        self.navbar.addTab(QWidget(), "Proyectos")
-        self.navbar.addTab(QWidget(), "Clientes")
+        self.navbar.addTab(QWidget(), "Herramientas")
+        self.navbar.addTab(QWidget(), "Registros")
         self.navbar.addTab(QWidget(), "Estadísticas")
         
         # Conectar el cambio de pestaña al cambio de página
@@ -74,16 +75,15 @@ class MainWindow(QMainWindow):
                 self.section_widgets[1] = materialesSection()
                 self.pages.insertWidget(1, self.section_widgets[1])
             self.pages.setCurrentWidget(self.section_widgets[1])
-
         elif index == 2:
             if self.section_widgets[2] is None:
-                self.section_widgets[2] = proyecto()
+                self.section_widgets[2] = HerramientasSection()
                 self.pages.insertWidget(2, self.section_widgets[2])
             self.pages.setCurrentWidget(self.section_widgets[2])
 
         elif index == 3:
             if self.section_widgets[3] is None:
-                self.section_widgets[3] = clientesSection()
+                self.section_widgets[3] = RegistroSection()
                 self.pages.insertWidget(3, self.section_widgets[3])
             self.pages.setCurrentWidget(self.section_widgets[3])
 

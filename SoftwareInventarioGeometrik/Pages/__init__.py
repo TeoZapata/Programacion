@@ -4,3 +4,7 @@ from .proyectosSection import *
 from .estadisticasSection import *
 from .materialesSection import *
 from .prueba import *
+from .herramientasSection import *
+from .registrosSection import *
+from .empleadosSection import *
+from .proveedoresSection import *

@@ -22,8 +22,6 @@ class inventarioSection(QWidget):
         self.init_ui()
         self.db = storeBD()
         self.db.iniciar_bd()
-        cargar_invenario(self)
-        iniciar_calculo_inventario(self)
 
     def init_ui(self):
         # Layout principal
@@ -40,8 +38,8 @@ class inventarioSection(QWidget):
         self.data_table = QTableWidget()
         self.data_table.setColumnCount(13)  # Número de columnas
         self.data_table.setHorizontalHeaderLabels(["ID","Nombre",
-                                "Sección",
-                                "Subsección",
+                                "Clasificación",
+                                "Subclasificación",
                                 "Código de Barras",
                                 "Cantidad",
                                 "Unidad",
@@ -97,10 +95,8 @@ class inventarioSection(QWidget):
                 self.line_edit.setStyleSheet(COMBOBOX_GENERAL_DESIGN)
                 categoria, subcategoria = obtener_categorias()  # Obtener categorías y subcategorías
                 if placeholder == "Sección":
-                    print("se carga seccion")
                     self.line_edit.addItems(categoria.keys())
                 else:  # Si es "Subsección", agregar subcategorías
-                    print("se carga subcategoria")
                     self.line_edit.addItems(subcategoria.keys())
                 entry_formulario.addRow(label, self.line_edit)
                 self.line_edits[placeholder] = self.line_edit  # Guardar el QComboBox en el diccionario
@@ -194,7 +190,7 @@ class inventarioSection(QWidget):
         informacion_almacen_layout = QHBoxLayout()
 
 
-        btnActualizarEstado = QPushButton("Actualizar Estado")
+        btnActualizarEstado = QPushButton("Actualizar TODO")
         btnActualizarEstado.setStyleSheet(BUTTON_GENERAL_DESIGN)
         btnActualizarEstado.setMinimumHeight(60)
         btnActualizarEstado.clicked.connect(lambda: (iniciar_calculo_inventario(self), cargar_invenario(self)))  # Conectar el botón a la función de calcular inventario y cargar inventario nuevamente

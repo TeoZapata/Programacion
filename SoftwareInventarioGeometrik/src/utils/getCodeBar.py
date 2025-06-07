@@ -3,7 +3,7 @@ from barcode import Code128
 from barcode.writer import ImageWriter
 from random import choice
 from string import ascii_uppercase
-
+from DataBase.storeDB import *
 
 def obtener_categorias():
     categoria = {
@@ -60,10 +60,11 @@ def obtener_unidades():
     unidades = [
     "ud",   # Unidad
     "m",     # Metro
+    "m^3", # Metro cúbico
     "kg",    # Kilogramo
     "pqte", # Paquete
     "gal",   # Galón
-    "l",     # Litro
+    "ml",    # Mililitro
     ]
 
     return unidades
@@ -74,13 +75,24 @@ def getCodeBar(self=None, categoria='EQUIPO', subcategoria='TORNILLERÍA', camp:
 
     lista_categoria, lista_subcategoria = obtener_categorias()
     
+    
+
+    if not hasattr(getCodeBar, "counter"):
+        db = conex()
+
+        getCodeBar.counter = db.ejecutar_consulta(
+            "SELECT MAX(id) FROM inventario"
+        )[0][0] or 0
+
 
     code = (
-        '71'  # Primera letra
-        +lista_categoria[categoria]  # Seis dígitos
-        +lista_subcategoria[subcategoria] # Última letra
-        +str(randint(0, 999)).zfill(3) )  # Números aleatorios
+        '71'
+        + lista_categoria[categoria]
+        + lista_subcategoria[subcategoria]
+        + f"{getCodeBar.counter:03d}"
+    )
     
+    getCodeBar.counter += 1
     
     if camp:
         self.line_edits['Código de Barras'].setText(code)
@@ -90,3 +102,10 @@ def getCodeBar(self=None, categoria='EQUIPO', subcategoria='TORNILLERÍA', camp:
 
 
     return code
+
+def conex():
+    """Establece una conexión a la base de datos."""
+    db = storeBD()
+    db.iniciar_bd()
+
+    return db

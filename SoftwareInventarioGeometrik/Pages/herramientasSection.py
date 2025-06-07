@@ -1,20 +1,19 @@
-import sys
-from PyQt5.QtWidgets import (QHeaderView, QLineEdit, QWidget, QVBoxLayout, 
-                            QHBoxLayout, QPushButton, QLabel, QTableWidget, QFormLayout)
+from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
+                             QHBoxLayout, QPushButton, QLabel, QStackedWidget,QSizePolicy)
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QFont, QIcon
+from PyQt5.QtWidgets import QTabWidget, QLabel
+from .TabsMateriales import *
 from Style import *
-from src.utils.getDate import *
-from src.utils.standarFunc import *
+from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem
 
 
-class clientesSection(QWidget):
+class HerramientasSection(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.init_ui()
         
     def init_ui(self):
-        # Layout principal
         self.layout = QVBoxLayout(self)
         self.layout.setContentsMargins(20, 20, 20, 20)
 
@@ -76,7 +75,7 @@ class clientesSection(QWidget):
 
         self.button_clear=QPushButton("Limpiar Registro")
         self.button_clear.setStyleSheet(BUTTON_GENERAL_DESIGN)
-        self.button_clear.clicked.connect(lambda: clear_entry([self.client_id_input,self.client_name_input,self.client_address_input,self.client_city_input,self.client_fecha_input,self.client_phone_input,self.client_email_input], True))
+        self.button_clear.clicked.connect(lambda: clear_entry([self.client_id_input,self.client_name_input,self.client_address_input,self.client_city_input,self.client_phone_input,self.client_email_input], True))
 
 
         self.right_form_layout.addRow(self.client_phone_label,self.client_phone_input)
@@ -96,19 +95,15 @@ class clientesSection(QWidget):
 
         self.add_button = QPushButton("Agregar")
         self.add_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
-        self.add_button.clicked.connect(lambda: agregar_cliente(self))
 
         self.edit_button = QPushButton("Editar")
-        self.edit_button.clicked.connect(lambda: editar_cliente(self))
         self.edit_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
 
         self.delete_button = QPushButton("Eliminar")
         self.delete_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
-        self.delete_button.clicked.connect(lambda: eliminar_cliente(self))
 
         self.update_button = QPushButton("Actualizar")
         self.update_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
-        self.update_button.clicked.connect(lambda: tabla_cliente(self))
 
         self.buttons_layout.addWidget(self.add_button)
         self.buttons_layout.addWidget(self.edit_button)
@@ -117,15 +112,13 @@ class clientesSection(QWidget):
         self.layout.addLayout(self.buttons_layout)
 
         # Tabla para mostrar proyectos registrados
-        self.table_label = QLabel("Clientes Registrados:")
-        self.table_label.setFont(QFont("Arial", 16, QFont.Bold))
+        self.table_label = QLabel("HERRAMIENTA DISPONIBLE:")
         self.layout.addWidget(self.table_label)
 
         self.client_table = QTableWidget()
         self.client_table.setColumnCount(7)
         self.client_table.setHorizontalHeaderLabels(["ID", "Nombre", "Correo", "Telefono", "Dirección", "Ciudad", "Fecha de Registro"])
         self.client_table.setAlternatingRowColors(True)
-        self.client_table.doubleClicked.connect(lambda _: mostrar_cliente(self))
         self.client_table.horizontalHeader().setStretchLastSection(True)
         self.client_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.client_table.setSelectionMode(QTableWidget.SingleSelection)

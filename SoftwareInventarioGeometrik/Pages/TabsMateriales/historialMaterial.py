@@ -24,36 +24,25 @@ class HistorialMaterial(QWidget):
         self.responsible_input = QLineEdit()
         self.responsible_input.setStyleSheet(ENTRY_GENERAL_DESIGN)
         self.responsible_input.setPlaceholderText("Ingrese el nombre del responsable")
+        self.responsible_input.textChanged.connect(self.buscar_inventario)
         filter_layout.addWidget(self.responsible_input)
 
-        # Buscar por concepto
-        self.concept_input = QComboBox()
-        self.concept_input.addItems(["Devolución", "Entrada", "Salida"])
-        self.concept_input.setStyleSheet(COMBOBOX_GENERAL_DESIGN)
-        filter_layout.addWidget(self.concept_input)
-
-        # Buscar por fechas
-        self.date_input = QDateEdit()
-        self.date_input.setCalendarPopup(True)
-        self.date_input.setDisplayFormat("dd/MM/yyyy")
-        self.date_input.setDate(QDate(2025, 1, 1))  # Set start date to January 1, 2025
-        self.date_input.setStyleSheet(QDATEEDIT_GENERAL_DESIGN)  # Apply appropriate style
-        filter_layout.addWidget(self.date_input)
-
-        # Botón de búsqueda
-        self.search_button = QPushButton("Buscar")
+   
+        self.search_button = QPushButton("Actualizar Historial")
         self.search_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        self.search_button.clicked.connect(lambda: tabla_registro_historial(self))
         filter_layout.addWidget(self.search_button)
 
         self.layout.addLayout(filter_layout)
 
         # Tabla de visualización
         self.table = QTableWidget()
-        self.table.setColumnCount(11)  # Example: 4 columns
+        self.table.setColumnCount(12)  # Example: 4 columns
         self.table.setHorizontalHeaderLabels(['proyecto' ,
                         'cliente' ,
                         'responsable' ,
                         'id_material' ,
+                        'Código',
                         'material' ,
                         'cantidad' ,
                         'unidad' ,
@@ -73,5 +62,6 @@ class HistorialMaterial(QWidget):
         # Botón para generar reporte
         self.report_button = QPushButton("Generar Reporte")
         self.report_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
-        self.report_button.clicked.connect(lambda: tabla_registro_historial(self))
-        self.layout.addWidget(self.report_button)
+        self.layout.addWidget(self.report_button)   
+    def buscar_inventario(self, text):
+        filterTable(self, text)

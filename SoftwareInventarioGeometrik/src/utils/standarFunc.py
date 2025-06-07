@@ -450,12 +450,26 @@ def eliminar_proyecto(self) -> None:
     item = self.projectsTable.currentItem()
     if item == None:
         return
-    row = item.row()
-    id_proyecto = self.projectsTable.item(row, 0).text()
-    db = conex()
-    db.ejecutar_consulta("DELETE FROM proyectos WHERE id=?", (id_proyecto,))
-    QMessageBox.information(None, "Éxito", "Proyecto eliminado correctamente.")
-    cargar_proyecto_tabla(self)
+    try:
+
+        ok = QMessageBox.question(
+            None,
+            "Confirmar Eliminación",
+            "¿Estás seguro de que deseas eliminar este proyecto? Esta acción no se puede deshacer.",
+            QMessageBox.Yes | QMessageBox.No
+        )
+        if ok != QMessageBox.Yes:
+            return
+        row = item.row()
+        id_proyecto = self.projectsTable.item(row, 0).text()
+        db = conex()
+        db.ejecutar_consulta("DELETE FROM proyectos WHERE id=?", (id_proyecto,))
+        QMessageBox.information(None, "Éxito", "Proyecto eliminado correctamente.")
+        cargar_proyecto_tabla(self)
+        
+    except Exception as e:
+        QMessageBox.critical(None, "Error", f"Error al eliminar el proyecto: {str(e)}")
+        return
 
 def agregar_proyecto(self) -> None:
     """Agrega un nuevo proyecto a la base de datos."""
@@ -552,11 +566,12 @@ def agregar_salida_material(data):
     db = conex()
     for i in range(len(data['productos'])):
         
-        db.ejecutar_consulta("INSERT INTO registro (proyecto,cliente,responsable,id_material,material,cantidad,unidad,precio,precioTotal,descripcion,fecha) VALUES (?,?,?,?,?,?,?,?,?,?,? )",
+        db.ejecutar_consulta("INSERT INTO registro (proyecto,cliente,responsable,id_material,codigo,material,cantidad,unidad,precio,precioTotal,descripcion,fecha) VALUES (?,?,?,?,?,?,?,?,?,?,?,? )",
                             (data['proyecto'],
                             data['cliente'],
                             data['responsable'],
                             data['productos'][i]['id'],
+                            data['productos'][i]['codigo_barras'],
                             data['productos'][i]['nombre'],
                             data['productos'][i]['cantidad'],
                             data['productos'][i]['unidad'],
@@ -577,10 +592,11 @@ def click_tablaDevolucion(self):
     cliente = self.table.item(row, 2).text()
     responsable = self.table.item(row, 3).text()
     id_material = self.table.item(row, 4).text()
-    material = self.table.item(row, 5).text()
-    cantida = self.table.item(row, 6).text()
-    unidad = self.table.item(row, 7).text()
-    precio_unitario = self.table.item(row, 8).text()
+    codigo = self.table.item(row, 5).text()
+    material = self.table.item(row, 6).text()
+    cantida = self.table.item(row, 7).text()
+    unidad = self.table.item(row, 8).text()
+    precio_unitario = self.table.item(row, 9).text()
 
     if int(cantida)==0:
         QMessageBox.warning(None,"Error", f"{material} tiene una cantidad de 0")
@@ -603,11 +619,12 @@ def click_tablaDevolucion(self):
         self.selected_table.setItem(row_position, 2, QTableWidgetItem(cliente))
         self.selected_table.setItem(row_position, 3, QTableWidgetItem(responsable))
         self.selected_table.setItem(row_position, 4, QTableWidgetItem(id_material))
-        self.selected_table.setItem(row_position, 5, QTableWidgetItem(material))
-        self.selected_table.setItem(row_position, 6, QTableWidgetItem(str(cantidad_ingresada)))
-        self.selected_table.setItem(row_position, 7, QTableWidgetItem(unidad))
-        self.selected_table.setItem(row_position, 8, QTableWidgetItem(precio_unitario))
-        self.selected_table.setItem(row_position, 9, QTableWidgetItem(str(int(precio_unitario)*int(cantidad_ingresada))))
+        self.selected_table.setItem(row_position, 5, QTableWidgetItem(codigo))
+        self.selected_table.setItem(row_position, 6, QTableWidgetItem(material))
+        self.selected_table.setItem(row_position, 7, QTableWidgetItem(str(cantidad_ingresada)))
+        self.selected_table.setItem(row_position, 8, QTableWidgetItem(unidad))
+        self.selected_table.setItem(row_position, 9, QTableWidgetItem(precio_unitario))
+        self.selected_table.setItem(row_position, 10, QTableWidgetItem(str(int(precio_unitario)*int(cantidad_ingresada))))
 
 def informacion_cliente(self):
     """obtiene los datos en los ordenes de la tabla clientes"""

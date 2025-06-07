@@ -70,17 +70,18 @@ def getManagerInventario(self):
             # Assuming the columns are in the following order in the database:
             # ID, Nombre, Cantidad Disponible, Unidad, Precio Unitario, Precio Total
             self.table.setItem(row_position, 0, QTableWidgetItem(str(dato[0])))  # ID
-            self.table.setItem(row_position, 1, QTableWidgetItem(dato[1]))       # Nombre
-            self.table.setItem(row_position, 2, QTableWidgetItem(str(dato[4])))  # Cantidad Disponible
-            self.table.setItem(row_position, 3, QTableWidgetItem(dato[5]))       # Unidad
-            self.table.setItem(row_position, 4, QTableWidgetItem(str(dato[6])))  # Precio Unitario
-            self.table.setItem(row_position, 5, QTableWidgetItem(str(dato[7])))  # Precio Total
+            self.table.setItem(row_position, 1, QTableWidgetItem(dato[3]))       # codigo de barras
+            self.table.setItem(row_position, 2, QTableWidgetItem(dato[1]))       # Nombre
+            self.table.setItem(row_position, 3, QTableWidgetItem(str(dato[4])))  # Cantidad Disponible
+            self.table.setItem(row_position, 4, QTableWidgetItem(dato[5]))       # Unidad
+            self.table.setItem(row_position, 5, QTableWidgetItem(str(dato[6])))  # Precio Unitario
+            self.table.setItem(row_position, 6, QTableWidgetItem(str(dato[7])))  # Precio Total
 
             # Add a button for the "Agregar" column
             add_button = QPushButton("Agregar")
             add_button.setStyleSheet(BUTTON_ADD_MATERIAL)  # Set an icon for the button
             add_button.clicked.connect(lambda _, row=row_position: ventana_selec_cantidad(self, self.table.item(row, 0)))  # Connect to the selection function
-            self.table.setCellWidget(row_position, 6, add_button)  # Add the button to the table
+            self.table.setCellWidget(row_position, 7, add_button)  # Add the button to the table
 
 
         self.table.blockSignals(False)  # Re-enable signals after updates
@@ -115,10 +116,12 @@ def calcular_cuantas_DevolucionesDB():
 def ventana_selec_cantidad(self, item):
     """Se abre una ventana para elegir la cantidad cuando se selecciona el checkbox"""
     # Obtener información del material seleccionado
-    nombre_item = self.table.item(item.row(), 1)  # Nombre del material
-    cantidad_disponible_item = self.table.item(item.row(), 2)  # Cantidad disponible
-    unidad_item = self.table.item(item.row(), 3)  # Unidad de medida
-    precio_unitario_item = self.table.item(item.row(), 4)  # Precio Unitario
+    id_item = self.table.item(item.row(), 0)  # ID del material
+    codigo_item = self.table.item(item.row(), 1)  # codigo del material
+    nombre_item = self.table.item(item.row(), 2)  # nombre del material
+    cantidad_disponible_item = self.table.item(item.row(), 3)  # Cantidad disponible
+    unidad_item = self.table.item(item.row(), 4)  # Unidad de medida
+    precio_unitario_item = self.table.item(item.row(), 5)  # Precio Unitario
 
     if nombre_item and cantidad_disponible_item and unidad_item:
         nombre = nombre_item.text()
@@ -141,20 +144,21 @@ def ventana_selec_cantidad(self, item):
             self.entry_buscar_inventario.clear()  # Clear the search entry|
             row_position = self.selected_table.rowCount()
             self.selected_table.insertRow(row_position)
-            precio_total = str(round(precio_unitario * cantidad, 2))  # Calculate total price
-            # Copy relevant columns from the main table to the selected_table
-            self.selected_table.setItem(row_position, 0, QTableWidgetItem(self.table.item(item.row(), 0).text()))  # ID
-            self.selected_table.setItem(row_position, 1, QTableWidgetItem(nombre))  # Nombre
-            self.selected_table.setItem(row_position, 2, QTableWidgetItem(str(cantidad)))  # Cantidad seleccionada
-            self.selected_table.setItem(row_position, 3, QTableWidgetItem(unidad))  # Unidad
-            self.selected_table.setItem(row_position, 4, QTableWidgetItem(self.table.item(item.row(), 4).text()))  # Precio Unitario
-            self.selected_table.setItem(row_position, 5, QTableWidgetItem(precio_total))
+            precio_total = str(round(precio_unitario * cantidad, 2)) 
+
+            self.selected_table.setItem(row_position, 0, QTableWidgetItem(id_item.text()))  # ID
+            self.selected_table.setItem(row_position, 1, QTableWidgetItem(codigo_item.text()))  # Codigo de barras
+            self.selected_table.setItem(row_position, 2, QTableWidgetItem(nombre))  # Nombre
+            self.selected_table.setItem(row_position, 3, QTableWidgetItem(str(cantidad)))  # Cantidad seleccionada
+            self.selected_table.setItem(row_position, 4, QTableWidgetItem(unidad))  # Unidad
+            self.selected_table.setItem(row_position, 5, QTableWidgetItem(precio_unitario_item.text()))  # Precio Unitario
+            self.selected_table.setItem(row_position, 6, QTableWidgetItem(precio_total))
             
             # Precio Total
             remove_button = QPushButton("Quitar")
             remove_button.clicked.connect(lambda:limpiar_tabla(self))  # Connect to remove_item
             remove_button.setStyleSheet(BUTTON_DELETE_MATERIAL)  # Set an icon for the button
-            self.selected_table.setCellWidget(row_position, 6, remove_button)  # Add the button to the table
+            self.selected_table.setCellWidget(row_position, 7, remove_button)  # Add the button to the table
         
             # Set the checkbox to checked
 
@@ -252,37 +256,39 @@ def generar_devolucion(self):
 
             item = {
                 "id": material[4],
-                "nombre": material[5],
-                "cantidad": material[6],
-                "unidad": material[7],
-                "precio_unitario": material[8],
-                "precio_total": material[9],
+                "codigo_barras": material[5],
+                "nombre": material[6],
+                "cantidad": material[7],
+                "unidad": material[8],
+                "precio_unitario": material[9],
+                "precio_total": material[10]
             }
 
             productos.append(item)
             # Update the 'registro' table
-            db.ejecutar_consulta("UPDATE registro SET cantidad = cantidad - ? WHERE id = ?", (material[6], material[0]))
+            db.ejecutar_consulta("UPDATE registro SET cantidad = cantidad - ? WHERE id = ?", (material[7], material[0]))
             db.ejecutar_consulta("UPDATE registro SET precioTotal=cantidad*precio WHERE id = ?", (material[0],))
             # Add the return entry with a description
             db.ejecutar_consulta(
-                "INSERT INTO registro (proyecto, cliente, responsable, id_material, material, cantidad, unidad, precio, precioTotal, descripcion, fecha) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "INSERT INTO registro (proyecto, cliente, responsable, id_material,codigo, material, cantidad, unidad, precio, precioTotal, descripcion, fecha) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)",
                 (
                     material[1],  # proyecto
                     material[2],  # cliente
                     responsable,  # responsable
                     material[4],  # id_material
-                    material[5],  # material
-                    material[6],  # cantidad
-                    material[7],  # unidad
-                    material[8],  # precio
-                    material[9],  # precioTotal
+                    material[5],  # codigo
+                    material[6],  # material
+                    material[7],  # cantidad
+                    material[8],  # unidad
+                    material[9],  # precio
+                    material[10],  # precioTotal
                     "devolucion",  # descripcion
                     fecha_actual(),  # fecha (función que genera la fecha actual)
                 )
             )
 
             # Update the 'inventario' table
-            db.ejecutar_consulta("UPDATE inventario SET cantidad = cantidad + ? WHERE id = ?", (material[6], material[4]))
+            db.ejecutar_consulta("UPDATE inventario SET cantidad = cantidad + ? WHERE id = ?", (material[7], material[4]))
             db.ejecutar_consulta("UPDATE inventario SET precioTotal = cantidad * precio WHERE id = ?",(material[4],))
      # Cambia el directorio según sea necesario
                
@@ -321,7 +327,7 @@ def tabla_registro_historial(self):
             item.setTextAlignment(Qt.AlignCenter)  # Align text to the center
 
             # Check the value in the "descripcion" column (index 9)
-            if col == 9:
+            if col == 10:
                 if value.lower() == "entrada":
                     item.setBackground(QColor('#43B02A'))  # Paint the cell green for "entrada"
                 elif value.lower() == "devolucion":
@@ -439,6 +445,17 @@ def generar_entrada_material(self):
     if responsable == "":
         QMessageBox.warning(self, "Error", "Por favor, ingrese el nombre del responsable.")
         return
+    
+    ok = QMessageBox.question(
+        self,
+        "COnfirmación",
+        "¿Está seguro de que desea generar la entrada de almacén con los datos seleccionados?",
+        QMessageBox.Yes | QMessageBox.No,
+        QMessageBox.Yes
+    )
+    if ok == QMessageBox.No:
+        return
+    
     productos = []
     
     for row in range(self.selected_table.rowCount()):
@@ -459,7 +476,7 @@ def generar_entrada_material(self):
         }
         productos.append(item)
 
-    print(productos)
+ 
 
     generar_pdf_simple(data={
             "cliente": 'N/A',

@@ -12,7 +12,6 @@ class proyecto(QWidget):
     def __init__(self):
         super().__init__()
         self.initUi()
-        obtener_nombres_proyectos(self.clientDropdown, "clientes")
         
     def initUi(self):
         # Layout principal

@@ -85,8 +85,8 @@ class SalidaMaterial(QWidget):
         available_table_layout.addWidget(available_table_title)
 
         self.table = QTableWidget()
-        self.table.setColumnCount(7)
-        self.table.setHorizontalHeaderLabels(["ID", "Nombre", "Cantidad\nDisponible", "Unidad", "Precio\nUnitario", "Precio\nTotal", "Seleccionar"])
+        self.table.setColumnCount(8)
+        self.table.setHorizontalHeaderLabels(["ID","Código", "Nombre", "Cantidad\nDisponible", "Unidad", "Precio\nUnitario", "Precio\nTotal", "Seleccionar"])
         self.table.setRowCount(0)
         self.table.setAlternatingRowColors(True)
         self.table.setEditTriggers(QTableWidget.NoEditTriggers)  # Hacer que la tabla sea de solo lectura
@@ -111,8 +111,8 @@ class SalidaMaterial(QWidget):
         selected_table_layout.addWidget(selected_table_title)
 
         self.selected_table = QTableWidget()
-        self.selected_table.setColumnCount(7)
-        self.selected_table.setHorizontalHeaderLabels(["ID", "Nombre", "Cantidad\nSeleccionada", "Unidad", 'Precio\nUnitario', 'Precio\nTotal', "Quitar"])
+        self.selected_table.setColumnCount(8)
+        self.selected_table.setHorizontalHeaderLabels(["ID","Codigo", "Nombre", "Cantidad\nSeleccionada", "Unidad", 'Precio\nUnitario', 'Precio\nTotal', "Quitar"])
         self.selected_table.setRowCount(0)
         self.selected_table.setEditTriggers(QTableWidget.NoEditTriggers)  # Hacer que la tabla sea de solo lectura
         self.selected_table.setSelectionBehavior(QTableWidget.SelectRows)

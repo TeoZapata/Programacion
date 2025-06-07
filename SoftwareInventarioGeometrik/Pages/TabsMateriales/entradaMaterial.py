@@ -77,7 +77,7 @@ class EntradaMaterial(QWidget):
 
         self.data_table = QTableWidget()
         self.data_table.setColumnCount(13)
-        self.data_table.setHorizontalHeaderLabels(["ID","Nombre","Sección","Subsección","Codigo\nDe\nBarras","Cantidad\nDisponible","Unidad", "Precio\nUnitario", "Precio\nTotal", "Cantidad\nMinima","Cantidad\nMaxima","Proveedor", "Ultima\nActualización"])
+        self.data_table.setHorizontalHeaderLabels(["ID","Nombre","Clasificación","Subclasificación","Codigo\nDe\nBarras","Cantidad\nDisponible","Unidad", "Precio\nUnitario", "Precio\nTotal", "Cantidad\nMinima","Cantidad\nMaxima","Proveedor", "Ultima\nActualización"])
         self.data_table.setRowCount(0)
         self.data_table.setAlternatingRowColors(True)
         self.data_table.setEditTriggers(QTableWidget.NoEditTriggers)  # Hacer que la tabla sea de solo lectura
@@ -96,7 +96,7 @@ class EntradaMaterial(QWidget):
 
         self.selected_table = QTableWidget()
         self.selected_table.setColumnCount(13)
-        self.selected_table.setHorizontalHeaderLabels(["ID","Nombre","Sección","Subsección","Codigo\nDe\nBarras","Cantidad\nDisponible","Unidad", "Precio\nUnitario", "Precio\nTotal", "Cantidad\nMinima","Cantidad\nMaxima","Proveedor", "Ultima\nActualización"])
+        self.selected_table.setHorizontalHeaderLabels(["ID","Nombre","Clasificación","Subclasificación","Codigo\nDe\nBarras","Cantidad\nDisponible","Unidad", "Precio\nUnitario", "Precio\nTotal", "Cantidad\nMinima","Cantidad\nMaxima","Proveedor", "Ultima\nActualización"])
         self.selected_table.setRowCount(0)
         self.selected_table.setAlternatingRowColors(True)
         self.selected_table.setEditTriggers(QTableWidget.NoEditTriggers)  # Hacer que la tabla sea de solo lectura
