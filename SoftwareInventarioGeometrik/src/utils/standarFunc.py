@@ -687,3 +687,231 @@ def actualizar_cantidad_entrada(productos):
             
             )
             db.ejecutar_consulta("UPDATE inventario SET precioTotal = cantidad * precio WHERE id = ?", (dato['id'],))
+def agregar_empleado(nombre, cedula, cargo, telefono, fechaRegistro):
+    """Agrega un nuevo empleado a la base de datos."""
+    ok = QMessageBox.question(
+        None,
+        "Confirmar Agregar Empleado",
+        "¿Estás seguro de que deseas agregar este empleado?",
+        QMessageBox.Yes | QMessageBox.No
+    )
+    if ok != QMessageBox.Yes:
+        return
+    
+
+    db = conex()
+    try:
+        db.ejecutar_consulta(
+            "INSERT INTO empleados (nombre, cedula, cargo, telefono, fecha) VALUES (?, ?, ?, ?, ?)",
+            (nombre, cedula, cargo, telefono, fechaRegistro)
+        )
+        QMessageBox.information(None, "Éxito", "Empleado agregado correctamente.")
+    except Exception as e:
+        QMessageBox.critical(None, "Error", f"Error al agregar el empleado: {str(e)}")
+        return
+
+def cargar_empleados(tabla):
+    """Actualiza la tabla de empleados con los datos de la base de datos."""
+    tabla.setRowCount(0)  # Limpiar la tabla antes de cargar nuevos datos
+    db = conex()
+    empleados = db.ejecutar_consulta("SELECT * FROM empleados")
+    for empleado in empleados:
+        row_position = tabla.rowCount()
+        tabla.insertRow(row_position)
+        for column, data in enumerate(empleado):
+            item = QTableWidgetItem(str(data))
+            item.setTextAlignment(Qt.AlignCenter)
+            tabla.setItem(row_position, column, item)
+
+def doble_click_empleado(tabla, line_edits):
+    """Maneja el evento de doble clic en la tabla de empleados."""
+    item = tabla.currentItem()
+    if item is None:
+        QMessageBox.warning(None, "Error", "No se seleccionó ningún empleado.")
+        return
+
+    row = item.row()
+    # Obtener los datos del empleado seleccionado
+    id_empleado = tabla.item(row, 0).text()
+    nombre = tabla.item(row, 1).text()
+    cedula = tabla.item(row, 2).text()
+    cargo = tabla.item(row, 3).text()
+    telefono = tabla.item(row, 4).text()
+    fecha_registro = tabla.item(row, 5).text()
+
+    # Mostrar los datos en los campos de entrada
+    line_edits['ID'].setText(id_empleado)
+    line_edits['Nombre'].setText(nombre)
+    line_edits['Cedula'].setText(cedula)
+    line_edits['Cargo'].setCurrentText(cargo)
+    line_edits['Telefono'].setText(telefono)
+    line_edits['Fecha'].setText(fecha_registro)
+def eliminar_empleado(current_item):
+    """Elimina el empleado seleccionado de la base de datos y de la tabla."""
+
+    if current_item is None:
+        QMessageBox.warning(None, "Error", "No se seleccionó ningún empleado.")
+        return
+
+    row = current_item.row()
+    id_empleado = current_item.tableWidget().item(row, 0).text()
+    nombre = current_item.tableWidget().item(row, 1).text()
+
+    ok = QMessageBox.question(
+        None,
+        "Confirmar Eliminación",
+        f"¿Estás seguro de que deseas eliminar a {nombre} con ID {id_empleado}?",
+        QMessageBox.Yes | QMessageBox.No
+    )
+    if ok != QMessageBox.Yes:
+        return
+
+    db = conex()
+    try:
+        db.ejecutar_consulta("DELETE FROM empleados WHERE id=?", (id_empleado,))
+        QMessageBox.information(None, "Éxito", "Empleado eliminado correctamente.")
+        cargar_empleados(current_item.tableWidget())
+    except Exception as e:
+        QMessageBox.critical(None, "Error", f"Error al eliminar el empleado: {str(e)}")
+
+def editar_empleado(data: dict):
+    """Edita los datos del empleado seleccionado en la base de datos."""
+    id_empleado = data['ID'].text()
+    nombre = data['Nombre'].text()
+    cedula = data['Cedula'].text()
+    cargo = data['Cargo'].currentText()
+    telefono = data['Telefono'].text()
+
+    if not all([id_empleado, nombre, cedula, cargo, telefono]):
+        QMessageBox.warning(None, "Error", "Por favor, completa todos los campos.")
+        return
+
+    db = conex()
+    try:
+        db.ejecutar_consulta(
+            "UPDATE empleados SET nombre=?, cedula=?, cargo=?, telefono=? WHERE id=?",
+            (nombre, cedula, cargo, telefono, id_empleado)
+        )
+        QMessageBox.information(None, "Éxito", "Empleado editado correctamente.")
+    except Exception as e:
+        QMessageBox.critical(None, "Error", f"Error al editar el empleado: {str(e)}")
+
+def agregar_proveedor(NIT,Nombre,Dirección,Electrónico,Teléfono,Ciudad,Fecha_Registro ):
+    """Agrega un nuevo proveedor a la base de datos."""
+    ok = QMessageBox.question(
+        None,
+        "Confirmar Agregar Proveedor",
+        "¿Estás seguro de que deseas agregar este proveedor?",
+        QMessageBox.Yes | QMessageBox.No
+    )
+    if ok != QMessageBox.Yes:
+        return
+    if not all([NIT, Nombre, Dirección, Electrónico, Teléfono, Ciudad, Fecha_Registro]):
+        QMessageBox.warning(None, "Error", "Por favor, completa todos los campos.")
+        return
+    db = conex()
+    try:
+        db.ejecutar_consulta(
+            "INSERT INTO proveedores (nit, nombre, direccion, email, telefono, ciudad, fecha) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (NIT, Nombre, Dirección, Electrónico, Teléfono, Ciudad, Fecha_Registro)
+        )
+        QMessageBox.information(None, "Éxito", "Proveedor agregado correctamente.")
+    except Exception as e:
+        QMessageBox.critical(None, "Error", f"Error al agregar el proveedor: {str(e)}")
+
+def cargar_proveedores(tabla):
+    """Actualiza la tabla de proveedores con los datos de la base de datos."""
+    tabla.setRowCount(0)  # Limpiar la tabla antes de cargar nuevos datos
+    db = conex()
+    proveedores = db.ejecutar_consulta("SELECT * FROM proveedores")
+    for proveedor in proveedores:
+        row_position = tabla.rowCount()
+        tabla.insertRow(row_position)
+        for column, data in enumerate(proveedor):
+            item = QTableWidgetItem(str(data))
+            item.setTextAlignment(Qt.AlignCenter)
+            tabla.setItem(row_position, column, item)
+
+def doble_click_proveedor(tabla, line_edits):
+    """Maneja el evento de doble clic en la tabla de proveedores."""
+    item = tabla.currentItem()
+    if item is None:
+        QMessageBox.warning(None, "Error", "No se seleccionó ningún proveedor.")
+        return
+
+    row = item.row()
+    # Obtener los datos del proveedor seleccionado
+    id_proveedor = tabla.item(row, 0).text()
+    nit = tabla.item(row, 1).text()
+    nombre = tabla.item(row, 2).text()
+    email = tabla.item(row, 3).text()
+    telefono = tabla.item(row, 4).text()
+    direccion = tabla.item(row, 5).text()
+    ciudad = tabla.item(row, 6).text()
+    fecha_registro = tabla.item(row, 7).text()
+
+    # Mostrar los datos en los campos de entrada
+    line_edits['ID'].setText(id_proveedor)
+    line_edits['NIT'].setText(nit)
+    line_edits['Nombre'].setText(nombre)
+    line_edits['Direccion'].setText(direccion)
+    line_edits['Email'].setText(email)
+    line_edits['Telefono'].setText(telefono)
+    line_edits['Ciudad'].setText(ciudad)
+    line_edits['Fecha'].setText(fecha_registro)
+
+def editar_proveedor(data: dict):
+    """Edita los datos del proveedor seleccionado en la base de datos."""
+    id_proveedor = data['ID'].text()
+    nit = data['NIT'].text()
+    nombre = data['Nombre'].text()
+    direccion = data['Direccion'].text()
+    email = data['Email'].text()
+    telefono = data['Telefono'].text()
+    ciudad = data['Ciudad'].text()
+
+    if not all([id_proveedor, nit, nombre, direccion, email, telefono, ciudad]):
+        QMessageBox.warning(None, "Error", "Por favor, completa todos los campos.")
+        return
+    ok = QMessageBox.question(None, "Confirmar Edición", "¿Esta seguro de realizar el cambio?",QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
+
+    if ok != QMessageBox.Yes: 
+        return;
+
+    db = conex()
+    try:
+        db.ejecutar_consulta(
+            "UPDATE proveedores SET nit=?, nombre=?, direccion=?, email=?, telefono=?, ciudad=? WHERE id=?",
+            (nit, nombre, direccion, email, telefono, ciudad, id_proveedor)
+        )
+        QMessageBox.information(None, "Éxito", "Proveedor editado correctamente.")
+    except Exception as e:
+        QMessageBox.critical(None, "Error", f"Error al editar el proveedor: {str(e)}")
+
+def search_herramienta(clasificacion, subclasificacion, digitos, linesEdit:dict):
+    if not all([clasificacion, subclasificacion, digitos]):
+        return
+    ID = '71'+clasificacion+subclasificacion+digitos
+    print(ID)
+    
+    try:
+        db = conex()
+        material = db.ejecutar_consulta("SELECT id, nombre, barcode, cantidad FROM inventario WHERE barcode=?",(ID,))
+        if not material:
+            QMessageBox.information(None,'Sin Coincidencias', 'No se encontraron resultados para la busqueda')
+            
+            return
+        print(material)
+        print(material[0][0])
+        linesEdit['ID'].setText(str(material[0][0]))
+        linesEdit['Herramienta'].setText(material[0][1])
+        linesEdit['Codigo'].setText(material[0][2])
+        linesEdit['Cantidad'].setText(str(material[0][3]))
+    except Exception as e:
+        QMessageBox.warning(None, 'Error', 'Revisa Los datos ingresados')
+
+
+
+    
+
+

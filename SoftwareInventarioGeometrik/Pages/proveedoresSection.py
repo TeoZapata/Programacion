@@ -26,61 +26,74 @@ class ProveedoresSection(QWidget):
         # Columna izquierda del formulario
         self.left_form_layout = QFormLayout()
 
-        self.client_id_label = QLabel("ID del Cliente")
-        self.client_id_label.setStyleSheet(LABEL_GENERAL_DESIGN)
+        self.provider_id_label = QLabel("ID")
+        self.provider_id_label.setStyleSheet(LABEL_GENERAL_DESIGN)
+        self.provider_id_input = QLineEdit()
+        self.provider_id_input.setStyleSheet(ENTRY_ONLY_READ_DESIGN)
+        self.provider_id_input.setReadOnly(True)
 
-        self.client_id_input = QLineEdit()
-        self.client_id_input.setStyleSheet(ENTRY_ONLY_READ_DESIGN)
-        self.client_id_input.setReadOnly(True)
+        self.provider_nit_label = QLabel("NIT")
+        self.provider_nit_label.setStyleSheet(LABEL_GENERAL_DESIGN)
+        self.provider_nit_input = QLineEdit()
+        self.provider_nit_input.setStyleSheet(ENTRY_GENERAL_DESIGN)
 
-        self.client_name_label = QLabel("Nombre del Cliente")
-        self.client_name_label.setStyleSheet(LABEL_GENERAL_DESIGN)
-        self.client_name_input = QLineEdit()
-        self.client_name_input.setStyleSheet(ENTRY_GENERAL_DESIGN)
+        self.provider_nombre_label = QLabel("Nombre")
+        self.provider_nombre_label.setStyleSheet(LABEL_GENERAL_DESIGN)
+        self.provider_nombre_input = QLineEdit()
+        self.provider_nombre_input.setStyleSheet(ENTRY_GENERAL_DESIGN)
 
-        self.client_address_label = QLabel("Dirección del Cliente")
-        self.client_address_label.setStyleSheet(LABEL_GENERAL_DESIGN)
-        self.client_address_input = QLineEdit()
-        self.client_address_input.setStyleSheet(ENTRY_GENERAL_DESIGN)
+        self.provider_direccion_label = QLabel("Dirección")
+        self.provider_direccion_label.setStyleSheet(LABEL_GENERAL_DESIGN)
+        self.provider_direccion_input = QLineEdit()
+        self.provider_direccion_input.setStyleSheet(ENTRY_GENERAL_DESIGN)
 
-        self.client_city_label = QLabel("Ciudad del Cliente")
-        self.client_city_label.setStyleSheet(LABEL_GENERAL_DESIGN)
-        self.client_city_input = QLineEdit()
-        self.client_city_input.setStyleSheet(ENTRY_GENERAL_DESIGN)
-
-        self.left_form_layout.addRow(self.client_name_label,self.client_name_input)
-        self.left_form_layout.addRow(self.client_address_label,self.client_address_input)
-        self.left_form_layout.addRow(self.client_city_label,self.client_city_input)
-        self.left_form_layout.addRow(self.client_id_label,self.client_id_input)
+        self.left_form_layout.addRow(self.provider_nit_label, self.provider_nit_input)
+        self.left_form_layout.addRow(self.provider_nombre_label, self.provider_nombre_input)
+        self.left_form_layout.addRow(self.provider_direccion_label, self.provider_direccion_input)
+        self.left_form_layout.addRow(self.provider_id_label, self.provider_id_input)
 
         # Columna derecha del formulario
         self.right_form_layout = QFormLayout()
 
-        self.client_phone_label = QLabel("Teléfono del Cliente")
-        self.client_phone_label.setStyleSheet(LABEL_GENERAL_DESIGN)
-        self.client_phone_input = QLineEdit()
-        self.client_phone_input.setStyleSheet(ENTRY_GENERAL_DESIGN)
+        self.provider_email_label = QLabel("Correo Electrónico")
+        self.provider_email_label.setStyleSheet(LABEL_GENERAL_DESIGN)
+        self.provider_email_input = QLineEdit()
+        self.provider_email_input.setStyleSheet(ENTRY_GENERAL_DESIGN)
 
-        self.client_email_label = QLabel("Correo Electrónico del Cliente")
-        self.client_email_label.setStyleSheet(LABEL_GENERAL_DESIGN)
-        self.client_email_input = QLineEdit()
-        self.client_email_input.setStyleSheet(ENTRY_GENERAL_DESIGN)
+        self.provider_telefono_label = QLabel("Teléfono")
+        self.provider_telefono_label.setStyleSheet(LABEL_GENERAL_DESIGN)
+        self.provider_telefono_input = QLineEdit()
+        self.provider_telefono_input.setStyleSheet(ENTRY_GENERAL_DESIGN)
 
-        self.client_fecha_label = QLabel("Fecha de Registro")
-        self.client_fecha_label.setStyleSheet(LABEL_GENERAL_DESIGN)
-        self.client_fecha_input = QLineEdit()
-        self.client_fecha_input.setStyleSheet(ENTRY_GENERAL_DESIGN)
-        self.client_fecha_input.setText(fecha_actual())
-        self.client_fecha_input.setReadOnly(True)
+        self.provider_ciudad_label = QLabel("Ciudad")
+        self.provider_ciudad_label.setStyleSheet(LABEL_GENERAL_DESIGN)
+        self.provider_ciudad_input = QLineEdit()
+        self.provider_ciudad_input.setStyleSheet(ENTRY_GENERAL_DESIGN)
 
-        self.button_clear=QPushButton("Limpiar Registro")
+        self.provider_fecha_label = QLabel("Fecha de Registro")
+        self.provider_fecha_label.setStyleSheet(LABEL_GENERAL_DESIGN)
+        self.provider_fecha_input = QLineEdit()
+        self.provider_fecha_input.setStyleSheet(ENTRY_GENERAL_DESIGN)
+        self.provider_fecha_input.setText(fecha_actual())
+        self.provider_fecha_input.setReadOnly(True)
+
+        self.button_clear = QPushButton("Limpiar Registro")
         self.button_clear.setStyleSheet(BUTTON_GENERAL_DESIGN)
-        self.button_clear.clicked.connect(lambda: clear_entry([self.client_id_input,self.client_name_input,self.client_address_input,self.client_city_input,self.client_phone_input,self.client_email_input], True))
+        self.button_clear.clicked.connect(lambda: clear_entry([
+            self.provider_id_input,
+            self.provider_nit_input,
+            self.provider_nombre_input,
+            self.provider_email_input,
+            self.provider_fecha_input,
+            self.provider_telefono_input,
+            self.provider_direccion_input,
+            self.provider_ciudad_input
+        ], True))
 
-
-        self.right_form_layout.addRow(self.client_phone_label,self.client_phone_input)
-        self.right_form_layout.addRow(self.client_email_label,self.client_email_input)
-        self.right_form_layout.addRow(self.client_fecha_label,self.client_fecha_input)
+        self.right_form_layout.addRow(self.provider_email_label, self.provider_email_input)
+        self.right_form_layout.addRow(self.provider_telefono_label, self.provider_telefono_input)
+        self.right_form_layout.addRow(self.provider_ciudad_label, self.provider_ciudad_input)
+        self.right_form_layout.addRow(self.provider_fecha_label, self.provider_fecha_input)
         self.right_form_layout.addWidget(self.button_clear)
 
         # Agregar columnas al layout principal
@@ -95,15 +108,34 @@ class ProveedoresSection(QWidget):
 
         self.add_button = QPushButton("Agregar")
         self.add_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        self.add_button.clicked.connect(lambda: (agregar_proveedor(
+            self.provider_nit_input.text(),
+            self.provider_nombre_input.text(),
+            self.provider_direccion_input.text(),
+            self.provider_email_input.text(),
+            self.provider_telefono_input.text(),
+            self.provider_ciudad_input.text(),
+            self.provider_fecha_input.text()
+        ), cargar_proveedores(self.table)))
 
         self.edit_button = QPushButton("Editar")
         self.edit_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        self.edit_button.clicked.connect(lambda: (editar_proveedor({
+            'ID': self.provider_id_input,
+            'NIT': self.provider_nit_input,
+            'Nombre': self.provider_nombre_input,
+            'Email': self.provider_email_input,
+            'Telefono': self.provider_telefono_input,
+            'Direccion': self.provider_direccion_input,
+            'Ciudad': self.provider_ciudad_input
+        }), cargar_proveedores(self.table)))
 
         self.delete_button = QPushButton("Eliminar")
         self.delete_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
 
         self.update_button = QPushButton("Actualizar")
         self.update_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        self.update_button.clicked.connect(lambda: cargar_proveedores(self.table))
 
         self.buttons_layout.addWidget(self.add_button)
         self.buttons_layout.addWidget(self.edit_button)
@@ -111,31 +143,34 @@ class ProveedoresSection(QWidget):
         self.buttons_layout.addWidget(self.update_button)
         self.layout.addLayout(self.buttons_layout)
 
-        # Tabla para mostrar proyectos registrados
-        self.table_label = QLabel("HERRAMIENTA DISPONIBLE:")
+        # Tabla para mostrar proveedores registrados
+        self.table_label = QLabel("PROVEEDORES REGISTRADOS:")
         self.layout.addWidget(self.table_label)
 
-        self.client_table = QTableWidget()
-        self.client_table.setColumnCount(7)
-        self.client_table.setHorizontalHeaderLabels(["ID", "Nombre", "Correo", "Telefono", "Dirección", "Ciudad", "Fecha de Registro"])
-        self.client_table.setAlternatingRowColors(True)
-        self.client_table.horizontalHeader().setStretchLastSection(True)
-        self.client_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.client_table.setSelectionMode(QTableWidget.SingleSelection)
-        self.client_table.setEditTriggers(QTableWidget.NoEditTriggers)  # Hacer que la tabla sea de solo lectura
-        self.client_table.setSelectionBehavior(QTableWidget.SelectRows)  # Seleccionar filas completas
-        #quita el borde de la tabla y la enumeracion de filas
-        self.client_table.setShowGrid(False)  # Quitar la cuadrícula
-        #no motrar la numeracion de filas8
-        self.client_table.verticalHeader().setVisible(False)
-        
-        
+        self.table = QTableWidget()
+        self.table.setColumnCount(8)
+        self.table.setHorizontalHeaderLabels([
+            "ID", "NIT", "Nombre", "Correo", "Teléfono", "Dirección", "Ciudad", "Fecha de Registro"
+        ])
+        self.table.setAlternatingRowColors(True)
+        self.table.horizontalHeader().setStretchLastSection(True)
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.table.setSelectionMode(QTableWidget.SingleSelection)
+        self.table.setEditTriggers(QTableWidget.NoEditTriggers)
+        self.table.setSelectionBehavior(QTableWidget.SelectRows)
+        self.table.setShowGrid(False)
+        self.table.verticalHeader().setVisible(False)
+        self.table.doubleClicked.connect(lambda: doble_click_proveedor(self.table, {
+            'ID':self.provider_id_input,
+            'NIT':self.provider_nit_input,
+            'Nombre':self.provider_nombre_input,
+            'Email':self.provider_email_input,
+            'Telefono':self.provider_telefono_input,
+            'Direccion':self.provider_direccion_input,
+            'Ciudad':self.provider_ciudad_input,
+            'Fecha':self.provider_fecha_input
+        }))
 
+        # self.table.setRowCount(0)  # Inicialmente vacía
 
-        self.client_table.setRowCount(4)
-
-        # Datos ficticios
-        
-        self.layout.addWidget(self.client_table)
-
-        # Botones CRUD
+        self.layout.addWidget(self.table)
