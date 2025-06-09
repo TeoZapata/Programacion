@@ -5,6 +5,18 @@ from random import choice
 from string import ascii_uppercase
 from DataBase.storeDB import *
 
+
+
+def obtener_nombre_empleado():
+    db =conex()
+    datos = db.ejecutar_consulta("SELECT nombre FROM empleados")
+    nombres = [dato[0] for dato in datos]
+    return nombres
+def obtener_nombres_proveedores():
+    db = conex()
+    datos = db.ejecutar_consulta("SELECT nombre FROM proveedores")
+    nombres = [dato[0] for dato in datos]
+    return nombres
 def obtener_categorias():
     categoria = {
         "MATERIAL": "00",

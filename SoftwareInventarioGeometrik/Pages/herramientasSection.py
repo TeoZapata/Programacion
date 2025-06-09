@@ -77,8 +77,7 @@ class HerramientasSection(QWidget):
             self.last_digits_input.text(),
             {'ID': self.id_input,
              'Codigo': self.codigo_input,
-             'Herramienta': self.herramienta_input,
-             'Cantidad': self.cantidad_input}
+             'Herramienta': self.herramienta_input}
         ))
         self.search_layout.addWidget(self.search_button)
 
@@ -106,11 +105,6 @@ class HerramientasSection(QWidget):
         self.herramienta_input.setReadOnly(True)
         self.herramienta_input.setStyleSheet(ENTRY_ONLY_READ_DESIGN)
 
-        self.cantidad_label = QLabel("Cantidad En Inventario")
-        self.cantidad_label.setStyleSheet(LABEL_GENERAL_DESIGN)
-        self.cantidad_input = QLineEdit()
-        self.cantidad_input.setReadOnly(True)
-        self.cantidad_input.setStyleSheet(ENTRY_ONLY_READ_DESIGN)
 
         # Estado de la herramienta
         self.estado_label = QLabel("Estado")
@@ -122,13 +116,12 @@ class HerramientasSection(QWidget):
         # Observación
         self.observacion_label = QLabel("Observación")
         self.observacion_label.setStyleSheet(LABEL_GENERAL_DESIGN)
-        self.observacion_input = QLineEdit()
-        self.observacion_input.setStyleSheet(ENTRY_GENERAL_DESIGN)
+        self.observacion_input = QTextEdit()
+        self.observacion_input.setStyleSheet(QTEXT_EDIT_GENERAL_DESIGN)
 
         self.left_form_layout.addRow(self.id_label, self.id_input)
         self.left_form_layout.addRow(self.codigo_label, self.codigo_input)
         self.left_form_layout.addRow(self.herramienta_label, self.herramienta_input)
-        self.left_form_layout.addRow(self.cantidad_label, self.cantidad_input)
         self.left_form_layout.addRow(self.estado_label, self.estado_input)
         self.left_form_layout.addRow(self.observacion_label, self.observacion_input)
 
@@ -139,7 +132,8 @@ class HerramientasSection(QWidget):
         self.id_empleado_label = QLabel("ID Empleado")
         self.id_empleado_label.setStyleSheet(LABEL_GENERAL_DESIGN)
         self.id_empleado_input = QLineEdit()
-        self.id_empleado_input.setStyleSheet(ENTRY_GENERAL_DESIGN)
+        self.id_empleado_input.setStyleSheet(ENTRY_ONLY_READ_DESIGN)
+        self.id_empleado_input.setReadOnly(True)
 
         # Responsable (nombre del empleado)
         self.responsable_label = QLabel("Responsable")
@@ -151,7 +145,8 @@ class HerramientasSection(QWidget):
         self.cedula_label = QLabel("Cédula")
         self.cedula_label.setStyleSheet(LABEL_GENERAL_DESIGN)
         self.cedula_input = QLineEdit()
-        self.cedula_input.setStyleSheet(ENTRY_GENERAL_DESIGN)
+        self.cedula_input.setReadOnly(True)
+        self.cedula_input.setStyleSheet(ENTRY_ONLY_READ_DESIGN)
 
         # Fecha de asignación (por defecto hoy)
         self.fecha_asignacion_label = QLabel("Fecha Asignación")
@@ -170,18 +165,19 @@ class HerramientasSection(QWidget):
         self.fecha_cambio_estado_input.setReadOnly(True)
 
 
-        self.button_search_responsable = QPushButton('Buscar Responsable')
+        self.button_search_responsable = QPushButton('Buscar Información')
         self.button_search_responsable.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        self.button_search_responsable.clicked.connect( lambda : search_empleado(self.responsable_input.currentText(),{'ID':self.id_empleado_input,
+                                                                                                                'Cedula':self.cedula_input}))
 
 
         self.button_clear = QPushButton("Limpiar Registro")
         self.button_clear.setStyleSheet(BUTTON_GENERAL_DESIGN)
         self.button_clear.clicked.connect(
-            lambda: clear_entry([
-            self.id_input, self.codigo_input, self.herramienta_input, self.estado_input,
-            self.fecha_cambio_estado_input, self.observacion_input, self.id_empleado_input, self.cedula_input, self.cantidad_input,
-            self.fecha_asignacion_input
-            ], True)
+            lambda: (clear_entry([
+            self.id_input, self.codigo_input, self.herramienta_input, self.cedula_input,
+            self.fecha_cambio_estado_input, self.observacion_input, self.id_empleado_input
+            ], True), self.fecha_asignacion_input.setText(fecha_actual()))
         )
 
         # Crear un layout horizontal para el campo Responsable y el botón Buscar
@@ -189,6 +185,8 @@ class HerramientasSection(QWidget):
         self.responsable_row_layout.addWidget(self.responsable_input)
         self.button_buscar_responsable = QPushButton("Buscar")
         self.button_buscar_responsable.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        self.button_buscar_responsable.clicked.connect(lambda : cargar_nombres_empleados(self.responsable_input))
+
         self.responsable_row_layout.addWidget(self.button_buscar_responsable)
 
         self.right_form_layout.addRow(self.responsable_label, self.responsable_row_layout)
@@ -214,12 +212,26 @@ class HerramientasSection(QWidget):
         self.buttons_layout = QHBoxLayout()
         self.add_button = QPushButton("Agregar")
         self.add_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        self.add_button.clicked.connect(lambda: (agregar_herramienta_gestor({
+            'ID': self.id_input,
+            'Codigo': self.codigo_input,
+            'Herramienta': self.herramienta_input,
+            'Estado': self.estado_input,
+            'Observacion': self.observacion_input,
+            'Responsable': self.responsable_input,
+            'ID_Empleado': self.id_empleado_input,
+            'Cedula': self.cedula_input,
+            'Fecha_Asignacion': self.fecha_asignacion_input,
+            'Fecha_Cambio_Estado': self.fecha_cambio_estado_input
+        }), cargar_tabla_herramienta(self.herramientas_table)))
         self.edit_button = QPushButton("Editar")
         self.edit_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
         self.delete_button = QPushButton("Eliminar")
         self.delete_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        self.delete_button.clicked.connect(lambda: (eliminar_herramienta_gestor(self.herramientas_table), cargar_tabla_herramienta(self.herramientas_table)))
         self.update_button = QPushButton("Actualizar Estado")
         self.update_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        self.update_button.clicked.connect( lambda : cargar_tabla_herramienta(self.herramientas_table))
 
 
         self.buttons_layout.addWidget(self.add_button)
@@ -237,7 +249,7 @@ class HerramientasSection(QWidget):
         self.herramientas_table = QTableWidget()
         self.herramientas_table.setColumnCount(11)
         self.herramientas_table.setHorizontalHeaderLabels([
-            "ID", "ID Herramienta", "Código", "Herramienta", "ID Empleado", "Responsable",
+            "ID", "ID Herramienta", "Código", "Herramienta","ID Empleado", "Responsable",
             "Cédula", "Fecha Asignación", "Fecha Cambio Estado", "Estado", "Observación"
         ])
         self.herramientas_table.setAlternatingRowColors(True)
@@ -248,6 +260,18 @@ class HerramientasSection(QWidget):
         self.herramientas_table.setSelectionBehavior(QTableWidget.SelectRows)
         self.herramientas_table.setShowGrid(False)
         self.herramientas_table.verticalHeader().setVisible(False)
+        self.herramientas_table.doubleClicked.connect(lambda : doble_click_herrameinta(self.herramientas_table,
+            {'ID': self.id_input,
+            'Codigo': self.codigo_input,
+            'Herramienta': self.herramienta_input,
+            'Estado': self.estado_input,
+            'Observacion': self.observacion_input,
+            'Responsable': self.responsable_input,
+            'ID_Empleado': self.id_empleado_input,
+            'Cedula': self.cedula_input,
+            'Fecha_Asignacion': self.fecha_asignacion_input,
+            'Fecha_Cambio_Estado': self.fecha_cambio_estado_input}
+        ))
         self.layout.addWidget(self.herramientas_table)
 
         # Escalabilidad: los campos y la tabla están listos para integrarse con la base de datos y lógica de negocio.

@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor
 from Style import  *
 from DataBase.storeDB import *
-from src.utils.getCodeBar import getCodeBar
+from src.utils.getCodeBar import *
 from src.utils.getDate import fecha_actual
 
 
@@ -15,7 +15,7 @@ def clear_entry(listaWidget: list, confirm:bool=False) -> None:
     lista:list[QLineEdit] = listaWidget
     if not confirm:
         for index, i in enumerate(lista):
-            if not (index == 2 or index ==3 or index ==6 or index ==4):
+            if not (index == 2 or index ==3 or index ==6 or index ==4 or index==11):
                 i.clear()
     else:
         for index, i in enumerate(lista):
@@ -26,6 +26,8 @@ def cargar_invenario(self):
         """Carga el inventario desde la base de datos y lo muestra en la tabla."""
         # Limpiar la tabla antes de cargar nuevos datos
         self.data_table.setRowCount(0)
+        self.line_edits["Proveedor"].clear()
+        self.line_edits["Proveedor"].addItems(obtener_nombres_proveedores())
         db = conex()
         db.iniciar_bd()
         # Obtener los datos del inventario desde la base de datos
@@ -111,7 +113,6 @@ def cargar_invenario(self):
             item_fecha_compra = QTableWidgetItem(str(fecha_compra))
             item_fecha_compra.setTextAlignment(Qt.AlignCenter)
             self.data_table.setItem(row_position, 12, item_fecha_compra)
-
             
 def agregar_cliente(self) -> None:
     """Agrega un nuevo cliente a la base de datos."""
@@ -283,7 +284,7 @@ def agregar_producto(listaWidget: list):
     precioTotal = round(float(precio) * float(cantidad), 2) if cantidad else 0.0
     cantidad_minima = lista[9].text()
     cantidad_maxima = lista[10].text()
-    proveedor = lista[11].text()
+    proveedor = lista[11].currentText()
     fecha = fecha_actual()
     # 
     # Verificar si todos los campos están llenos
@@ -325,7 +326,7 @@ def editar_producto(self) -> None:
     precioTotal = round(float(precio) * float(cantidad), 2) if cantidad else 0.0
     cantidad_minima = self.line_edits['Cantidad Mínima'].text()
     cantidad_maxima = self.line_edits['Cantidad Máxima'].text()
-    proveedor = self.line_edits['Proveedor'].text()
+    proveedor = self.line_edits['Proveedor'].currentText()
     
     if not all([nombre, seccion, cantidad, unidad, precio, cantidad_minima, cantidad_maxima, proveedor]):
         QMessageBox.warning(None, "Error", "Por favor, completa todos los campos.")
@@ -365,7 +366,7 @@ def doble_click(self) -> None:
         self.line_edits['Precio Total'].setText(self.data_table.item(row, 8).text())
         self.line_edits['Cantidad Mínima'].setText(self.data_table.item(row, 9).text())
         self.line_edits['Cantidad Máxima'].setText(self.data_table.item(row, 10).text())
-        self.line_edits['Proveedor'].setText(self.data_table.item(row, 11).text())
+        self.line_edits['Proveedor'].setCurrentText(self.data_table.item(row, 11).text())
         self.line_edits['Última Fecha de Actualización'].setText(self.data_table.item(row, 12).text())
         
     except Exception as e:
@@ -896,7 +897,7 @@ def search_herramienta(clasificacion, subclasificacion, digitos, linesEdit:dict)
     
     try:
         db = conex()
-        material = db.ejecutar_consulta("SELECT id, nombre, barcode, cantidad FROM inventario WHERE barcode=?",(ID,))
+        material = db.ejecutar_consulta("SELECT id, nombre, barcode FROM inventario WHERE barcode=?",(ID,))
         if not material:
             QMessageBox.information(None,'Sin Coincidencias', 'No se encontraron resultados para la busqueda')
             
@@ -906,12 +907,142 @@ def search_herramienta(clasificacion, subclasificacion, digitos, linesEdit:dict)
         linesEdit['ID'].setText(str(material[0][0]))
         linesEdit['Herramienta'].setText(material[0][1])
         linesEdit['Codigo'].setText(material[0][2])
-        linesEdit['Cantidad'].setText(str(material[0][3]))
+
     except Exception as e:
         QMessageBox.warning(None, 'Error', 'Revisa Los datos ingresados')
 
 
+def cargar_nombres_empleados(combobox):
+    try:
+        nombres = obtener_nombre_empleado()
+        combobox.clear()
+        combobox.addItems(nombres)
 
-    
+    except Exception as e:
+        QMessageBox.warning(None, 'Error', 'Revisa los datos ingresados')
+
+def search_empleado(empleado, linesEdit):
+    """
+    Busca un empleado por nombre y muestra solo su ID y cédula en los campos de entrada.
+    """
+    if not empleado:
+        QMessageBox.warning(None, "Error", "Por favor, ingresa el nombre del empleado.")
+        return
+
+    try:
+        db = conex()
+        datos = db.ejecutar_consulta("SELECT id, cedula FROM empleados WHERE nombre=?", (empleado,))
+        if not datos:
+            QMessageBox.information(None, "Sin Coincidencias", "No se encontró ningún empleado con ese nombre.")
+            return
+
+        empleado_data = datos[0]
+        # Solo se muestran ID y Cedula
+        linesEdit['ID'].setText(str(empleado_data[0]))
+        linesEdit['Cedula'].setText(empleado_data[1])
+    except Exception as e:
+        QMessageBox.warning(None, "Error", f"Error al buscar el empleado: {str(e)}")
+def cargar_tabla_herramienta(tabla):
+    """
+    Carga los datos de la tabla gestionHerramientas y los muestra en el QTableWidget proporcionado.
+    """
+    # Limpiar la tabla antes de cargar nuevos datos
+    tabla.setRowCount(0)
+    db = conex()
+    datos = db.ejecutar_consulta("SELECT * FROM gestionHerramientas")
+    for fila in datos:
+        row_position = tabla.rowCount()
+        tabla.insertRow(row_position)
+        for column, value in enumerate(fila):
+            item = QTableWidgetItem(str(value))
+            item.setTextAlignment(Qt.AlignCenter)
+            tabla.setItem(row_position, column, item)
 
 
+def agregar_herramienta_gestor(datos: dict):
+    """
+    Agrega una nueva herramienta a la tabla gestionHerramientas usando los datos proporcionados en el diccionario.
+    """
+
+    if not all ([datos['ID'].text(),
+                datos['Codigo'].text(),
+                datos['Herramienta'].text(),
+                datos['Estado'].currentText(),
+                datos['Observacion'].toPlainText(),
+                datos['Responsable'].currentText(),
+                datos['ID_Empleado'].text(),
+                datos['Cedula'].text(),
+                datos['Fecha_Asignacion'].text(),
+                datos['Fecha_Cambio_Estado'].text()]):
+        QMessageBox.warning(None, 'Error', 'Llena todos los campos')
+        return
+    db = conex()
+    try:
+        db.ejecutar_consulta(
+            "INSERT INTO gestionHerramientas (id_herramienta, codigo, herramienta, estado, observacion, responsable, id_empleado, cedula, fechaAsignacion, fechaCambioEstado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (
+                datos['ID'].text(),
+                datos['Codigo'].text(),
+                datos['Herramienta'].text(),
+                datos['Estado'].currentText(),
+                datos['Observacion'].toPlainText(),
+                datos['Responsable'].currentText(),
+                datos['ID_Empleado'].text(),
+                datos['Cedula'].text(),
+                datos['Fecha_Asignacion'].text(),
+                datos['Fecha_Cambio_Estado'].text()
+            )
+        )
+        QMessageBox.information(None, "Éxito", "Herramienta agregada correctamente.")
+    except Exception as e:
+        QMessageBox.critical(None, "Error", f"Error al agregar la herramienta: {str(e)}")
+
+def doble_click_herrameinta(tabla, datos):
+    """
+    Maneja el evento de doble clic en la tabla de herramientas.
+    Llena los campos del diccionario 'datos' con la información de la fila seleccionada.
+    """
+    item = tabla.currentItem()
+    if item is None:
+        QMessageBox.warning(None, "Error", "No se seleccionó ninguna herramienta.")
+        return
+
+    row = item.row()
+    # Asumiendo el orden de columnas según la función agregar_herramienta_gestor
+    datos['ID'].setText(tabla.item(row, 1).text())
+    datos['Codigo'].setText(tabla.item(row, 2).text())
+    datos['Herramienta'].setText(tabla.item(row, 3).text())
+    datos['Estado'].setCurrentText(tabla.item(row, 9).text())
+    datos['Observacion'].setPlainText(tabla.item(row, 10).text())
+    datos['Responsable'].setCurrentText(tabla.item(row, 5).text())
+    datos['ID_Empleado'].setText(tabla.item(row, 4).text())
+    datos['Cedula'].setText(tabla.item(row, 6).text())
+    datos['Fecha_Asignacion'].setText(tabla.item(row, 7).text())
+    datos['Fecha_Cambio_Estado'].setText(tabla.item(row, 8).text())
+def eliminar_herramienta_gestor(tabla):
+    """
+    Elimina la herramienta seleccionada de la tabla gestionHerramientas según el ID de la columna 0.
+    """
+    item = tabla.currentItem()
+    if item is None:
+        QMessageBox.warning(None, "Error", "No se seleccionó ninguna herramienta.")
+        return
+
+    row = item.row()
+    id_herramienta = tabla.item(row, 0).text()
+
+    ok = QMessageBox.question(
+        None,
+        "Confirmar Eliminación",
+        f"¿Estás seguro de que deseas eliminar la herramienta con ID {id_herramienta}?",
+        QMessageBox.Yes | QMessageBox.No
+    )
+    if ok != QMessageBox.Yes:
+        return
+
+    db = conex()
+    try:
+        db.ejecutar_consulta("DELETE FROM gestionHerramientas WHERE id=?", (id_herramienta,))
+        QMessageBox.information(None, "Éxito", "Herramienta eliminada correctamente.")
+    except Exception as e:
+        QMessageBox.critical(None, "Error", f"Error al eliminar la herramienta: {str(e)}")

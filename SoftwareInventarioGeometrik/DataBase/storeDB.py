@@ -39,7 +39,7 @@ class storeBD:
             cur.execute('''CREATE TABLE IF NOT EXISTS gestionHerramientas (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         id_herramienta INTEGER,
-                        codigo TEXT UNIQUE,
+                        codigo TEXT,
                         herramienta TEXT,
                         id_empleado INTEGER,
                         responsable TEXT,

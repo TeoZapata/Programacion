@@ -225,3 +225,23 @@ QDATEEDIT_GENERAL_DESIGN= """
         background-color: #2c3e50; /* Dark blue-gray background */
         border: 2px solid #34495e; /* Slightly lighter b#1E22AAorder for subtle contrast */
         border-radius: 5px;} """
+QTEXT_EDIT_GENERAL_DESIGN = """
+    QTextEdit {
+        text-align: left;
+        font-size: 14px;
+        padding: 8px;
+        font-weight: 500;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: #ecf0f1; /* Light gray text for contrast */
+        background-color: #2c3e50; /* Dark blue-gray background */
+        border: 2px solid #34495e; /* Slightly lighter border for subtle contrast */
+        border-radius: 5px;
+    }
+    QTextEdit:focus {
+        font-size: 16px; /* Slightly larger font size on focus */
+        color: #BBDDE6; /* Neon aquamarine text color */
+        border-radius: 8px;
+        border: 3px solid #BBDDE6; /* Neon aquamarine border */
+        background-color: #2c3e50; /* Keep background consistent */
+    }
+""" 

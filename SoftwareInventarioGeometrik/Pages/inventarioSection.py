@@ -100,13 +100,14 @@ class inventarioSection(QWidget):
                     self.line_edit.addItems(subcategoria.keys())
                 entry_formulario.addRow(label, self.line_edit)
                 self.line_edits[placeholder] = self.line_edit  # Guardar el QComboBox en el diccionario
-            elif placeholder == "Unidad de Medida":
+            elif placeholder == "Unidad de Medida" or placeholder == "Proveedor":
                 self.line_edit = QComboBox()
                 self.line_edit.setStyleSheet(COMBOBOX_GENERAL_DESIGN)
-                unidades = obtener_unidades()  # Obtener unidades de medida
+                unidades = obtener_unidades() if placeholder == "Unidad de Medida" else obtener_nombres_proveedores()
                 self.line_edit.addItems(unidades)
                 entry_formulario.addRow(label, self.line_edit)
-                self.line_edits[placeholder] = self.line_edit  # Guardar el QComboBox en el diccionario    
+                self.line_edits[placeholder] = self.line_edit  # Guardar el QComboBox en el diccionario  
+
             else:    # Crear QLineEdit asociado
                 self.line_edit = QLineEdit()
                 self.line_edit.setStyleSheet(ENTRY_GENERAL_DESIGN)
@@ -123,6 +124,7 @@ class inventarioSection(QWidget):
                     self.line_edit.setStyleSheet(ENTRY_ONLY_READ_DESIGN)
                 if placeholder == "Código de Barras":
                     self.line_edit.setText(str(getCodeBar(self, self.line_edits['Sección'].currentText(), self.line_edits['Subsección'].currentText())))  # Generar código de barras automáticamente
+                
         # Botón para limpiar las entradas
         bnt_clear = QPushButton("Limpiar")
         bnt_clear.setStyleSheet(BUTTON_GENERAL_DESIGN)
@@ -210,7 +212,26 @@ class inventarioSection(QWidget):
             label.setFont(QFont("Arial", 12)) if "Estado" in label_text else None
             edit = QLineEdit()
             edit.setReadOnly(True)
-            edit.setStyleSheet(ENTRY_GENERAL_DESIGN)
+
+            if 'Rojo' in label_text:
+                background = '#F93822'
+            elif 'Naranja' in label_text:
+                background = "#F9AA22"
+            elif 'Verde' in label_text:
+                background = "#3BEB14"
+            else:
+                background = "#3A4FF1"
+            edit.setStyleSheet(f'''
+                                    text-align: center;
+                                    font-size: 14px;
+                                    padding: 5px;
+                                    font-weight: 500;
+                                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                                    color: black; /* Light gray text for contrast */
+                                    background-color: {background}; /* Dark blue-gray background */
+                                    border: 2px solid #34495e; /* Slightly lighter b#1E22AAorder for subtle contrast */
+                                    border-radius: 5px;
+                                ''')
             setattr(self, edit_attr, edit)
             informacion_almacen_layout.addWidget(label)
             informacion_almacen_layout.addWidget(edit)
