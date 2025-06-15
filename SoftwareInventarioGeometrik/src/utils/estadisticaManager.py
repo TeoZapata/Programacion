@@ -33,11 +33,11 @@ class EstadisticaManager(threading.Thread):
             productos_sin_stock = sum(1 for m in materiales if len(m) > 4 and isinstance(m[4], int) and m[4] == 0)
             productos_sobre_max = sum(1 for m in materiales if len(m) > 9 and isinstance(m[4], int) and isinstance(m[9], int) and m[4] > m[9])
             return {
-                "total_productos": total_productos,
+                'Datos':{"total_productos": total_productos,
                 "total_valor": total_valor,
                 "productos_bajo_min": productos_bajo_min,
                 "productos_sin_stock": productos_sin_stock,
-                "productos_sobre_max": productos_sobre_max,
+                "productos_sobre_max": productos_sobre_max,},
                 "DataFrame" : df
             }
         except Exception as e:
@@ -53,8 +53,7 @@ class EstadisticaManager(threading.Thread):
             total_proveedores = len(proveedores)
             ciudades = set(p[6] for p in proveedores if len(p) > 6)
             return {
-                "total_proveedores": total_proveedores,
-                "ciudades_distintas": len(ciudades),
+                'Datos':{"total_proveedores": total_proveedores},
                 "DataFrame" : df
             }
         except Exception as e:
@@ -70,8 +69,7 @@ class EstadisticaManager(threading.Thread):
             total_asignaciones = len(herramientas)
             estados = set(h[9] for h in herramientas if len(h) > 9)
             return {
-                "total_asignaciones": total_asignaciones,
-                "estados_distintos": list(estados),
+                'Datos':{"total_asignaciones": total_asignaciones},
                 "DataFrame" : df
             }
         except Exception as e:
@@ -87,8 +85,8 @@ class EstadisticaManager(threading.Thread):
             total_empleados = len(empleados)
             cargos = set(e[3] for e in empleados if len(e) > 3)
             return {
-                "total_empleados": total_empleados,
-                "cargos_distintos": list(cargos),
+                'Datos':{"total_empleados": total_empleados,
+                "cargos_distintos": len(cargos)},
                 "DataFrame" : df
             }
         except Exception as e:
@@ -104,8 +102,8 @@ class EstadisticaManager(threading.Thread):
             total_proyectos = len(proyectos)
             total_kwp = sum(p[4] for p in proyectos if len(p) > 4 and isinstance(p[4], (int, float)))
             return {
-                "total_proyectos": total_proyectos,
-                "total_kwp": total_kwp,
+                'Datos':{"total_proyectos": total_proyectos,
+                "total_kwp": total_kwp},
                 "DataFrame" : df
             }
         except Exception as e:
@@ -121,8 +119,8 @@ class EstadisticaManager(threading.Thread):
             total_registros = len(registros)
             total_precio = sum(r[10] for r in registros if len(r) > 10 and isinstance(r[10], (int, float)))
             return {
-                "total_registros": total_registros,
-                "total_precio": total_precio,
+                'Datos':{"total_registros": total_registros,
+                "total_precio": total_precio},
                 "dataFrame" : df
             }
         except Exception as e:
@@ -138,8 +136,7 @@ class EstadisticaManager(threading.Thread):
             total_clientes = len(clientes)
             ciudades = set(c[5] for c in clientes if len(c) > 5)
             return {
-                "total_clientes": total_clientes,
-                "ciudades_distintas": len(ciudades),
+                'Datos':{"total_clientes": total_clientes},
                 "DataFrame" : df 
             }
         except Exception as e:
@@ -155,8 +152,8 @@ class EstadisticaManager(threading.Thread):
             total_movimientos = len(historial)
             total_precio = sum(h[8] for h in historial if len(h) > 8 and isinstance(h[8], (int, float)))
             return {
-                "total_movimientos": total_movimientos,
-                "total_precio": total_precio,
+                'Datos':{"total_movimientos": total_movimientos,
+                "total_precio": total_precio},
                 "DataFrame" : df
             }
         except Exception as e:
@@ -171,11 +168,11 @@ class EstadisticaManager(threading.Thread):
             df = pd.DataFrame(info)
             if info and len(info[0]) >= 6:
                 return {
-                    "cantSalidas": info[0][1],
+                    'Datos':{"cantSalidas": info[0][1],
                     "cantEntradas": info[0][2],
                     "cantDevoluciones": info[0][3],
                     "cantCodigosBarras": info[0][4],
-                    "cantReporteHerramientas": info[0][5],
+                    "cantReporteHerramientas": info[0][5]},
                     "DataFrame" : df
                 }
             return {}

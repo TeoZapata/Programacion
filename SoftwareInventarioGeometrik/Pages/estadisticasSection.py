@@ -76,10 +76,11 @@ class estadisticasSection(QWidget):
         self.pages_layout.setSpacing(18)
 
         # Espacios reservados para futuras gráficas
-        self.gen_graphica("Gráfica 1: Distribución de Movimientos",generar_grafica())
-        self.gen_graphica("Gráfica 2: Evolución Temporal",generar_grafica())
-        self.gen_graphica("Gráfica 3: Distribución de Precios",generar_grafica())
-        self.gen_graphica("Gráfica 4: Estadísticas de Proyectos",generar_grafica())
+        self.gen_graphica("Gráfica 1: Distribución de Inventario",inventario_grafica())
+        self.gen_graphica("Gráfica 2: Distribución Proveedor",proveedor_grafica())
+        self.gen_graphica("Gráfica 3: Distribución de Herramientas",herramientas_grafica())
+        self.gen_graphica("Gráfica 4: Estadísticas de Empleados",empleados_grafica())
+        self.gen_graphica("Gráfica 5: Estadísticas de Proyectos",proyectos_grafica())
 
         self.scroll_area.setWidget(self.pages_container)
         self.layout.addWidget(self.scroll_area)
