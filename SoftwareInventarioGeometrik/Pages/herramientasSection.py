@@ -7,7 +7,7 @@ from .TabsMateriales import *
 from Style import *
 from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem
 from src.utils.getCodeBar import *
-
+from src.utils.standarFunc import *
 
 class HerramientasSection(QWidget):
     def __init__(self, parent=None):
@@ -45,7 +45,7 @@ class HerramientasSection(QWidget):
         self.clasificacion_dropdown = QComboBox()
         self.clasificacion_dropdown.setStyleSheet(COMBOBOX_GENERAL_DESIGN)
         categoria, subcategoria = obtener_categorias()
-        self.clasificacion_dropdown.addItems(categoria.keys())
+        self.clasificacion_dropdown.addItem('HERRAMIENTA')
         self.search_layout.addWidget(self.clasificacion_label)
         self.search_layout.addWidget(self.clasificacion_dropdown)
 
@@ -223,15 +223,21 @@ class HerramientasSection(QWidget):
             'Cedula': self.cedula_input,
             'Fecha_Asignacion': self.fecha_asignacion_input,
             'Fecha_Cambio_Estado': self.fecha_cambio_estado_input
-        }), cargar_tabla_herramienta(self.herramientas_table)))
+        }), cargar_tabla_herramienta(self.table)))
         self.edit_button = QPushButton("Editar")
         self.edit_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        self.edit_button.clicked.connect(lambda: aditar_herramienta_gestor(
+            {
+            'Estado': self.estado_input,
+            'Observacion': self.observacion_input,
+        }
+        ))
         self.delete_button = QPushButton("Eliminar")
         self.delete_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
-        self.delete_button.clicked.connect(lambda: (eliminar_herramienta_gestor(self.herramientas_table), cargar_tabla_herramienta(self.herramientas_table)))
+        self.delete_button.clicked.connect(lambda: (eliminar_herramienta_gestor(self.table), cargar_tabla_herramienta(self.table)))
         self.update_button = QPushButton("Actualizar Estado")
         self.update_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
-        self.update_button.clicked.connect( lambda : cargar_tabla_herramienta(self.herramientas_table))
+        self.update_button.clicked.connect( lambda : cargar_tabla_herramienta(self.table))
 
 
         self.buttons_layout.addWidget(self.add_button)
@@ -241,26 +247,35 @@ class HerramientasSection(QWidget):
 
         self.layout.addLayout(self.buttons_layout)
 
+        self.search_entry = QLineEdit()
+        self.search_entry.setPlaceholderText('Ingrese la palabra clave')
+        self.search_entry.setStyleSheet(ENTRY_GENERAL_DESIGN)
+        self.search_entry.textChanged.connect(self.buscar_fitler)
+        self.layout.addWidget(self.search_entry)
+
+
+
         # Tabla para mostrar herramientas asignadas
         self.table_label = QLabel("Herramientas Asignadas")
         self.table_label.setFont(QFont("Arial", 12, QFont.Bold))
         self.layout.addWidget(self.table_label)
 
-        self.herramientas_table = QTableWidget()
-        self.herramientas_table.setColumnCount(11)
-        self.herramientas_table.setHorizontalHeaderLabels([
+        self.table = QTableWidget()
+        self.table.setColumnCount(11)
+        self.table.setHorizontalHeaderLabels([
             "ID", "ID Herramienta", "Código", "Herramienta","ID Empleado", "Responsable",
             "Cédula", "Fecha Asignación", "Fecha Cambio Estado", "Estado", "Observación"
         ])
-        self.herramientas_table.setAlternatingRowColors(True)
-        self.herramientas_table.horizontalHeader().setStretchLastSection(True)
-        self.herramientas_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.herramientas_table.setSelectionMode(QTableWidget.SingleSelection)
-        self.herramientas_table.setEditTriggers(QTableWidget.NoEditTriggers)
-        self.herramientas_table.setSelectionBehavior(QTableWidget.SelectRows)
-        self.herramientas_table.setShowGrid(False)
-        self.herramientas_table.verticalHeader().setVisible(False)
-        self.herramientas_table.doubleClicked.connect(lambda : doble_click_herrameinta(self.herramientas_table,
+        self.table.setAlternatingRowColors(True)
+        self.table.horizontalHeader().setStretchLastSection(True)
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.table.setSelectionMode(QTableWidget.SingleSelection)
+        self.table.setEditTriggers(QTableWidget.NoEditTriggers)
+        self.table.setSelectionBehavior(QTableWidget.SelectRows)
+        self.table.setShowGrid(False)
+        self.table.verticalHeader().setVisible(False)
+
+        self.table.doubleClicked.connect(lambda : doble_click_herrameinta(self.table,
             {'ID': self.id_input,
             'Codigo': self.codigo_input,
             'Herramienta': self.herramienta_input,
@@ -272,7 +287,14 @@ class HerramientasSection(QWidget):
             'Fecha_Asignacion': self.fecha_asignacion_input,
             'Fecha_Cambio_Estado': self.fecha_cambio_estado_input}
         ))
-        self.layout.addWidget(self.herramientas_table)
+        self.layout.addWidget(self.table)
+
+        self.btn_gen_pdf = QPushButton('Generar Reporte')
+        self.btn_gen_pdf.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        self.btn_gen_pdf.clicked.connect( lambda : gen_pdf_reporte(self.table,'./ReportesHerramientas' ))
+        self.layout.addWidget(self.btn_gen_pdf)
 
         # Escalabilidad: los campos y la tabla están listos para integrarse con la base de datos y lógica de negocio.
         # Puedes conectar los botones a funciones para agregar, editar, eliminar y actualizar el estado de las herramientas.
+    def buscar_fitler(self, text):
+        filterTable(self, text )

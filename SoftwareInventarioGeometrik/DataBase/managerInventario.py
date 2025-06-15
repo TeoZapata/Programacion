@@ -218,7 +218,7 @@ def getSelectedTable(self):
     getManagerInventario(self)  # Actualizar la cantidad en la base de datos
 
 def generar_devolucion(self):
-    responsable = self.entry_responsable.text()
+    responsable = self.entry_responsable.currentText()
     if not responsable:
         QMessageBox.warning(None, "Error", "Debes ingresar un Responsable")
         return

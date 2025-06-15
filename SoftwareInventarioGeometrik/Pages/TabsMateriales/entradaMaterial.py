@@ -32,6 +32,15 @@ class EntradaMaterial(QWidget):
         self.entry_responsable.setFont(QFont("Arial", 10))
         self.entry_responsable.setStyleSheet(ENTRY_GENERAL_DESIGN)
 
+        label_proveedor = QLabel("Proveedor:")
+        label_proveedor.setStyleSheet(LABEL_GENERAL_DESIGN)
+
+        self.entry_proveedor = QComboBox()
+        self.entry_proveedor.setPlaceholderText("Ingrese el numero de factura o identificación")
+        self.entry_proveedor.setStyleSheet(COMBOBOX_GENERAL_DESIGN)
+
+
+
         label_fecha_actual = QLabel("Fecha Actual:")
         label_fecha_actual.setStyleSheet(LABEL_GENERAL_DESIGN)
 
@@ -40,7 +49,8 @@ class EntradaMaterial(QWidget):
         self.entry_fecha_actual.setReadOnly(True)
         self.entry_fecha_actual.setStyleSheet(ENTRY_ONLY_READ_DESIGN)
 
-
+        top_line.addWidget(label_proveedor)
+        top_line.addWidget(self.entry_proveedor,1)
         top_line.addWidget(label_responsable)
         top_line.addWidget(self.entry_responsable,1)
         top_line.addWidget(label_fecha_actual)
@@ -60,7 +70,10 @@ class EntradaMaterial(QWidget):
 
         self.btn_buscar_material = QPushButton("Buscar")
         self.btn_buscar_material.setStyleSheet(BUTTON_GENERAL_DESIGN)
-        self.btn_buscar_material.clicked.connect(lambda : cargar_invenario(self))
+        self.btn_buscar_material.clicked.connect(lambda : (cargar_invenario(self), 
+                                                 self.entry_proveedor.addItems(obtener_nombres_proveedores()),
+                                                 self.entry_proveedor.setCurrentIndex(0)))
+
 
         search_line.addWidget(self.entry_buscar_material)
         search_line.addWidget(self.btn_buscar_material)
@@ -116,11 +129,13 @@ class EntradaMaterial(QWidget):
 
         self.btn_limpiar = QPushButton("Limpiar")
         self.btn_limpiar.setStyleSheet(BUTTON_GENERAL_DESIGN)
+        self.btn_limpiar.clicked.connect(lambda: self.selected_table.setRowCount(0))
 
 
         self.btn_generar_entrada = QPushButton("Generar Entrada de Almacén")
         self.btn_generar_entrada.setStyleSheet(BUTTON_GENERAL_DESIGN)
-        self.btn_generar_entrada.clicked.connect(lambda: (generar_entrada_material(self), cargar_invenario(self)))
+        self.btn_generar_entrada.clicked.connect(lambda: (generar_entrada_material(self), 
+                                                          cargar_invenario(self)))
         
 
 

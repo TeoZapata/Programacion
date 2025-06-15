@@ -113,7 +113,8 @@ class storeBD:
                         cantSalidas INTEGER DEFAULT 0,
                         cantEntradas INTEGER DEFAULT 0,
                         cantDevoluciones INTEGER DEFAULT 0,
-                        cantCodigosBarras INTEGER DEFAULT 0
+                        cantCodigosBarras INTEGER DEFAULT 0,
+                        cantReporteHerramientas INTEGER DEFAULT 0
                         )''')
             # Insertar registro con id=0 si no existe
             cur.execute("SELECT COUNT(*) FROM informacion WHERE id = 0")

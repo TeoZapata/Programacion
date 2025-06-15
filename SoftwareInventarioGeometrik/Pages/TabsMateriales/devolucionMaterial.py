@@ -29,16 +29,15 @@ class DevolucionMaterial(QWidget):
 
         self.entry_proyecto = QComboBox()
         self.entry_proyecto.setStyleSheet(COMBOBOX_GENERAL_DESIGN)
-        obtener_nombres_proyectos(self.entry_proyecto, "proyectos")
         self.entry_proyecto.setMinimumWidth(150)
 
 
         label_responsable = QLabel("Responsable:")
         label_responsable.setStyleSheet(LABEL_GENERAL_DESIGN)
 
-        self.entry_responsable = QLineEdit()
+        self.entry_responsable = QComboBox()
         self.entry_responsable.setPlaceholderText("Ingrese el nombre del responsable")
-        self.entry_responsable.setStyleSheet(ENTRY_GENERAL_DESIGN)
+        self.entry_responsable.setStyleSheet(COMBOBOX_GENERAL_DESIGN)
         self.entry_responsable.setMinimumWidth(150)
 
 
@@ -137,7 +136,10 @@ class DevolucionMaterial(QWidget):
 
         btn_generar_recibo = QPushButton("Buscar Material")
         btn_generar_recibo.setStyleSheet(BUTTON_GENERAL_DESIGN)
-        btn_generar_recibo.clicked.connect(lambda: (cargar_salidaMaterial_proyecto(self), obtener_nombres_proyectos(self.entry_proyecto, "proyectos")))
+        btn_generar_recibo.clicked.connect(lambda: (cargar_salidaMaterial_proyecto(self), 
+                                                    obtener_nombres_proyectos(self.entry_proyecto, "proyectos"), 
+                                                    self.entry_responsable.addItems(obtener_nombre_empleado()), 
+                                                    self.entry_responsable.setCurrentIndex(0)))
 
         btn_limpiar = QPushButton("Limpiar Tabla")
         btn_limpiar.setStyleSheet(BUTTON_GENERAL_DESIGN)

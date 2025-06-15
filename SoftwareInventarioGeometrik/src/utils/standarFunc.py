@@ -26,8 +26,6 @@ def cargar_invenario(self):
         """Carga el inventario desde la base de datos y lo muestra en la tabla."""
         # Limpiar la tabla antes de cargar nuevos datos
         self.data_table.setRowCount(0)
-        self.line_edits["Proveedor"].clear()
-        self.line_edits["Proveedor"].addItems(obtener_nombres_proveedores())
         db = conex()
         db.iniciar_bd()
         # Obtener los datos del inventario desde la base de datos
@@ -77,13 +75,13 @@ def cargar_invenario(self):
             item_cantidad.setTextAlignment(Qt.AlignCenter)
             # Aplicar color según la cantidad
             if cantidad == 0:
-                item_cantidad.setBackground(Qt.red)
+                item_cantidad.setBackground(QColor("#D10000"))
             elif cantidad < cantidad_minima:
-                item_cantidad.setBackground(QColor("orange"))
+                item_cantidad.setBackground(QColor("#E16000"))
             elif cantidad_minima <= cantidad <= cantidad_maxima:
-                item_cantidad.setBackground(Qt.green)
+                item_cantidad.setBackground(QColor("#38A501"))
             else:
-                item_cantidad.setBackground(QColor('#E10098'))
+                item_cantidad.setBackground(QColor("#CD008C"))
             self.data_table.setItem(row_position, 5, item_cantidad)
 
             item_unidad = QTableWidgetItem(str(unidad))
@@ -358,7 +356,9 @@ def doble_click(self) -> None:
         self.line_edits['ID'].setText(self.data_table.item(row, 0).text())
         self.line_edits['Nombre'].setText(self.data_table.item(row, 1).text())
         self.line_edits['Sección'].setCurrentText(self.data_table.item(row, 2).text())
+        self.line_edits['Sección'].setEnabled(False)  # Deshabilita el combobox para que no se pueda desplegar
         self.line_edits['Subsección'].setCurrentText(self.data_table.item(row, 3).text())
+        self.line_edits['Subsección'].setEnabled(False)  # Deshabilita el combobox para que no se pueda desplegar
         self.line_edits['Código de Barras'].setText(self.data_table.item(row, 4).text())
         self.line_edits['Cantidad Disponible'].setText(self.data_table.item(row, 5).text())
         self.line_edits['Unidad de Medida'].setCurrentText(self.data_table.item(row, 6).text())
@@ -1009,6 +1009,7 @@ def doble_click_herrameinta(tabla, datos):
 
     row = item.row()
     # Asumiendo el orden de columnas según la función agregar_herramienta_gestor
+    
     datos['ID'].setText(tabla.item(row, 1).text())
     datos['Codigo'].setText(tabla.item(row, 2).text())
     datos['Herramienta'].setText(tabla.item(row, 3).text())
@@ -1046,3 +1047,17 @@ def eliminar_herramienta_gestor(tabla):
         QMessageBox.information(None, "Éxito", "Herramienta eliminada correctamente.")
     except Exception as e:
         QMessageBox.critical(None, "Error", f"Error al eliminar la herramienta: {str(e)}")
+
+def aditar_herramienta_gestor(linesEdit:dict):
+    
+    try:
+        db = conex()
+        db.ejecutar_consulta('UPDATE gestionHerramientas SET estado=?, observacion=?, fechaCambioEstado=? WHERE id=?',(
+            
+        linesEdit['Estado'].currentText(),
+        linesEdit['Observacion'].toPlainText(),
+        fecha_actual(),
+        ))
+
+    except Exception as e:
+        QMessageBox.critical(None,'Error', f'Error al editar la herramienta:{str(e)}')

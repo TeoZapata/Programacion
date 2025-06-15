@@ -101,7 +101,7 @@ def getCodeBar(self=None, categoria='EQUIPO', subcategoria='TORNILLERÍA', camp:
         '71'
         + lista_categoria[categoria]
         + lista_subcategoria[subcategoria]
-        + f"{getCodeBar.counter:03d}"
+        + f"{getCodeBar.counter:04d}"
     )
     
     getCodeBar.counter += 1

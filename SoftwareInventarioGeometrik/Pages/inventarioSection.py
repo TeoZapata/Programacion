@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QComboBox,
-                            QHBoxLayout, QPushButton, QLabel, QStackedWidget, QFormLayout, QLineEdit, QFileDialog)
+                            QHBoxLayout, QPushButton, QLabel, QStackedWidget, QFormLayout, QLineEdit, QHeaderView)
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QTableWidget
@@ -21,7 +21,6 @@ class inventarioSection(QWidget):
         super().__init__(parent)
         self.init_ui()
         self.db = storeBD()
-        self.db.iniciar_bd()
 
     def init_ui(self):
         # Layout principal
@@ -58,10 +57,10 @@ class inventarioSection(QWidget):
         # Ocultar encabezado de filas
         self.data_table.setRowCount(0)  # Inicialmente no hay filas
         # hacer que la tabla se organice dando click en el encabezado
-        self.data_table.setSortingEnabled(True)
         #hacer que la tabla se ajuste al tamaño de la ventana y organice los encabezados que ocupen el mismo tamaño
         self.data_table.horizontalHeader().setStretchLastSection(True)  # Hacer que la última sección se estire
         #hacer que la tabla se ajuste al ancho
+        self.data_table.setStyleSheet(TABLA_DESIGN_GENERAL)
         self.data_table.setColumnWidth(0, 20)  # Ancho de la columna ID
         self.data_table.doubleClicked.connect(lambda: doble_click(self))  # Desactivar la ordenación al hacer doble clic
 
@@ -129,7 +128,7 @@ class inventarioSection(QWidget):
         bnt_clear = QPushButton("Limpiar")
         bnt_clear.setStyleSheet(BUTTON_GENERAL_DESIGN)
         bnt_clear.setMinimumHeight(30)
-        bnt_clear.clicked.connect(lambda: (clear_entry(self.line_edits.values()), getCodeBar(self,self.line_edits['Sección'].currentText(), self.line_edits['Subsección'].currentText())))  # Conectar el botón a la función de limpieza
+        bnt_clear.clicked.connect(lambda: (clear_entry(self.line_edits.values()), getCodeBar(self,self.line_edits['Sección'].currentText(), self.line_edits['Subsección'].currentText()), self.line_edits['Sección'].setEnabled(True) , self.line_edits['Subsección'].setEnabled(True)))  # Conectar el botón a la función de limpieza
          # Espacio a la izquierda
         botton_box = QHBoxLayout()
         botton_box.setSpacing(10)
@@ -195,7 +194,9 @@ class inventarioSection(QWidget):
         btnActualizarEstado = QPushButton("Actualizar TODO")
         btnActualizarEstado.setStyleSheet(BUTTON_GENERAL_DESIGN)
         btnActualizarEstado.setMinimumHeight(60)
-        btnActualizarEstado.clicked.connect(lambda: (iniciar_calculo_inventario(self), cargar_invenario(self)))  # Conectar el botón a la función de calcular inventario y cargar inventario nuevamente
+        btnActualizarEstado.clicked.connect(lambda: (iniciar_calculo_inventario(self), cargar_invenario(self), 
+        self.line_edits["Proveedor"].clear(),
+        self.line_edits["Proveedor"].addItems(obtener_nombres_proveedores())))  # Conectar el botón a la función de calcular inventario y cargar inventario nuevamente
 
         
         # Información del inventario

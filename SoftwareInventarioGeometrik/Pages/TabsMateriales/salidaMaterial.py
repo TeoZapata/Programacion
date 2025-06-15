@@ -7,6 +7,7 @@ from Style import *
 from src.utils.getDate import fecha_actual
 from DataBase.managerInventario import *
 from src.utils.generarPdf import *
+from src.utils.getCodeBar import *
 
 
 class SalidaMaterial(QWidget):
@@ -38,8 +39,8 @@ class SalidaMaterial(QWidget):
 
         self.label_responsable = QLabel("Responsable")
         self.label_responsable.setStyleSheet(LABEL_GENERAL_DESIGN)
-        self.entry_responsable = QLineEdit()
-        self.entry_responsable.setStyleSheet(ENTRY_GENERAL_DESIGN)
+        self.entry_responsable = QComboBox()
+        self.entry_responsable.setStyleSheet(COMBOBOX_GENERAL_DESIGN    )
         self.entry_responsable.setPlaceholderText("Ingrese el nombre del responsable")
         self.entry_responsable.setMinimumWidth(150)
 
@@ -146,6 +147,10 @@ class SalidaMaterial(QWidget):
             try:
                 getManagerInventario(self)
                 obtener_nombres_proyectos(self.entry_proyecto, 'proyectos')
+                self.entry_responsable.addItems(obtener_nombre_empleado())
+                self.entry_responsable.setCurrentIndex(0)
+
+            
             except Exception as e:
                 print(f"Error al actualizar la tabla: {e}")
         btn_actualizar_tabla.clicked.connect(actualizar_tabla)

@@ -59,9 +59,5 @@ class HistorialMaterial(QWidget):
         self.table.verticalHeader().setVisible(False)
         self.layout.addWidget(self.table)
 
-        # Botón para generar reporte
-        self.report_button = QPushButton("Generar Reporte")
-        self.report_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
-        self.layout.addWidget(self.report_button)   
     def buscar_inventario(self, text):
         filterTable(self, text)

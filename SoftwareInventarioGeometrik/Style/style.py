@@ -244,4 +244,33 @@ QTEXT_EDIT_GENERAL_DESIGN = """
         border: 3px solid #BBDDE6; /* Neon aquamarine border */
         background-color: #2c3e50; /* Keep background consistent */
     }
-""" 
+"""
+
+TABLA_DESIGN_GENERAL = """
+    QTableWidget {
+        background-color: #2c3e50; /* Fondo azul oscuro */
+        color: #ecf0f1; /* Texto gris claro */
+        font-size: 14px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        border: 2px solid #34495e;
+        border-radius: 5px;
+        gridline-color: #34495e;
+    }
+    QHeaderView::section {
+        background-color: #34495e; /* Encabezado ligeramente más claro */
+        color: #BBDDE6; /* Texto azul claro */
+        font-weight: bold;
+        font-size: 15px;
+        border: 1px solid #2c3e50;
+        padding: 6px;
+    }
+    QTableWidget::item {
+        selection-background-color: #99D6EA; /* Celeste para selección */
+        selection-color: #2c3e50; /* Texto oscuro al seleccionar */
+        padding: 4px;
+    }
+    QTableCornerButton::section {
+        background-color: #34495e;
+        border: 1px solid #2c3e50;
+    }
+"""

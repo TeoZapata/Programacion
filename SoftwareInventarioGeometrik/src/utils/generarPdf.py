@@ -7,6 +7,7 @@ from datetime import datetime
 from src.utils.standarFunc import *
 from DataBase.managerInventario import *
 from DataBase.storeDB import *
+from reportlab.lib.pagesizes import landscape, letter
 
 def calcular_cuantas_SalidasDB():
     """Calcula cuantas salidas hay en la base de datos"""
@@ -29,6 +30,13 @@ def calcular_cuantas_DevolucionesDB():
     db = conex()
     db.iniciar_bd()
     resultado = db.ejecutar_consulta("SELECT cantDevoluciones FROM informacion WHERE id = 0")
+    if resultado:
+        return resultado[0][0]
+    return 0
+def calcular_cuantas_ReporteHerramientasDB():
+    db = conex()
+    db.iniciar_bd()
+    resultado = db.ejecutar_consulta("SELECT cantReporteHerramientas FROM informacion WHERE id = 0")
     if resultado:
         return resultado[0][0]
     return 0
@@ -74,7 +82,7 @@ def generar_pdf_simple(data, save_directory, descripcion):
         c.drawString(50, 690, f"Fecha de {descripcion.lower()}: {data['fecha']}")
         # Intenta dibujar el logo con fondo blanco detrás
         logo_path = "./Fuentes/logo.png"
-        logo_x, logo_y, logo_w, logo_h = 400, 700, 150, 50
+        logo_x, logo_y, logo_w, logo_h = 400, 700, 100, 50
 
         # Dibuja un rectángulo blanco como fondo del logo
         c.setFillColor(colors.white)
@@ -153,7 +161,7 @@ def gen_pdf(self):
         try:
             cliente , proyecto = informacion_cliente(self)
             proyecto = self.entry_proyecto.currentText()
-            responsable = self.entry_responsable.text()
+            responsable = self.entry_responsable.currentText()
             fecha = self.entry_fecha_Actual.text()
 
             if responsable == "":
@@ -202,4 +210,102 @@ def gen_pdf(self):
             }, save_directory="./Salidas", descripcion="Salida") # Cambia el directorio según sea necesario
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Ocurrió un error al generar el PDF:\n{str(e)}")
-        
+
+def gen_pdf_reporte(table_widget, save_directory="./Reportes", titulo="Reporte de Herramientas"):
+    """
+    Genera un PDF elegante con los datos de un QTableWidget.
+    Solo incluye las filas actualmente visibles (no ocultas) en la tabla.
+    Ajusta el ancho de columnas y permite encabezados y celdas de texto largo en varias líneas.
+    Args:
+        table_widget (QTableWidget): La tabla con los datos.
+        save_directory (str): Carpeta donde guardar el PDF.
+        titulo (str): Título del reporte.
+    """
+    try:
+        if not os.path.exists(save_directory):
+            os.makedirs(save_directory)
+
+
+        num = calcular_cuantas_ReporteHerramientasDB()
+        fecha_str = datetime.now().strftime("%Y-%m-%d_%H-%M")
+        file_name = f"{titulo.replace(' ', '_')}_{num+1}_{fecha_str}.pdf"
+        save_path = os.path.join(save_directory, file_name)
+
+        # Usar orientación horizontal (landscape)
+        page_size = landscape(letter)
+        c = canvas.Canvas(save_path, pagesize=page_size)
+        width, height = page_size
+
+        # Encabezado
+        c.setFont("Helvetica-Bold", 16)
+        c.setFillColor(colors.darkblue)
+        c.drawCentredString(width / 2, height - 50, f'{titulo} No. {num+1}')
+        c.setFont("Helvetica", 10)
+        c.setFillColor(colors.black)
+        c.drawString(40, height - 70, f"Fecha de generación: {datetime.now().strftime('%d/%m/%Y %H:%M')}")
+
+        # Encabezados de la tabla (con salto de línea manual para nombres largos)
+        headers = [
+            "ID", "ID\nHerram.", "Código", "Herramienta", "ID\nEmpleado", "Responsable",
+            "Cédula", "Fecha\nAsign.", "Fecha\nCambio", "Estado", "Observación"
+        ]
+        # Columnas más angostas para optimizar espacio
+        col_widths = [28, 38, 45, 80, 38, 70, 38, 50, 60, 38, 70]
+        x_start = 40
+        y_start = height - 100
+        row_height = 20
+
+        # Obtener solo las filas visibles
+        visible_rows = [row for row in range(table_widget.rowCount()) if not table_widget.isRowHidden(row)]
+
+        # Fondo de encabezado
+        c.setFillColor(colors.lightblue)
+        c.rect(x_start, y_start, sum(col_widths), row_height, fill=1, stroke=0)
+        c.setFillColor(colors.black)
+        c.setFont("Helvetica-Bold", 8)
+        x = x_start
+        for i, header in enumerate(headers):
+            # Soporta salto de línea en el header
+            for idx, line in enumerate(header.split('\n')):
+                c.drawString(x + 2, y_start + 12 - idx * 9, line)
+            x += col_widths[i]
+
+        # Líneas verticales de la tabla
+        c.setStrokeColor(colors.grey)
+        x = x_start
+        for w in col_widths:
+            c.line(x, y_start, x, y_start - row_height * (len(visible_rows) + 1))
+            x += w
+        c.line(x_start + sum(col_widths), y_start, x_start + sum(col_widths), y_start - row_height * (len(visible_rows) + 1))
+
+        # Líneas horizontales
+        for i in range(len(visible_rows) + 2):
+            y = y_start - i * row_height
+            c.line(x_start, y, x_start + sum(col_widths), y)
+
+        # Filas de datos (solo visibles)
+        c.setFont("Helvetica", 7)
+        y = y_start - row_height
+        for row in visible_rows:
+            x = x_start
+            for col in range(len(headers)):
+                text = table_widget.item(row, col).text() if table_widget.item(row, col) else ""
+                # Ajuste de texto largo: dividir en varias líneas si excede el ancho de la columna
+                max_chars = int(col_widths[col] // 4.5)  # Ajusta el divisor para calibrar el corte
+                lines = []
+                while len(text) > max_chars:
+                    lines.append(text[:max_chars])
+                    text = text[max_chars:]
+                lines.append(text)
+                for idx, line in enumerate(lines[:2]):  # máximo 2 líneas por celda
+                    c.drawString(x + 2, y + 12 - idx * 8, line)
+                x += col_widths[col]
+            y -= row_height
+
+        c.save()
+        db = conex()
+        db.ejecutar_consulta("UPDATE informacion SET cantReporteHerramientas=cantReporteHerramientas+1 WHERE id = 0")
+
+        QMessageBox.information(None, "PDF Generado", f"El PDF ha sido generado y guardado en: {save_path}")
+    except Exception as e:
+        QMessageBox.critical(None, "Error al generar PDF", f"Ocurrió un error al generar el PDF:\n{str(e)}")
