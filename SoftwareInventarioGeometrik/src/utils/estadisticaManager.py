@@ -34,7 +34,6 @@ class EstadisticaManager(threading.Thread):
             productos_sobre_max = sum(1 for m in materiales if len(m) > 9 and isinstance(m[4], int) and isinstance(m[9], int) and m[4] > m[9])
             return {
                 'Datos':{"total_productos": total_productos,
-                "total_valor": total_valor,
                 "productos_bajo_min": productos_bajo_min,
                 "productos_sin_stock": productos_sin_stock,
                 "productos_sobre_max": productos_sobre_max,},
