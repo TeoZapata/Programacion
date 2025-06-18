@@ -226,12 +226,13 @@ class HerramientasSection(QWidget):
         }), cargar_tabla_herramienta(self.table)))
         self.edit_button = QPushButton("Editar")
         self.edit_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
-        self.edit_button.clicked.connect(lambda: aditar_herramienta_gestor(
+        self.edit_button.clicked.connect(lambda: (aditar_herramienta_gestor(
             {
+            'id':self.id_input,
             'Estado': self.estado_input,
             'Observacion': self.observacion_input,
         }
-        ))
+        ), cargar_tabla_herramienta(self.table)))
         self.delete_button = QPushButton("Eliminar")
         self.delete_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
         self.delete_button.clicked.connect(lambda: (eliminar_herramienta_gestor(self.table), cargar_tabla_herramienta(self.table)))

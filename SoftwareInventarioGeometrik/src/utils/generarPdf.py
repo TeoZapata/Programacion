@@ -221,6 +221,10 @@ def gen_pdf_reporte(table_widget, save_directory="./Reportes", titulo="Reporte d
         save_directory (str): Carpeta donde guardar el PDF.
         titulo (str): Título del reporte.
     """
+    if table_widget.rowCount()==0:
+        QMessageBox.warning(None, "Error", "No hay datos para generar el reporte.")
+        return
+    
     try:
         if not os.path.exists(save_directory):
             os.makedirs(save_directory)

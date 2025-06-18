@@ -99,6 +99,7 @@ class inventarioSection(QWidget):
                     self.line_edit.addItems(subcategoria.keys())
                 entry_formulario.addRow(label, self.line_edit)
                 self.line_edits[placeholder] = self.line_edit  # Guardar el QComboBox en el diccionario
+                self.line_edit.currentTextChanged.connect(lambda : getCodeBar(self,self.line_edits['Sección'].currentText(), self.line_edits['Subsección'].currentText()))
             elif placeholder == "Unidad de Medida" or placeholder == "Proveedor":
                 self.line_edit = QComboBox()
                 self.line_edit.setStyleSheet(COMBOBOX_GENERAL_DESIGN)
@@ -128,7 +129,7 @@ class inventarioSection(QWidget):
         bnt_clear = QPushButton("Limpiar")
         bnt_clear.setStyleSheet(BUTTON_GENERAL_DESIGN)
         bnt_clear.setMinimumHeight(30)
-        bnt_clear.clicked.connect(lambda: (clear_entry(self.line_edits.values()), getCodeBar(self,self.line_edits['Sección'].currentText(), self.line_edits['Subsección'].currentText()), self.line_edits['Sección'].setEnabled(True) , self.line_edits['Subsección'].setEnabled(True)))  # Conectar el botón a la función de limpieza
+        bnt_clear.clicked.connect(lambda: (clear_entry(self.line_edits.values()), self.line_edits['Sección'].setEnabled(True) , self.line_edits['Subsección'].setEnabled(True)))  # Conectar el botón a la función de limpieza
          # Espacio a la izquierda
         botton_box = QHBoxLayout()
         botton_box.setSpacing(10)

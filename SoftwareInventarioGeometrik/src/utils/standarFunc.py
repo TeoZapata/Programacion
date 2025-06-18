@@ -1049,6 +1049,14 @@ def eliminar_herramienta_gestor(tabla):
         QMessageBox.critical(None, "Error", f"Error al eliminar la herramienta: {str(e)}")
 
 def aditar_herramienta_gestor(linesEdit:dict):
+    ok = QMessageBox.question(
+        None,
+        "Confirmar Agregar Proveedor",
+        "¿Estás seguro de que deseas editar este Registro?",
+        QMessageBox.Yes | QMessageBox.No
+    )
+    if ok != QMessageBox.Yes:
+        return
     
     try:
         db = conex()
@@ -1057,6 +1065,7 @@ def aditar_herramienta_gestor(linesEdit:dict):
         linesEdit['Estado'].currentText(),
         linesEdit['Observacion'].toPlainText(),
         fecha_actual(),
+        linesEdit['id'].text()
         ))
 
     except Exception as e:
