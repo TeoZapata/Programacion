@@ -1010,6 +1010,7 @@ def doble_click_herrameinta(tabla, datos):
     row = item.row()
     # Asumiendo el orden de columnas según la función agregar_herramienta_gestor
     
+    datos['id_registro'].setText(tabla.item(row, 0).text())
     datos['ID'].setText(tabla.item(row, 1).text())
     datos['Codigo'].setText(tabla.item(row, 2).text())
     datos['Herramienta'].setText(tabla.item(row, 3).text())
@@ -1020,6 +1021,7 @@ def doble_click_herrameinta(tabla, datos):
     datos['Cedula'].setText(tabla.item(row, 6).text())
     datos['Fecha_Asignacion'].setText(tabla.item(row, 7).text())
     datos['Fecha_Cambio_Estado'].setText(tabla.item(row, 8).text())
+    
 def eliminar_herramienta_gestor(tabla):
     """
     Elimina la herramienta seleccionada de la tabla gestionHerramientas según el ID de la columna 0.
@@ -1057,7 +1059,6 @@ def aditar_herramienta_gestor(linesEdit:dict):
     )
     if ok != QMessageBox.Yes:
         return
-    
     try:
         db = conex()
         db.ejecutar_consulta('UPDATE gestionHerramientas SET estado=?, observacion=?, fechaCambioEstado=? WHERE id=?',(

@@ -3,14 +3,16 @@ import streamlit as st
 import sqlite3
 import pandas as pd
 from datetime import datetime
-from io import BytesIO
-import base64
-from reportlab.lib import colors
-from reportlab.lib.pagesizes import letter, A4
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import inch
 import json
+from utils.genpdf import *
+from utils.solarCalculadora import *
+from utils.gestorDB import *
+import os
+import pandas as pd
+import requests
+import json
+import warnings
+
 
 # Configuración de la página
 st.set_page_config(
@@ -44,317 +46,45 @@ CIUDADES_IRRADIACION = {
     "Palmira": 1400
 }
 
-class DatabaseManager:
-    def __init__(self, db_name="solar_quotes.db"):
-        self.db_name = db_name
-        self.init_database()
-    
-    def init_database(self):
-        conn = sqlite3.connect(self.db_name)
-        cursor = conn.cursor()
-        
-        # Tabla de clientes
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS clientes (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                nombre TEXT NOT NULL,
-                cedula TEXT NOT NULL,
-                telefono TEXT,
-                email TEXT,
-                direccion TEXT,
-                ciudad TEXT,
-                fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
-        
-        # Tabla de cotizaciones
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS cotizaciones (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                cliente_id INTEGER,
-                consumo_promedio REAL,
-                tipo_facturacion TEXT,
-                consumos TEXT,
-                ciudad TEXT,
-                irradiacion REAL,
-                potencia_requerida REAL,
-                iva_porcentaje REAL,
-                utilidad_porcentaje REAL,
-                imprevistos_porcentaje REAL,
-                num_trabajadores INTEGER,
-                dias_trabajo INTEGER,
-                precio_trabajador REAL,
-                costo_total REAL,
-                fecha_cotizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (cliente_id) REFERENCES clientes (id)
-            )
-        ''')
-        
-        conn.commit()
-        conn.close()
-    
-    def insertar_cliente(self, datos_cliente):
-        conn = sqlite3.connect(self.db_name)
-        cursor = conn.cursor()
-        
-        cursor.execute('''
-            INSERT INTO clientes (nombre, cedula, telefono, email, direccion, ciudad)
-            VALUES (?, ?, ?, ?, ?, ?)
-        ''', (
-            datos_cliente['nombre'],
-            datos_cliente['cedula'],
-            datos_cliente['telefono'],
-            datos_cliente['email'],
-            datos_cliente['direccion'],
-            datos_cliente['ciudad']
-        ))
-        
-        cliente_id = cursor.lastrowid
-        conn.commit()
-        conn.close()
-        return cliente_id
-    
-    def insertar_cotizacion(self, cliente_id, datos_cotizacion):
-        conn = sqlite3.connect(self.db_name)
-        cursor = conn.cursor()
-        
-        cursor.execute('''
-            INSERT INTO cotizaciones (
-                cliente_id, consumo_promedio, tipo_facturacion, consumos,
-                ciudad, irradiacion, potencia_requerida, iva_porcentaje,
-                utilidad_porcentaje, imprevistos_porcentaje, num_trabajadores,
-                dias_trabajo, precio_trabajador, costo_total
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (
-            cliente_id,
-            datos_cotizacion['consumo_promedio'],
-            datos_cotizacion['tipo_facturacion'],
-            json.dumps(datos_cotizacion['consumos']),
-            datos_cotizacion['ciudad'],
-            datos_cotizacion['irradiacion'],
-            datos_cotizacion['potencia_requerida'],
-            datos_cotizacion['iva_porcentaje'],
-            datos_cotizacion['utilidad_porcentaje'],
-            datos_cotizacion['imprevistos_porcentaje'],
-            datos_cotizacion['num_trabajadores'],
-            datos_cotizacion['dias_trabajo'],
-            datos_cotizacion['precio_trabajador'],
-            datos_cotizacion['costo_total']
-        ))
-        
-        cotizacion_id = cursor.lastrowid
-        conn.commit()
-        conn.close()
-        return cotizacion_id
-    
-    def obtener_cotizaciones(self):
-        conn = sqlite3.connect(self.db_name)
-        query = '''
-            SELECT c.id, cl.nombre, cl.ciudad, c.potencia_requerida, 
-                   c.costo_total, c.fecha_cotizacion
-            FROM cotizaciones c
-            JOIN clientes cl ON c.cliente_id = cl.id
-            ORDER BY c.fecha_cotizacion DESC
-        '''
-        df = pd.read_sql_query(query, conn)
-        conn.close()
-        return df
-
-class SolarCalculator:
-    @staticmethod
-    def calcular_consumo_promedio(consumos, tipo_facturacion):
-        if tipo_facturacion == "Mensual":
-            return sum(consumos)
-        else:  # Bimensual
-            return sum(consumos)/2
-    
-    @staticmethod
-    def calcular_potencia_requerida(consumo_promedio_mensual, irradiacion):
-        consumo_anual = consumo_promedio_mensual * 12
-        potencia_kw = consumo_anual / irradiacion
-        return potencia_kw
-    
-    @staticmethod
-    def calcular_costo_base(potencia_kw):
-        # Costo base estimado por kW instalado (en COP)
-        costo_por_kw = 4500000  # 4.5 millones por kW
-        return potencia_kw * costo_por_kw
-    
-    @staticmethod
-    def calcular_costo_mano_obra(num_trabajadores, dias_trabajo, precio_trabajador):
-        return num_trabajadores * dias_trabajo * precio_trabajador
-    
-    @staticmethod
-    def calcular_costo_total(costo_base, costo_mano_obra, iva, utilidad, imprevistos):
-        subtotal = costo_base + costo_mano_obra
-        subtotal_con_utilidad = subtotal * (1 + utilidad/100)
-        subtotal_con_imprevistos = subtotal_con_utilidad * (1 + imprevistos/100)
-        total_con_iva = subtotal_con_imprevistos * (1 + iva/100)
-        return total_con_iva
-
-    @staticmethod
-    def calcular_paneles_necesarios(potencia_requerida_kwp):
-        """
-        Calcula la cantidad de paneles necesarios para varias potencias de panel (W)
-        para cubrir la potencia requerida (kWp) al 100%.
-        Devuelve un diccionario con los resultados.
-        """
-        potencias = [620, 615, 590, 565, 560]
-        resultados = {}
-        for potencia in potencias:
-            num_paneles = int(-(-potencia_requerida_kwp * 1000 // potencia))  # Redondeo hacia arriba
-            energia_cubierta = num_paneles * potencia / 1000  # kW cubiertos con paneles completos
-            porcentaje_cubierto = (energia_cubierta / potencia_requerida_kwp) * 100 if potencia_requerida_kwp else 0
-            resultados[potencia] = {
-                "paneles": num_paneles,
-                "porcentaje_cubierto": porcentaje_cubierto
-            }
-
-        # Calcular diferencia porcentual respecto a panel de 615W
-        base_paneles = resultados[615]["paneles"]
-        base_energia = base_paneles * 615 / 1000
-        for potencia in potencias:
-            energia = resultados[potencia]["paneles"] * potencia / 1000
-            if base_energia > 0:
-                diferencia = ((energia - base_energia) / base_energia) * 100
-            else:
-                diferencia = 0
-            resultados[potencia]["diferencia_vs_615"] = diferencia
-
-        return resultados
-
-        
-
-
-class PDFGenerator:
-    @staticmethod
-    def generar_pdf(datos_cliente, datos_cotizacion, calculos):
-        buffer = BytesIO()
-        doc = SimpleDocTemplate(buffer, pagesize=A4)
-        story = []
-        styles = getSampleStyleSheet()
-        
-        # Título
-        title_style = ParagraphStyle(
-            'CustomTitle',
-            parent=styles['Heading1'],
-            fontSize=16,
-            textColor=colors.darkblue,
-            alignment=1
-        )
-        story.append(Paragraph("COTIZACIÓN SISTEMA SOLAR FOTOVOLTAICO", title_style))
-        story.append(Spacer(1, 20))
-        
-        # Información del cliente
-        story.append(Paragraph("INFORMACIÓN DEL CLIENTE", styles['Heading2']))
-        cliente_data = [
-            ['Nombre:', datos_cliente['nombre']],
-            ['Cédula:', datos_cliente['cedula']],
-            ['Teléfono:', datos_cliente['telefono']],
-            ['Email:', datos_cliente['email']],
-            ['Dirección:', datos_cliente['direccion']],
-            ['Ciudad:', datos_cliente['ciudad']]
-        ]
-        
-        cliente_table = Table(cliente_data, colWidths=[2*inch, 4*inch])
-        cliente_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (0, -1), colors.lightgrey),
-            ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
-            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-            ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
-            ('FONTSIZE', (0, 0), (-1, -1), 10),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
-            ('BACKGROUND', (1, 0), (1, -1), colors.beige),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black)
-        ]))
-        story.append(cliente_table)
-        story.append(Spacer(1, 20))
-        
-        # Análisis de consumo
-        story.append(Paragraph("ANÁLISIS DE CONSUMO", styles['Heading2']))
-        consumo_data = [
-            ['Consumos registrados:', ', '.join(map(str, datos_cotizacion['consumos'])) + ' kWh'],
-            ['Tipo de facturación:', datos_cotizacion['tipo_facturacion']],
-            ['Consumo promedio mensual:', f"{calculos['consumo_promedio']:.2f} kWh"],
-            ['Consumo anual estimado:', f"{calculos['consumo_anual']:.2f} kWh"],
-            ['Irradiación solar:', f"{datos_cotizacion['irradiacion']} kWh/m²/año"]
-        ]
-        
-        consumo_table = Table(consumo_data, colWidths=[3*inch, 3*inch])
-        consumo_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (0, -1), colors.lightgrey),
-            ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
-            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-            ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
-            ('FONTSIZE', (0, 0), (-1, -1), 10),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
-            ('BACKGROUND', (1, 0), (1, -1), colors.beige),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black)
-        ]))
-        story.append(consumo_table)
-        story.append(Spacer(1, 20))
-        
-        # Dimensionamiento del sistema
-        story.append(Paragraph("DIMENSIONAMIENTO DEL SISTEMA", styles['Heading2']))
-        sistema_data = [
-            ['Potencia requerida:', f"{calculos['potencia_requerida']:.2f} kW"],
-            ['Generación anual estimada:', f"{calculos['generacion_anual']:.2f} kWh"]
-        ]
-        
-        sistema_table = Table(sistema_data, colWidths=[3*inch, 3*inch])
-        sistema_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (0, -1), colors.lightgrey),
-            ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
-            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-            ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
-            ('FONTSIZE', (0, 0), (-1, -1), 10),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
-            ('BACKGROUND', (1, 0), (1, -1), colors.beige),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black)
-        ]))
-        story.append(sistema_table)
-        story.append(Spacer(1, 20))
-        
-        # Cotización
-        story.append(Paragraph("COTIZACIÓN", styles['Heading2']))
-        cotizacion_data = [
-            ['Costo base del sistema:', f"${calculos['costo_base']:,.0f} COP"],
-            ['Costo mano de obra:', f"${calculos['costo_mano_obra']:,.0f} COP"],
-            ['Utilidad (%s%%):'% datos_cotizacion['utilidad_porcentaje'], f"${calculos['utilidad']:,.0f} COP"],
-            ['Imprevistos (%s%%):'% datos_cotizacion['imprevistos_porcentaje'], f"${calculos['imprevistos']:,.0f} COP"],
-            ['IVA (%s%%):'% datos_cotizacion['iva_porcentaje'], f"${calculos['iva']:,.0f} COP"],
-            ['TOTAL:', f"${calculos['costo_total']:,.0f} COP"]
-        ]
-        
-        cotizacion_table = Table(cotizacion_data, colWidths=[3*inch, 3*inch])
-        cotizacion_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (0, -2), colors.lightgrey),
-            ('BACKGROUND', (0, -1), (-1, -1), colors.darkblue),
-            ('TEXTCOLOR', (0, 0), (-1, -2), colors.black),
-            ('TEXTCOLOR', (0, -1), (-1, -1), colors.white),
-            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-            ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
-            ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, -1), 10),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
-            ('BACKGROUND', (1, 0), (1, -2), colors.beige),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black)
-        ]))
-        story.append(cotizacion_table)
-        
-        # Fecha
-        story.append(Spacer(1, 30))
-        fecha_actual = datetime.now().strftime("%d de %B de %Y")
-        story.append(Paragraph(f"Fecha: {fecha_actual}", styles['Normal']))
-        
-        doc.build(story)
-        buffer.seek(0)
-        return buffer
 
 # Inicializar la base de datos
 @st.cache_resource
 def init_db():
     return DatabaseManager()
+
+
+def load(system_capacity=4, module_type=0, losses=14, array_type=0, tilt=25, azimuth=180, address=None, lat=51.9607, lon=7.6261, radius=100, dataset='intl', suppress_warnings=False):
+        """
+        Imports data from PVWatts using the requests package.
+        Only fields that are of importance for this forecasting purpose
+        can be specified.
+        """
+        params = {
+            'api_key': 'mVIsZR9LB1SmgmI23BUtBFLc4fumDgWwsT2uKLhb',
+            'system_capacity': system_capacity,
+            'module_type': module_type,
+            'losses': losses,
+            'array_type': array_type,
+            'tilt': tilt,
+            'azimuth': azimuth,
+            'radius': radius,
+            'timeframe': 'hourly',
+            'dataset': dataset
+        }
+        if address:
+            params['address'] = address
+        else:
+            params['lat'] = lat
+            params['lon'] = lon
+
+        response = requests.get('https://developer.nrel.gov/api/pvwatts/v8.json', params)
+        print(response.request.url)
+        json = response.json()
+        if not suppress_warnings:
+            if json['errors']: warnings.warn(f'API ERROR: {json["errors"]}')
+            if json['warnings']: warnings.warn(f'API WARNING: {json["warnings"]}')
+        response.raise_for_status()
+        return f"loaded {json['station_info']['city']}"
 
 db = init_db()
 
@@ -424,6 +154,57 @@ if opcion == "Nueva Cotización":
             if consumos and all(c > 0 for c in consumos):
                 consumo_promedio = SolarCalculator.calcular_consumo_promedio(consumos, tipo_facturacion)
                 st.success(f"**Consumo promedio mensual:** {consumo_promedio:.2f} kWh")
+            import streamlit as st
+            import folium
+            from streamlit_folium import st_folium
+
+            # Título simple
+            st.title("Mapa Simple - Coordenadas")
+
+            # Crear mapa centrado en Bogotá
+            mapa = folium.Map(
+                location=[4.6097, -74.0817],  # Bogotá por defecto
+                zoom_start=10
+            )
+
+            # Mostrar el mapa y capturar datos
+            datos_mapa = st_folium(mapa, width=700, height=400)
+
+            # Mostrar coordenadas cuando se hace clic
+            if datos_mapa['last_clicked']:
+                lat = datos_mapa['last_clicked']['lat']
+                lon = datos_mapa['last_clicked']['lng']
+                params = {
+                        'api_key': 'mVIsZR9LB1SmgmI23BUtBFLc4fumDgWwsT2uKLhb',
+                        'system_capacity': 1,
+                        'module_type': 0,
+                        'losses': 20,
+                        'array_type': 1,
+                        'tilt': 10,
+                        'azimuth': 180,
+                        'timeframe': 'hourly'
+                    }
+                params['lat'] = lat
+                params['lon'] = lon
+                try:
+                    
+                
+
+                    response = requests.get('https://developer.nrel.gov/api/pvwatts/v8.json', params)
+                    print(response.request.url)
+                    resp = response.json()
+                    ac_annual = resp['outputs']['ac_annual']
+
+                    st.write(f"**Latitud:** {lat}")
+                    st.write(f"**Longitud:** {lon}")
+                    st.write(f"**Coordenadas:** {lat}, {lon}")
+                    st.write(f'**Outputs:** {ac_annual}')
+                except requests.exceptions.HTTPError as e:
+                    st.error(f"Error al consultar la API PVWatts: {e}")
+                except Exception as e:
+                    st.error(f"Ocurrió un error inesperado: {e}")
+            else:
+                st.write("Haz clic en el mapa para obtener las coordenadas")
     
     with tab3:
         if nombre and cedula and ciudad and consumos and all(c > 0 for c in consumos):

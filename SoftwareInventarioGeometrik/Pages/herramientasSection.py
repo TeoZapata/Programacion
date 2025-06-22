@@ -129,6 +129,15 @@ class HerramientasSection(QWidget):
         self.right_form_layout = QFormLayout()
 
         # ID Empleado (puede ser autocompletado o buscado)
+        self.id_registro_label = QLabel("ID Registro")
+        self.id_registro_label.setStyleSheet(LABEL_GENERAL_DESIGN)
+        self.id_registro_input = QLineEdit()
+        self.id_registro_input.setReadOnly(True)
+        self.id_registro_input.setStyleSheet(ENTRY_ONLY_READ_DESIGN)
+        self.id_registro_input.setMaximumWidth(50)
+
+        # ID Empleado
+
         self.id_empleado_label = QLabel("ID Empleado")
         self.id_empleado_label.setStyleSheet(LABEL_GENERAL_DESIGN)
         self.id_empleado_input = QLineEdit()
@@ -189,6 +198,7 @@ class HerramientasSection(QWidget):
 
         self.responsable_row_layout.addWidget(self.button_buscar_responsable)
 
+        self.right_form_layout.addRow(self.id_registro_label, self.id_registro_input)
         self.right_form_layout.addRow(self.responsable_label, self.responsable_row_layout)
         self.right_form_layout.addRow(self.id_empleado_label, self.id_empleado_input)
         self.right_form_layout.addRow(self.cedula_label, self.cedula_input)
@@ -228,9 +238,10 @@ class HerramientasSection(QWidget):
         self.edit_button.setStyleSheet(BUTTON_GENERAL_DESIGN)
         self.edit_button.clicked.connect(lambda: (aditar_herramienta_gestor(
             {
-            'id':self.id_input,
+            'id':self.id_registro_input,
             'Estado': self.estado_input,
-            'Observacion': self.observacion_input,
+            'Observacion': self.observacion_input
+            
         }
         ), cargar_tabla_herramienta(self.table)))
         self.delete_button = QPushButton("Eliminar")
@@ -286,7 +297,8 @@ class HerramientasSection(QWidget):
             'ID_Empleado': self.id_empleado_input,
             'Cedula': self.cedula_input,
             'Fecha_Asignacion': self.fecha_asignacion_input,
-            'Fecha_Cambio_Estado': self.fecha_cambio_estado_input}
+            'Fecha_Cambio_Estado': self.fecha_cambio_estado_input,
+            'id_registro' : self.id_registro_input},
         ))
         self.layout.addWidget(self.table)
 
