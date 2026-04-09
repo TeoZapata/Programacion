@@ -1,0 +1,11 @@
+venv/
+build/
+dist/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+documentos/*.pdf
+documentos/*.docx
+documentos/credenciales_iniciales_admin.txt

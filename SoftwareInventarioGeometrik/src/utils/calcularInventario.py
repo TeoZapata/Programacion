@@ -34,7 +34,7 @@ class calcularInventario(threading.Thread):
             materiales = db.obtener_inventario()
             productos_en_rango = sum(
                 1 for material in materiales
-                if material[8] <= material[4] <= material[9]
+                if material[8] <= int(material[4]) <= material[9]
             )
 
             return productos_en_rango

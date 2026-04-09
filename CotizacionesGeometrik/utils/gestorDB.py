@@ -1,9 +1,8 @@
 
+
 import sqlite3
-import pandas as pd
 import json
-from utils.genpdf import *
-from utils.solarCalculadora import *
+import pandas as pd
 
 class DatabaseManager:
     def __init__(self, db_name="solar_quotes.db"):
@@ -120,7 +119,3 @@ class DatabaseManager:
         df = pd.read_sql_query(query, conn)
         conn.close()
         return df
-
-        
-
-

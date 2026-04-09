@@ -1,0 +1,49 @@
+Metadata-Version: 2.4
+Name: geoinventario-backend
+Version: 0.1.0
+Summary: Backend para la migracion web de GeoInventario
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+Requires-Dist: alembic<2.0,>=1.13
+Requires-Dist: email-validator<3.0,>=2.2
+Requires-Dist: fastapi<1.0,>=0.115
+Requires-Dist: pydantic-settings<3.0,>=2.6
+Requires-Dist: python-jose[cryptography]<4.0,>=3.3
+Requires-Dist: python-multipart<1.0,>=0.0.9
+Requires-Dist: sqlalchemy<3.0,>=2.0
+Requires-Dist: psycopg[binary]<4.0,>=3.2
+Requires-Dist: uvicorn[standard]<1.0,>=0.32
+Requires-Dist: passlib[bcrypt]<2.0,>=1.7
+Provides-Extra: dev
+Requires-Dist: httpx<1.0,>=0.28; extra == "dev"
+Requires-Dist: pytest<9.0,>=8.3; extra == "dev"
+
+# Backend
+
+Base inicial del backend de GeoInventario Web.
+
+## Capas
+
+- `app/api`: routers y endpoints
+- `app/core`: configuracion y seguridad
+- `app/db`: sesion y base del ORM
+- `app/models`: modelos SQLAlchemy
+- `app/schemas`: contratos Pydantic
+- `app/services`: logica de negocio
+- `app/repositories`: acceso a datos
+- `app/reports`: reportes PDF
+- `tests`: pruebas
+
+## Arranque esperado
+
+```bash
+uvicorn app.main:app --reload
+```
+
+## Auth inicial
+
+Al iniciar por primera vez, la app crea un usuario administrador usando las variables:
+
+- `FIRST_SUPERUSER_EMAIL`
+- `FIRST_SUPERUSER_NAME`
+- `FIRST_SUPERUSER_PASSWORD`

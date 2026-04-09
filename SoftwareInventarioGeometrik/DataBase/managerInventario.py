@@ -122,7 +122,9 @@ def ventana_selec_cantidad(self, item):
     cantidad_disponible_item = self.table.item(item.row(), 3)  # Cantidad disponible
     unidad_item = self.table.item(item.row(), 4)  # Unidad de medida
     precio_unitario_item = self.table.item(item.row(), 5)  # Precio Unitario
-
+    if precio_unitario_item ==None:
+        QMessageBox.warning(None, "Sin Precio","Verifique el precio del material")
+        return
     if nombre_item and cantidad_disponible_item and unidad_item:
         nombre = nombre_item.text()
         cantidad_disponible = cantidad_disponible_item.text()

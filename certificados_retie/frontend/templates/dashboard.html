@@ -1,0 +1,295 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — Sistema RETIE{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+  .chart-container { position: relative; height: 260px; }
+  .alert-row {
+    display: grid; grid-template-columns: auto 1fr auto;
+    gap: 12px; align-items: center;
+  }
+  .vence-dot {
+    width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Stat Cards Row -->
+<div class="row g-3 mb-4">
+  <div class="col-sm-6 col-xl-3">
+    <a href="{{ url_for('certificados.listar') }}" class="stat-card stat-total d-block text-decoration-none">
+      <div class="stat-icon"><i class="bi bi-file-earmark-check-fill"></i></div>
+      <div>
+        <div class="stat-value" style="color: var(--azul-retie);">{{ stats.total }}</div>
+        <div class="stat-label">Total Certificados</div>
+      </div>
+    </a>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <a href="{{ url_for('certificados.listar') }}?estado=vigente" class="stat-card stat-vigente d-block text-decoration-none">
+      <div class="stat-icon"><i class="bi bi-check-circle-fill"></i></div>
+      <div>
+        <div class="stat-value" style="color:#1a7a4a;">{{ stats.vigentes }}</div>
+        <div class="stat-label">Vigentes</div>
+      </div>
+    </a>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <a href="{{ url_for('certificados.listar') }}?estado=por_vencer" class="stat-card stat-vencer d-block text-decoration-none">
+      <div class="stat-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+      <div>
+        <div class="stat-value" style="color:#b7770d;">{{ stats.por_vencer }}</div>
+        <div class="stat-label">Por Vencer (≤30 días)</div>
+      </div>
+    </a>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <a href="{{ url_for('certificados.listar') }}?estado=vencido" class="stat-card stat-vencido d-block text-decoration-none">
+      <div class="stat-icon"><i class="bi bi-x-circle-fill"></i></div>
+      <div>
+        <div class="stat-value" style="color:#c0392b;">{{ stats.vencidos }}</div>
+        <div class="stat-label">Vencidos</div>
+      </div>
+    </a>
+  </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row g-3 mb-4">
+  <!-- Gráfica de estado -->
+  <div class="col-md-4">
+    <div class="card h-100">
+      <div class="card-header">
+        <i class="bi bi-pie-chart-fill me-2 text-primary"></i>Estado de Certificados
+      </div>
+      <div class="card-body">
+        <div class="chart-container">
+          <canvas id="chartEstados"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gráfica vencimientos por mes -->
+  <div class="col-md-8">
+    <div class="card h-100">
+      <div class="card-header">
+        <i class="bi bi-bar-chart-fill me-2 text-primary"></i>Vencimientos Próximos 6 Meses
+      </div>
+      <div class="card-body">
+        <div class="chart-container">
+          <canvas id="chartVencimientos"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Products & Alerts Row -->
+<div class="row g-3 mb-4">
+  <!-- Top productos -->
+  <div class="col-md-6">
+    <div class="card h-100">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-bar-chart-steps me-2 text-primary"></i>Certificados por Producto</span>
+      </div>
+      <div class="card-body">
+        <div class="chart-container">
+          <canvas id="chartProductos"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alertas -->
+  <div class="col-md-6">
+    <div class="card h-100">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-bell-fill me-2 text-warning"></i>Alertas de Vencimiento</span>
+        <div class="d-flex gap-2">
+          <span class="badge" style="background:#FDEDEC;color:#c0392b;font-size:11px;">
+            {{ stats.alerta_30 }} críticos (≤30d)
+          </span>
+          <span class="badge" style="background:#FEF9E7;color:#b7770d;font-size:11px;">
+            {{ stats.alerta_60 }} en 60d
+          </span>
+        </div>
+      </div>
+      <div class="card-body" style="overflow-y:auto; max-height: 280px;">
+        {% if alertas %}
+          {% for cert in alertas %}
+            <div class="alert-item {{ cert.alerta_nivel }}">
+              <div class="vence-dot" style="background: {% if cert.alerta_nivel == 'danger' %}#e74c3c{% elif cert.alerta_nivel == 'warning' %}#f39c12{% else %}#3498db{% endif %}; margin-top:4px;"></div>
+              <div style="flex:1; min-width:0;">
+                <div style="font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                  <a href="{{ url_for('certificados.detalle', cert_id=cert.id) }}" class="text-decoration-none text-dark">
+                    {{ cert.numero_certificado }}
+                  </a>
+                </div>
+                <div style="font-size:12px; color:#6c757d; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                  {{ cert.producto[:50] }}
+                </div>
+              </div>
+              <div style="text-align:right; flex-shrink:0;">
+                <div style="font-size:12px; font-weight:700; color: {% if cert.alerta_nivel == 'danger' %}#c0392b{% elif cert.alerta_nivel == 'warning' %}#b7770d{% else %}#3498db{% endif %};">
+                  {{ cert.dias_para_vencer }}d
+                </div>
+                <div style="font-size:11px; color:#aaa;">
+                  {{ cert.fecha_vencimiento.strftime('%d/%m/%Y') if cert.fecha_vencimiento else '' }}
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+          <a href="{{ url_for('certificados.listar') }}?estado=por_vencer" class="btn btn-sm w-100 mt-2" style="background:#F0F4F9; color:#1B4F8A; border:none; font-weight:600; font-size:13px;">
+            Ver todos <i class="bi bi-arrow-right ms-1"></i>
+          </a>
+        {% else %}
+          <div class="text-center py-4 text-muted">
+            <i class="bi bi-check-circle" style="font-size:36px; color:#1a7a4a;"></i>
+            <p class="mt-2" style="font-size:14px;">No hay certificados próximos a vencer</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row g-3">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header"><i class="bi bi-lightning-charge me-2"></i>Acciones Rápidas</div>
+      <div class="card-body">
+        <div class="d-flex flex-wrap gap-2">
+          <a href="{{ url_for('certificados.nuevo') }}" class="btn btn-retie">
+            <i class="bi bi-plus-circle me-2"></i>Nuevo Certificado
+          </a>
+          <a href="{{ url_for('reportes.excel_completo') }}" class="btn btn-outline-success">
+            <i class="bi bi-file-earmark-excel me-2"></i>Exportar Excel
+          </a>
+          <a href="{{ url_for('reportes.excel_vencimientos') }}?dias=30" class="btn btn-outline-danger">
+            <i class="bi bi-calendar-x me-2"></i>Vencen en 30 días
+          </a>
+          <a href="{{ url_for('reportes.excel_vencimientos') }}?dias=90" class="btn btn-outline-warning">
+            <i class="bi bi-calendar2-week me-2"></i>Vencen en 90 días
+          </a>
+          <a href="{{ url_for('certificados.listar') }}" class="btn btn-outline-primary">
+            <i class="bi bi-search me-2"></i>Buscar Certificados
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+// Datos del servidor
+const stats = {{ stats | tojson }};
+
+// Paleta corporativa
+const COLORS = {
+  azul: '#1B4F8A',
+  azulClaro: '#2E6DB4',
+  acento: '#F4A023',
+  verde: '#1a7a4a',
+  rojo: '#c0392b',
+  amarillo: '#b7770d',
+};
+
+// ── Gráfica de estados (Doughnut) ──────────────────────────
+new Chart(document.getElementById('chartEstados'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Vigentes', 'Por Vencer', 'Vencidos'],
+    datasets: [{
+      data: [stats.vigentes, stats.por_vencer, stats.vencidos],
+      backgroundColor: ['#1a7a4a', '#F4A023', '#c0392b'],
+      borderWidth: 3, borderColor: '#fff',
+      hoverOffset: 6,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    cutout: '65%',
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: { font: { size: 12, family: 'IBM Plex Sans' }, padding: 12 }
+      },
+      tooltip: {
+        callbacks: {
+          label: ctx => ` ${ctx.label}: ${ctx.raw} (${Math.round(ctx.raw/stats.total*100)||0}%)`
+        }
+      }
+    }
+  }
+});
+
+// ── Gráfica vencimientos por mes (Bar) ─────────────────────
+const mesesData = stats.vencimientos_por_mes || [];
+new Chart(document.getElementById('chartVencimientos'), {
+  type: 'bar',
+  data: {
+    labels: mesesData.map(m => m.mes),
+    datasets: [{
+      label: 'Certificados que vencen',
+      data: mesesData.map(m => m.total),
+      backgroundColor: mesesData.map((m, i) =>
+        i === 0 ? '#c0392b' : i === 1 ? '#F4A023' : '#2E6DB4'
+      ),
+      borderRadius: 8, borderSkipped: false,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ` ${ctx.raw} certificado(s)` }}
+    },
+    scales: {
+      y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#F0F4F9' } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+// ── Gráfica por productos (Horizontal Bar) ─────────────────
+const prodData = stats.productos || [];
+new Chart(document.getElementById('chartProductos'), {
+  type: 'bar',
+  data: {
+    labels: prodData.map(p => p.producto.length > 25 ? p.producto.substring(0,25)+'…' : p.producto),
+    datasets: [{
+      label: 'Certificados',
+      data: prodData.map(p => p.total),
+      backgroundColor: '#1B4F8A',
+      borderRadius: 6,
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: ctx => ` ${ctx.raw} certificado(s)`,
+          title: (items) => prodData[items[0].dataIndex]?.producto || ''
+        }
+      }
+    },
+    scales: {
+      x: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#F0F4F9' } },
+      y: { grid: { display: false }, ticks: { font: { size: 12 } } }
+    }
+  }
+});
+</script>
+{% endblock %}

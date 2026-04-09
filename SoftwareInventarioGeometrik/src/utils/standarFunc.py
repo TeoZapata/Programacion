@@ -40,7 +40,10 @@ def cargar_invenario(self):
             nombre = material[1]
             seccion = material[2]
             barcode = material[3]
-            cantidad = int(material[4])
+            try:
+                cantidad = int(material[4])
+            except :
+                cantidad= 0
             unidad = material[5]
             precio = material[6]
             precio_total = material[7]

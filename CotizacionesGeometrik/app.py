@@ -1,50 +1,26 @@
-
 import streamlit as st
-import sqlite3
-import pandas as pd
-from datetime import datetime
-import json
-from utils.genpdf import *
-from utils.solarCalculadora import *
-from utils.gestorDB import *
-import os
 import pandas as pd
 import requests
+from datetime import datetime
+import streamlit as st
+import fitz 
+from transformers import pipeline
+from utils.genpdf import *
+from utils.gestorDB import *
+from utils.solarCalculator import *
+import pytesseract
+from PIL import Image
+import openai
 import json
-import warnings
+import re
+from openai import OpenAI
+import tempfile
+import os
+
+        
 
 
-# Configuración de la página
-st.set_page_config(
-    page_title="Sistema de Cotización Solar",
-    page_icon="☀️",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
 
-# Datos de ciudades colombianas con irradiación promedio
-CIUDADES_IRRADIACION = {
-    "Bogotá": 1200,
-    "Medellín": 1300,
-    "Cali": 1400,
-    "Barranquilla": 1500,
-    "Cartagena": 1550,
-    "Bucaramanga": 1350,
-    "Pereira": 1250,
-    "Ibagué": 1300,
-    "Santa Marta": 1600,
-    "Villavicencio": 1250,
-    "Manizales": 1200,
-    "Neiva": 1400,
-    "Soledad": 1500,
-    "Armenia": 1280,
-    "Soacha": 1200,
-    "Valledupar": 1500,
-    "Montería": 1450,
-    "Itagüí": 1300,
-    "Pasto": 1100,
-    "Palmira": 1400
-}
 
 
 # Inicializar la base de datos
@@ -52,39 +28,28 @@ CIUDADES_IRRADIACION = {
 def init_db():
     return DatabaseManager()
 
+def openAi(content, path_image):
+    
+    client = OpenAI(api_key='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')
 
-def load(system_capacity=4, module_type=0, losses=14, array_type=0, tilt=25, azimuth=180, address=None, lat=51.9607, lon=7.6261, radius=100, dataset='intl', suppress_warnings=False):
-        """
-        Imports data from PVWatts using the requests package.
-        Only fields that are of importance for this forecasting purpose
-        can be specified.
-        """
-        params = {
-            'api_key': 'mVIsZR9LB1SmgmI23BUtBFLc4fumDgWwsT2uKLhb',
-            'system_capacity': system_capacity,
-            'module_type': module_type,
-            'losses': losses,
-            'array_type': array_type,
-            'tilt': tilt,
-            'azimuth': azimuth,
-            'radius': radius,
-            'timeframe': 'hourly',
-            'dataset': dataset
-        }
-        if address:
-            params['address'] = address
-        else:
-            params['lat'] = lat
-            params['lon'] = lon
+    response = client.responses.create(
+        model="gpt-4.1",
+        input=[
+            {"role": "user", "content": f"{content}"},
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "input_image",
+                        "image_url": f"{path_image}"
+                    }
+                ]
+            }
+        ]
+    )
 
-        response = requests.get('https://developer.nrel.gov/api/pvwatts/v8.json', params)
-        print(response.request.url)
-        json = response.json()
-        if not suppress_warnings:
-            if json['errors']: warnings.warn(f'API ERROR: {json["errors"]}')
-            if json['warnings']: warnings.warn(f'API WARNING: {json["warnings"]}')
-        response.raise_for_status()
-        return f"loaded {json['station_info']['city']}"
+    return response.output_text
+
 
 db = init_db()
 
@@ -103,7 +68,7 @@ if opcion == "Nueva Cotización":
     st.header("Nueva Cotización de Sistema Solar")
     
     # Crear pestañas para organizar mejor la información
-    tab1, tab2, tab3 = st.tabs(["📋 Datos del Cliente", "⚡ Consumo Energético", "💰 Cotización"])
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(["📋 Datos del Cliente", "⚡ Consumo Energético", "🛠️ Material" ,"💰 Cotización", "prueba"])
     
     with tab1:
         st.subheader("Información del Cliente")
@@ -122,7 +87,7 @@ if opcion == "Nueva Cotización":
     with tab2:
         st.subheader("Análisis de Consumo Energético")
         
-        col1, col2 = st.columns([2, 1])
+        col1, col2 , col3= st.columns([2, 1,1])
         
         with col1:
             tipo_facturacion = st.radio(
@@ -154,59 +119,89 @@ if opcion == "Nueva Cotización":
             if consumos and all(c > 0 for c in consumos):
                 consumo_promedio = SolarCalculator.calcular_consumo_promedio(consumos, tipo_facturacion)
                 st.success(f"**Consumo promedio mensual:** {consumo_promedio:.2f} kWh")
-            import streamlit as st
-            import folium
-            from streamlit_folium import st_folium
+            
 
             # Título simple
-            st.title("Mapa Simple - Coordenadas")
+            
+        st.title("PVWATTS información")
+        
 
-            # Crear mapa centrado en Bogotá
-            mapa = folium.Map(
-                location=[4.6097, -74.0817],  # Bogotá por defecto
-                zoom_start=10
-            )
+        # Input para buscar ciudad y centrar el mapa
+        lat_centro = st.number_input("Latitud:", value=4.60971)
+        
+        lon_centro = st.number_input("Longitud:", value=-74.08175)
+        
 
-            # Mostrar el mapa y capturar datos
-            datos_mapa = st_folium(mapa, width=700, height=400)
+        # Intentar obtener coordenadas de la ciudad buscada
 
-            # Mostrar coordenadas cuando se hace clic
-            if datos_mapa['last_clicked']:
-                lat = datos_mapa['last_clicked']['lat']
-                lon = datos_mapa['last_clicked']['lng']
-                params = {
-                        'api_key': 'mVIsZR9LB1SmgmI23BUtBFLc4fumDgWwsT2uKLhb',
-                        'system_capacity': 1,
-                        'module_type': 0,
-                        'losses': 20,
-                        'array_type': 1,
-                        'tilt': 10,
-                        'azimuth': 180,
-                        'timeframe': 'hourly'
-                    }
-                params['lat'] = lat
-                params['lon'] = lon
-                try:
-                    
+
+        # Mostrar coordenadas cuando se hace clic
+       
+        params = {
+                    'api_key': 'mVIsZR9LB1SmgmI23BUtBFLc4fumDgWwsT2uKLhb',
+                    'system_capacity': 1,
+                    'module_type': 0,
+                    'losses': 20,
+                    'array_type': 1,
+                    'tilt': 10,
+                    'azimuth': 180,
+                    'timeframe': 'hourly'
+                }
+        params['lat'] = lat_centro
+        params['lon'] = lon_centro
+        try:
                 
+            
 
-                    response = requests.get('https://developer.nrel.gov/api/pvwatts/v8.json', params)
-                    print(response.request.url)
-                    resp = response.json()
-                    ac_annual = resp['outputs']['ac_annual']
+                response = requests.get('https://developer.nrel.gov/api/pvwatts/v8.json', params)
+                resp = response.json()
+                ac_annual = resp['outputs']['ac_annual']
 
-                    st.write(f"**Latitud:** {lat}")
-                    st.write(f"**Longitud:** {lon}")
-                    st.write(f"**Coordenadas:** {lat}, {lon}")
-                    st.write(f'**Outputs:** {ac_annual}')
-                except requests.exceptions.HTTPError as e:
-                    st.error(f"Error al consultar la API PVWatts: {e}")
-                except Exception as e:
-                    st.error(f"Ocurrió un error inesperado: {e}")
-            else:
-                st.write("Haz clic en el mapa para obtener las coordenadas")
-    
+                st.write(f"**Coordenadas:** {resp['station_info']['lat']}, {resp['station_info']['lon']}")
+                st.write(f'**Outputs:** {ac_annual}')
+        except requests.exceptions.HTTPError as e:
+                st.error(f"Error al consultar la API PVWatts: {e}")
+        except Exception as e:
+                st.error(f"Ocurrió un error en la Conexión: {e}")
     with tab3:
+        st.subheader("Material")
+        st.image('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80', caption='Paneles solares - Foto por Unsplash')
+
+        # Cambio de acometida
+        cambio_acometida = st.checkbox("¿Requiere cambio de acometida?")
+
+        st.markdown("### Tramos de Cableado y Tubería")
+        tramos = [
+            ("Trenzado - Medidor", "trenzado_medidor"),
+            ("Medidor - Tablero", "medidor_tablero"),
+            ("Tablero - Inversor", "tablero_inv"),
+            ("Inversor - Paneles", "inv_paneles")
+        ]
+
+        tramo_data = {}
+        for label, key in tramos:
+            st.markdown(f"**{label}**")
+            col1, col2 = st.columns(2)
+            with col1:
+                distancia = st.number_input(
+                    f"Distancia {label} (m):",
+                    min_value=0.0,
+                    value=5.0,
+                    step=0.5,
+                    key=f"dist_{key}"
+                )
+            with col2:
+                diametro = st.selectbox(
+                    f"Diámetro tubería {label}:",
+                    options=["1/2\"", "3/4\"", "1\"", "1 1/4\"", "1 1/2\"", "2\""],
+                    index=1,
+                    key=f"diam_{key}"
+                )
+            tramo_data[key] = {"distancia": distancia, "diametro": diametro}
+            st.markdown("---")
+
+        # Puedes usar tramo_data y cambio_acometida en la pestaña de cotización para cálculos o mostrar resumen.
+    with tab4:
         if nombre and cedula and ciudad and consumos and all(c > 0 for c in consumos):
             st.subheader("Parámetros de Cotización")
             
@@ -226,7 +221,9 @@ if opcion == "Nueva Cotización":
             
             # Realizar cálculos
             consumo_promedio = SolarCalculator.calcular_consumo_promedio(consumos, tipo_facturacion)
-            irradiacion = CIUDADES_IRRADIACION[ciudad]
+            # Usar ac_annual si está definido, si no usar la irradiación de la ciudad
+            irradiacion = ac_annual if 'ac_annual' in locals() else CIUDADES_IRRADIACION[ciudad]
+            
             potencia_requerida = SolarCalculator.calcular_potencia_requerida(consumo_promedio, irradiacion)
             
             costo_base = SolarCalculator.calcular_costo_base(potencia_requerida)
@@ -364,8 +361,39 @@ if opcion == "Nueva Cotización":
                     mime="application/pdf",
                     use_container_width=True
                 )
+    
         else:
             st.warning("⚠️ Complete todos los campos obligatorios en las pestañas anteriores para generar la cotización.")
+    with tab5:
+        st.subheader("Prueba")
+        uploaded_file = st.file_uploader("Selecciona un PDF o una imagen", type=["pdf", "png", "jpg", "jpeg"])
+
+        if uploaded_file is not None:
+            # Guardar archivo temporalmente
+
+            with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(uploaded_file.name)[1]) as tmp_file:
+                tmp_file.write(uploaded_file.read())
+                temp_path = tmp_file.name
+
+            # Si es PDF, extraer la primera página como imagen
+            if uploaded_file.type == "application/pdf":
+                doc = fitz.open(temp_path)
+                page = doc.load_page(0)
+                pix = page.get_pixmap()
+                img_path = temp_path + ".png"
+                pix.save(img_path)
+                st.image(img_path, caption="Primera página del PDF")    
+                path_to_send = img_path
+            else:
+                st.image(temp_path, caption="Imagen seleccionada")
+                path_to_send = temp_path
+
+            response = openAi('Saca los valores de la gráfica de consumos de la siguiente imagen', path_to_send)
+            st.write("Respuesta OpenAI:")
+            st.write(response)
+        else:
+            st.info("Por favor, selecciona un archivo PDF o una imagen.")
+
 
 elif opcion == "Historial de Cotizaciones":
     st.header("Historial de Cotizaciones")
@@ -423,3 +451,5 @@ st.markdown(
     "</div>",
     unsafe_allow_html=True
 )
+
+

@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %}Editar {{ cert.numero_certificado }} — Sistema RETIE{% endblock %}
+{% block page_title %}Editar Certificado{% endblock %}
+
+{% block content %}
+
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-header">
+        <i class="bi bi-pencil-square me-2 text-warning"></i>
+        Editar: <strong>{{ cert.numero_certificado }}</strong>
+      </div>
+      <div class="card-body">
+        <form method="POST" action="{{ url_for('certificados.editar', cert_id=cert.id) }}"
+              enctype="multipart/form-data">
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label">N° Certificado <span class="text-danger">*</span></label>
+              <input type="text" name="numero_certificado" class="form-control"
+                     value="{{ cert.numero_certificado }}" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Convenio / Marca</label>
+              <input type="text" name="convenio" class="form-control"
+                     value="{{ cert.convenio or '' }}">
+            </div>
+            <div class="col-12">
+              <label class="form-label">Producto <span class="text-danger">*</span></label>
+              <input type="text" name="producto" class="form-control"
+                     value="{{ cert.producto }}" required>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Descripción Técnica</label>
+              <textarea name="descripcion" class="form-control" rows="3">{{ cert.descripcion or '' }}</textarea>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Organismo Certificador <span class="text-danger">*</span></label>
+              <input type="text" name="organismo_certificador" class="form-control"
+                     list="organismos-list"
+                     value="{{ cert.organismo_certificador }}" required>
+              <datalist id="organismos-list">
+                <option value="ICONTEC">
+                <option value="SGS Colombia">
+                <option value="Bureau Veritas Colombia">
+                <option value="Intertek Colombia">
+                <option value="TÜV SÜD">
+              </datalist>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Fecha de Emisión</label>
+              <input type="date" name="fecha_emision" class="form-control"
+                     value="{{ cert.fecha_emision.strftime('%Y-%m-%d') if cert.fecha_emision else '' }}">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Fecha de Vencimiento</label>
+              <input type="date" name="fecha_vencimiento" class="form-control"
+                     value="{{ cert.fecha_vencimiento.strftime('%Y-%m-%d') if cert.fecha_vencimiento else '' }}">
+            </div>
+            <div class="col-12">
+              <label class="form-label">Notas internas</label>
+              <textarea name="notas" class="form-control" rows="2">{{ cert.notas or '' }}</textarea>
+            </div>
+          </div>
+
+          <!-- PDF nuevo -->
+          <div class="mb-4 p-3 rounded" style="background:#F7F9FC; border:1.5px dashed #c8d5e8;">
+            <label class="form-label">
+              <i class="bi bi-file-earmark-pdf me-1 text-danger"></i>
+              Reemplazar PDF
+              <small class="text-muted">(Opcional — deja vacío para mantener el actual)</small>
+            </label>
+            {% if cert.archivo_pdf %}
+            <div class="mb-2" style="font-size:13px; color:#1a7a4a;">
+              <i class="bi bi-check-circle me-1"></i>PDF actual: {{ cert.archivo_pdf }}
+              <a href="{{ url_for('certificados.ver_pdf', cert_id=cert.id) }}" target="_blank"
+                 class="btn btn-sm btn-outline-secondary ms-2">Ver</a>
+            </div>
+            {% endif %}
+            <input type="file" name="archivo_pdf" class="form-control" accept=".pdf">
+          </div>
+
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-warning">
+              <i class="bi bi-check2 me-2"></i>Guardar Cambios
+            </button>
+            <a href="{{ url_for('certificados.detalle', cert_id=cert.id) }}"
+               class="btn btn-outline-secondary">
+              <i class="bi bi-x me-1"></i>Cancelar
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Info lateral -->
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-header"><i class="bi bi-info-circle me-2"></i>Estado actual</div>
+      <div class="card-body text-center py-4">
+        <span class="badge fs-6 px-3 py-2" style="
+          background: {% if cert.estado_certificado == 'vigente' %}#D5F5E3{% elif cert.estado_certificado == 'por_vencer' %}#FEF9E7{% else %}#FDEDEC{% endif %};
+          color: {% if cert.estado_certificado == 'vigente' %}#1a7a4a{% elif cert.estado_certificado == 'por_vencer' %}#b7770d{% else %}#c0392b{% endif %};
+          font-weight: 700; border-radius: 10px;">
+          {% if cert.estado_certificado == 'vigente' %}✅ VIGENTE
+          {% elif cert.estado_certificado == 'por_vencer' %}⚠️ POR VENCER
+          {% else %}❌ VENCIDO{% endif %}
+        </span>
+        {% if cert.dias_para_vencer is not none %}
+        <div class="mt-2" style="font-size:14px; color:#666;">
+          {% if cert.dias_para_vencer >= 0 %}
+            {{ cert.dias_para_vencer }} días restantes
+          {% else %}
+            {{ cert.dias_para_vencer|abs }} días vencido
+          {% endif %}
+        </div>
+        {% endif %}
+        <hr>
+        <small class="text-muted" style="font-size:12px;">
+          Registrado: {{ cert.fecha_registro.strftime('%d/%m/%Y') if cert.fecha_registro else '' }}
+        </small>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

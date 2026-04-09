@@ -34,7 +34,7 @@ def obtener_categorias():
     subcategoria = {
         "ELÉCTRICO AC": "00",
         "ELÉCTRICO DC": "01",
-        "ELÉCTRICO": "02",
+        "ELÉCTRICA": "02",
         "ESTRUCTURA": "03",
         "PFV": "04",
         "TORNILLERÍA": "05",
@@ -57,14 +57,16 @@ def obtener_categorias():
         "RODILLAS": "22",
         "MANOS": "23",
         "OCULAR": "24",
-        "PRENDA": "25",
-        "ELECTRODOMÉSTICO": "26",
-        "INTERNET": "27",
-        "ROTULACIÓN": "28",
-        "ALMACENAMIENTO": "29",
-        "VARIOS": "30",
-        "SILLAS": "31",
-        "MESAS": "32",
+        "AUDITIVO": "25",
+        "PRENDA": "26",
+        "ELECTRODOMÉSTICO": "27",
+        "INTERNET": "28",
+        "ROTULACIÓN": "29",
+        "ALMACENAMIENTO": "30",
+        "VARIOS": "31",
+        "SILLAS": "32",
+        "MESAS": "33",
+        "PAPELERÍA":"34",
         "None": "xx"
     }
     return categoria, subcategoria

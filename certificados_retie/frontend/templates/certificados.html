@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+{% block title %}Certificados — Sistema RETIE{% endblock %}
+{% block page_title %}Certificados RETIE{% endblock %}
+
+{% block content %}
+
+<!-- Filtros de búsqueda -->
+<div class="card mb-4">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <span><i class="bi bi-funnel-fill me-2"></i>Búsqueda y Filtros</span>
+    <a href="{{ url_for('certificados.listar') }}" class="btn btn-sm btn-outline-secondary">
+      <i class="bi bi-x-circle me-1"></i>Limpiar
+    </a>
+  </div>
+  <div class="card-body">
+    <form method="GET" action="{{ url_for('certificados.listar') }}">
+      <div class="row g-2">
+        <div class="col-md-3">
+          <label class="form-label">N° Certificado</label>
+          <input type="text" name="numero_certificado" class="form-control form-control-sm"
+                 placeholder="Buscar por número..." value="{{ filtros.numero_certificado }}">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Producto</label>
+          <input type="text" name="producto" class="form-control form-control-sm"
+                 placeholder="Nombre del producto..." value="{{ filtros.producto }}">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Organismo Certificador</label>
+          <input type="text" name="organismo" class="form-control form-control-sm"
+                 placeholder="Organismo..." value="{{ filtros.organismo }}">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Estado</label>
+          <select name="estado" class="form-select form-select-sm">
+            <option value="todos" {% if filtros.estado == 'todos' %}selected{% endif %}>Todos</option>
+            <option value="vigente" {% if filtros.estado == 'vigente' %}selected{% endif %}>✅ Vigente</option>
+            <option value="por_vencer" {% if filtros.estado == 'por_vencer' %}selected{% endif %}>⚠️ Por Vencer</option>
+            <option value="vencido" {% if filtros.estado == 'vencido' %}selected{% endif %}>❌ Vencido</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Vence desde</label>
+          <input type="date" name="fecha_venc_desde" class="form-control form-control-sm"
+                 value="{{ filtros.fecha_venc_desde }}">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Vence hasta</label>
+          <input type="date" name="fecha_venc_hasta" class="form-control form-control-sm"
+                 value="{{ filtros.fecha_venc_hasta }}">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Búsqueda general</label>
+          <input type="text" name="texto" class="form-control form-control-sm"
+                 placeholder="Buscar en todos los campos..." value="{{ filtros.texto }}">
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+          <button type="submit" class="btn btn-retie btn-sm w-100">
+            <i class="bi bi-search me-1"></i>Buscar
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Results Table -->
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <span>
+      <i class="bi bi-table me-2"></i>
+      Resultados:
+      <strong>{{ total }}</strong> certificado{{ 's' if total != 1 else '' }}
+    </span>
+    <div class="d-flex gap-2">
+      <a href="{{ url_for('reportes.excel_completo') }}" class="btn btn-sm btn-outline-success">
+        <i class="bi bi-file-earmark-excel me-1"></i>Excel
+      </a>
+      <a href="{{ url_for('certificados.nuevo') }}" class="btn btn-retie btn-sm">
+        <i class="bi bi-plus-lg me-1"></i>Nuevo
+      </a>
+    </div>
+  </div>
+
+  <div class="card-body p-0">
+    {% if certificados %}
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead>
+          <tr>
+            <th>N° Certificado</th>
+            <th>Producto</th>
+            <th>Organismo Certificador</th>
+            <th>Fecha Emisión</th>
+            <th>Fecha Vencimiento</th>
+            <th>Estado</th>
+            <th>Días</th>
+            <th style="width:120px;">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for cert in certificados %}
+          <tr>
+            <td>
+              <a href="{{ url_for('certificados.detalle', cert_id=cert.id) }}"
+                 class="fw-semibold text-decoration-none" style="color: var(--azul-retie);">
+                {{ cert.numero_certificado }}
+              </a>
+            </td>
+            <td>
+              <div style="max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"
+                   title="{{ cert.producto }}">
+                {{ cert.producto }}
+              </div>
+              {% if cert.convenio %}
+                <small class="text-muted">{{ cert.convenio[:40] }}</small>
+              {% endif %}
+            </td>
+            <td>
+              <div style="max-width:160px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"
+                   title="{{ cert.organismo_certificador }}">
+                {{ cert.organismo_certificador }}
+              </div>
+            </td>
+            <td>{{ cert.fecha_emision.strftime('%d/%m/%Y') if cert.fecha_emision else '—' }}</td>
+            <td>
+              {% if cert.fecha_vencimiento %}
+                <strong {% if cert.alerta_nivel == 'danger' %}style="color:#c0392b"
+                        {% elif cert.alerta_nivel == 'warning' %}style="color:#b7770d"{% endif %}>
+                  {{ cert.fecha_vencimiento.strftime('%d/%m/%Y') }}
+                </strong>
+              {% else %}
+                <span class="text-muted">Sin fecha</span>
+              {% endif %}
+            </td>
+            <td>
+              <span class="badge badge-{{ cert.estado_certificado }}" style="padding: 5px 10px; font-size: 11px; border-radius: 20px;">
+                {% if cert.estado_certificado == 'vigente' %}✅ Vigente
+                {% elif cert.estado_certificado == 'por_vencer' %}⚠️ Por Vencer
+                {% elif cert.estado_certificado == 'vencido' %}❌ Vencido
+                {% endif %}
+              </span>
+            </td>
+            <td>
+              {% if cert.dias_para_vencer is not none %}
+                <span class="fw-bold" style="color:
+                  {% if cert.dias_para_vencer < 0 %}#c0392b
+                  {% elif cert.dias_para_vencer <= 30 %}#c0392b
+                  {% elif cert.dias_para_vencer <= 60 %}#b7770d
+                  {% else %}#1a7a4a{% endif %};">
+                  {% if cert.dias_para_vencer < 0 %}
+                    {{ cert.dias_para_vencer|abs }}d vencido
+                  {% else %}
+                    {{ cert.dias_para_vencer }}d
+                  {% endif %}
+                </span>
+              {% else %}
+                <span class="text-muted">—</span>
+              {% endif %}
+            </td>
+            <td>
+              <div class="d-flex gap-1">
+                <a href="{{ url_for('certificados.detalle', cert_id=cert.id) }}"
+                   class="btn btn-sm btn-outline-primary" title="Ver detalle">
+                  <i class="bi bi-eye"></i>
+                </a>
+                <a href="{{ url_for('certificados.editar', cert_id=cert.id) }}"
+                   class="btn btn-sm btn-outline-warning" title="Editar">
+                  <i class="bi bi-pencil"></i>
+                </a>
+                {% if cert.archivo_pdf %}
+                <a href="{{ url_for('certificados.ver_pdf', cert_id=cert.id) }}" target="_blank"
+                   class="btn btn-sm btn-outline-secondary" title="Ver PDF">
+                  <i class="bi bi-file-pdf"></i>
+                </a>
+                {% endif %}
+                {% if current_user.is_admin %}
+                <form method="POST" action="{{ url_for('certificados.eliminar', cert_id=cert.id) }}"
+                      onsubmit="return confirm('¿Eliminar certificado {{ cert.numero_certificado }}?')">
+                  <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar">
+                    <i class="bi bi-trash3"></i>
+                  </button>
+                </form>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Paginación -->
+    {% if paginacion.pages > 1 %}
+    <div class="card-footer d-flex justify-content-between align-items-center">
+      <small class="text-muted">
+        Página {{ paginacion.page }} de {{ paginacion.pages }}
+        ({{ paginacion.total }} total)
+      </small>
+      <nav>
+        <ul class="pagination pagination-sm mb-0">
+          {% if paginacion.has_prev %}
+          <li class="page-item">
+            <a class="page-link" href="{{ url_for('certificados.listar', page=paginacion.prev_num, **filtros) }}">
+              <i class="bi bi-chevron-left"></i>
+            </a>
+          </li>
+          {% endif %}
+
+          {% for p in paginacion.iter_pages(left_edge=2, right_edge=2, left_current=2, right_current=2) %}
+            {% if p %}
+              <li class="page-item {% if p == paginacion.page %}active{% endif %}">
+                <a class="page-link" href="{{ url_for('certificados.listar', page=p, **filtros) }}">{{ p }}</a>
+              </li>
+            {% else %}
+              <li class="page-item disabled"><span class="page-link">…</span></li>
+            {% endif %}
+          {% endfor %}
+
+          {% if paginacion.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="{{ url_for('certificados.listar', page=paginacion.next_num, **filtros) }}">
+              <i class="bi bi-chevron-right"></i>
+            </a>
+          </li>
+          {% endif %}
+        </ul>
+      </nav>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="text-center py-5 text-muted">
+      <i class="bi bi-file-earmark-x" style="font-size:52px; opacity:.3;"></i>
+      <p class="mt-3">No se encontraron certificados con los filtros aplicados.</p>
+      <a href="{{ url_for('certificados.nuevo') }}" class="btn btn-retie btn-sm">
+        <i class="bi bi-plus me-1"></i>Registrar primer certificado
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

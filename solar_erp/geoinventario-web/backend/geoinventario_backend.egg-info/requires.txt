@@ -1,0 +1,14 @@
+alembic<2.0,>=1.13
+email-validator<3.0,>=2.2
+fastapi<1.0,>=0.115
+pydantic-settings<3.0,>=2.6
+python-jose[cryptography]<4.0,>=3.3
+python-multipart<1.0,>=0.0.9
+sqlalchemy<3.0,>=2.0
+psycopg[binary]<4.0,>=3.2
+uvicorn[standard]<1.0,>=0.32
+passlib[bcrypt]<2.0,>=1.7
+
+[dev]
+httpx<1.0,>=0.28
+pytest<9.0,>=8.3

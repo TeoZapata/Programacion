@@ -79,7 +79,7 @@
  [],
  False,
  False,
- 1750260739,
+ 1750783628,
  [('runw.exe',
    'D:\\Users\\Mateo\\Documents\\GitHub\\Programacion\\SoftwareInventarioGeometrik\\env\\Lib\\site-packages\\PyInstaller\\bootloader\\Windows-64bit-intel\\runw.exe',
    'EXECUTABLE')],

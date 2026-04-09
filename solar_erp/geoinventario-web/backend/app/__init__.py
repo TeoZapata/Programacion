@@ -1,0 +1,1 @@
+"""GeoInventario backend package."""

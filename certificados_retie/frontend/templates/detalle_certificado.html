@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+{% block title %}{{ cert.numero_certificado }} — Sistema RETIE{% endblock %}
+{% block page_title %}Detalle del Certificado{% endblock %}
+
+{% block content %}
+
+<!-- Header del certificado -->
+<div class="card mb-4" style="background: linear-gradient(135deg, #0D2B4E, #1B4F8A); color: white; border: none;">
+  <div class="card-body p-4">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+      <div>
+        <div style="font-size: 11px; letter-spacing: 1px; opacity: .7; text-transform: uppercase; margin-bottom: 4px;">
+          Certificado N°
+        </div>
+        <h2 style="font-size: 26px; font-weight: 700; margin: 0;">{{ cert.numero_certificado }}</h2>
+        <p style="font-size: 15px; opacity: .85; margin-top: 6px;">{{ cert.producto }}</p>
+      </div>
+      <div class="text-end">
+        <span class="badge fs-6 px-3 py-2" style="
+          background: {% if cert.estado_certificado == 'vigente' %}rgba(26,122,74,.3){% elif cert.estado_certificado == 'por_vencer' %}rgba(244,160,35,.3){% else %}rgba(192,57,43,.3){% endif %};
+          color: {% if cert.estado_certificado == 'vigente' %}#7DFFB4{% elif cert.estado_certificado == 'por_vencer' %}#FFD97D{% else %}#FFAAAA{% endif %};
+          border-radius: 10px; font-weight: 700;">
+          {% if cert.estado_certificado == 'vigente' %}✅ VIGENTE
+          {% elif cert.estado_certificado == 'por_vencer' %}⚠️ POR VENCER
+          {% else %}❌ VENCIDO{% endif %}
+        </span>
+        {% if cert.dias_para_vencer is not none %}
+          <div style="margin-top: 8px; font-size: 14px; opacity: .8;">
+            {% if cert.dias_para_vencer >= 0 %}
+              {{ cert.dias_para_vencer }} días restantes
+            {% else %}
+              {{ cert.dias_para_vencer|abs }} días vencido
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- Información del certificado -->
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-header">
+        <i class="bi bi-info-circle-fill me-2 text-primary"></i>Información del Certificado
+      </div>
+      <div class="card-body">
+        {% macro info_row(label, value, icon='') %}
+        <div class="row mb-3">
+          <div class="col-5" style="font-size:13px; font-weight:600; color:#666;">
+            {% if icon %}<i class="bi bi-{{ icon }} me-1"></i>{% endif %}{{ label }}
+          </div>
+          <div class="col-7" style="font-size:14px;">
+            {{ value if value else '<span class="text-muted">—</span>' | safe }}
+          </div>
+        </div>
+        {% endmacro %}
+
+        {{ info_row('N° Certificado', cert.numero_certificado, 'hash') }}
+        {{ info_row('Producto', cert.producto, 'box-seam') }}
+        {{ info_row('Organismo', cert.organismo_certificador, 'building') }}
+        {{ info_row('Convenio', cert.convenio, 'bookmark') }}
+
+        <hr>
+
+        {{ info_row('Fecha Emisión',
+          cert.fecha_emision.strftime('%d de %B de %Y').replace('January','enero').replace('February','febrero')
+          if cert.fecha_emision else None, 'calendar-check') }}
+
+        <div class="row mb-3">
+          <div class="col-5" style="font-size:13px; font-weight:600; color:#666;">
+            <i class="bi bi-calendar-x me-1"></i>Fecha Vencimiento
+          </div>
+          <div class="col-7" style="font-size:14px;">
+            {% if cert.fecha_vencimiento %}
+              <strong style="color:
+                {% if cert.alerta_nivel == 'danger' %}#c0392b
+                {% elif cert.alerta_nivel == 'warning' %}#b7770d
+                {% else %}#1a7a4a{% endif %};">
+                {{ cert.fecha_vencimiento.strftime('%d/%m/%Y') }}
+              </strong>
+            {% else %}
+              <span class="text-muted">No especificada</span>
+            {% endif %}
+          </div>
+        </div>
+
+        {{ info_row('Registrado',
+          cert.fecha_registro.strftime('%d/%m/%Y %H:%M') if cert.fecha_registro else None, 'clock') }}
+
+        {% if cert.descripcion %}
+        <hr>
+        <div>
+          <div style="font-size:13px; font-weight:600; color:#666; margin-bottom:6px;">
+            <i class="bi bi-text-paragraph me-1"></i>Descripción Técnica
+          </div>
+          <p style="font-size:14px; line-height:1.6; color:#333;">{{ cert.descripcion }}</p>
+        </div>
+        {% endif %}
+
+        {% if cert.notas %}
+        <div style="background:#F7F9FC; border-radius:8px; padding:12px; margin-top:8px;">
+          <strong style="font-size:12px; color:#6c757d;"><i class="bi bi-chat-text me-1"></i>NOTAS</strong>
+          <p style="font-size:13px; margin:4px 0 0;">{{ cert.notas }}</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- PDF y OCR -->
+  <div class="col-lg-6">
+    {% if cert.archivo_pdf %}
+    <div class="card mb-3">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-file-pdf me-2 text-danger"></i>Documento PDF</span>
+        <div class="d-flex gap-2">
+          <a href="{{ url_for('certificados.ver_pdf', cert_id=cert.id) }}" target="_blank"
+             class="btn btn-sm btn-outline-primary">
+            <i class="bi bi-eye me-1"></i>Ver
+          </a>
+          <a href="{{ url_for('certificados.descargar_pdf', cert_id=cert.id) }}"
+             class="btn btn-sm btn-retie">
+            <i class="bi bi-download me-1"></i>Descargar
+          </a>
+        </div>
+      </div>
+      <div class="card-body p-0">
+        <iframe
+          src="{{ url_for('certificados.ver_pdf', cert_id=cert.id) }}"
+          class="pdf-viewer" style="height:450px;">
+        </iframe>
+      </div>
+    </div>
+    {% else %}
+    <div class="card mb-3">
+      <div class="card-body text-center py-4 text-muted">
+        <i class="bi bi-file-earmark-x" style="font-size:40px; opacity:.3;"></i>
+        <p class="mt-2">No hay documento PDF adjunto</p>
+        <a href="{{ url_for('certificados.editar', cert_id=cert.id) }}"
+           class="btn btn-sm btn-outline-primary">
+          <i class="bi bi-upload me-1"></i>Adjuntar PDF
+        </a>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Info OCR -->
+    {% if cert.texto_ocr %}
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-cpu me-2 text-warning"></i>Datos extraídos por OCR</span>
+        {% if cert.confianza_ocr %}
+        <span class="badge" style="background:#F0F4F9; color:#1B4F8A;">
+          Confianza: {{ (cert.confianza_ocr * 100)|int }}%
+        </span>
+        {% endif %}
+      </div>
+      <div class="card-body">
+        <details>
+          <summary style="cursor:pointer; font-size:13px; color:#6c757d;">Ver texto extraído</summary>
+          <pre style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#555; background:#F7F9FC;
+                      border-radius:8px; padding:12px; margin-top:8px; white-space:pre-wrap;
+                      max-height:200px; overflow-y:auto;">{{ cert.texto_ocr[:1500] }}{% if cert.texto_ocr|length > 1500 %}…{% endif %}</pre>
+        </details>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Acciones -->
+<div class="card mt-4">
+  <div class="card-body">
+    <div class="d-flex gap-2 flex-wrap">
+      <a href="{{ url_for('certificados.editar', cert_id=cert.id) }}" class="btn btn-warning">
+        <i class="bi bi-pencil me-2"></i>Editar Certificado
+      </a>
+      <a href="{{ url_for('certificados.listar') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-2"></i>Volver a la lista
+      </a>
+      {% if cert.archivo_pdf %}
+      <a href="{{ url_for('certificados.descargar_pdf', cert_id=cert.id) }}" class="btn btn-outline-primary">
+        <i class="bi bi-download me-2"></i>Descargar PDF
+      </a>
+      {% endif %}
+      {% if current_user.is_admin %}
+      <form method="POST" action="{{ url_for('certificados.eliminar', cert_id=cert.id) }}" class="ms-auto"
+            onsubmit="return confirm('¿Estás seguro de eliminar este certificado?')">
+        <button type="submit" class="btn btn-outline-danger">
+          <i class="bi bi-trash3 me-1"></i>Eliminar
+        </button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}

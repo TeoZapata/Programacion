@@ -1,0 +1,46 @@
+# ============================================================
+# Sistema de Gestión de Certificados RETIE
+# requirements.txt — Compatible Windows, Linux, Mac
+# ============================================================
+
+# Web Framework
+Flask==3.0.0
+Flask-Login==0.6.3
+Flask-WTF==1.2.1
+Flask-SQLAlchemy==3.1.1
+Flask-Migrate==4.0.5
+Flask-CORS==4.0.0
+
+# Database
+SQLAlchemy==2.0.23
+alembic==1.13.0
+# NOTA: psycopg2-binary NO está incluido — requiere PostgreSQL instalado.
+# Solo agrégalo si usas PostgreSQL en producción:
+#   Linux/Mac : pip install psycopg2-binary
+#   Windows   : pip install psycopg2-binary --only-binary=:all:
+
+# Security & Auth
+Werkzeug==3.0.1
+PyJWT==2.8.0
+python-dotenv==1.0.0
+
+# OCR & PDF Processing
+Pillow==10.2.0
+pytesseract==0.3.10
+opencv-python-headless==4.9.0.80
+PyMuPDF==1.23.26
+pdfplumber==0.10.3
+
+# Data & Reports
+openpyxl==3.1.2
+xlsxwriter==3.1.9
+
+# File handling
+python-multipart==0.0.6
+
+# Date utilities
+python-dateutil==2.8.2
+
+# Testing
+pytest==7.4.3
+pytest-flask==1.3.0
