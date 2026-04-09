@@ -23,3 +23,32 @@ export type Material = {
   stock: number;
   unit: string;
 };
+
+export type MovementType = "in" | "out" | "adjustment";
+
+export type InventoryMovement = {
+  created_at: string;
+  id: number;
+  material_id: number;
+  movement_type: MovementType;
+  note: string | null;
+  quantity: number;
+  unit_cost: number | null;
+  user_id: number;
+};
+
+export type CreateMaterialPayload = {
+  description?: string;
+  minimum_stock: number;
+  name: string;
+  sku: string;
+  unit: string;
+};
+
+export type CreateMovementPayload = {
+  material_id: number;
+  movement_type: MovementType;
+  note?: string;
+  quantity: number;
+  unit_cost?: number;
+};

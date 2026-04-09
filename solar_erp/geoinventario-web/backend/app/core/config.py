@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     secret_key: str = "change-me"
     access_token_expire_minutes: int = 60
     database_url: str = "sqlite:///./geoinventario.db"
-    backend_cors_origins: str = "http://localhost:5173"
+    backend_cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
     first_superuser_email: str = "admin@geoinventario.local"
     first_superuser_name: str = "Administrador"
     first_superuser_password: str = "admin123"

@@ -23,7 +23,9 @@ a {
 }
 
 button,
-input {
+input,
+select,
+textarea {
   font: inherit;
 }
 
@@ -104,6 +106,15 @@ input {
   background: #fff;
 }
 
+select,
+textarea {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border-radius: 14px;
+  border: 1px solid #c7d7cb;
+  background: #fff;
+}
+
 button,
 .button-link {
   display: inline-flex;
@@ -142,6 +153,14 @@ button,
   color: #8a2531;
 }
 
+.success-message {
+  margin: 0;
+  padding: 0.85rem 1rem;
+  border-radius: 14px;
+  background: #e7f7eb;
+  color: #1f6a34;
+}
+
 .hint-text,
 .status-panel {
   margin: 0;
@@ -168,6 +187,31 @@ button,
   border-radius: 18px;
   background: #f5f8f5;
   border: 1px solid #dbe6dd;
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.panel-card {
+  padding: 1.25rem;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #dbe6dd;
+  box-shadow: 0 16px 32px rgba(17, 34, 51, 0.06);
+}
+
+.compact-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.text-area {
+  resize: vertical;
+  min-height: 96px;
 }
 
 .info-card h2 {
@@ -210,5 +254,9 @@ button,
   .content-card {
     padding: 1.25rem;
     border-radius: 20px;
+  }
+
+  .compact-grid {
+    grid-template-columns: 1fr;
   }
 }

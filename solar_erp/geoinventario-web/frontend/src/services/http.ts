@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000/api/v1";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "/api/v1";
 
 type RequestOptions = {
   body?: unknown;
@@ -28,9 +28,15 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
   if (!response.ok) {
     let message = `Request failed with status ${response.status}`;
     try {
-      const payload = (await response.json()) as { detail?: string };
-      if (payload.detail) {
+      const payload = (await response.json()) as {
+        detail?: string | Array<{ msg?: string }> | Record<string, unknown>;
+      };
+      if (typeof payload.detail === "string") {
         message = payload.detail;
+      } else if (Array.isArray(payload.detail) && payload.detail.length > 0) {
+        message = payload.detail.map((item) => item.msg ?? "Validation error").join(", ");
+      } else if (payload.detail) {
+        message = "Request validation failed";
       }
     } catch {
       // Keep the default message if the response body is not JSON.

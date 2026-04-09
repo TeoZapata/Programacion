@@ -1,9 +1,12 @@
 {
   "compilerOptions": {
     "composite": true,
+    "lib": ["ES2020", "DOM", "WebWorker"],
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "types": ["node"]
   },
   "include": ["vite.config.ts"]
 }
